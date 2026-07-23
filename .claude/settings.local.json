@@ -4,7 +4,8 @@
       "Bash(mkdir -p auth/adapters/web auth/adapters/persistence)",
       "Bash(echo \"export {};\")",
       "Bash(rm -rf ana-sayfa firmalar)",
-      "Bash(rm -f auth/index.ts ikinci-el-pazar/index.ts is-ilanlari/index.ts)"
+      "Bash(rm -f auth/index.ts ikinci-el-pazar/index.ts is-ilanlari/index.ts)",
+      "Bash(PGPASSWORD=asb docker exec -e PGPASSWORD=asb appforasb-postgres-1 psql -h localhost -U asb -d asb_platform -c \"select current_user;\")"
     ]
   }
 }
