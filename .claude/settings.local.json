@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p auth/adapters/web auth/adapters/persistence)",
+      "Bash(echo \"export {};\")",
+      "Bash(rm -rf ana-sayfa firmalar)",
+      "Bash(rm -f auth/index.ts ikinci-el-pazar/index.ts is-ilanlari/index.ts)"
+    ]
+  }
+}

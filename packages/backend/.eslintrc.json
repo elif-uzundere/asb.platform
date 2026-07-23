@@ -1,0 +1,43 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "tsconfig.json",
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint", "boundaries"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:boundaries/recommended"
+  ],
+  "settings": {
+    "boundaries/elements": [
+      { "type": "domain", "pattern": "src/modules/*/domain/**" },
+      { "type": "application", "pattern": "src/modules/*/application/**" },
+      { "type": "adapters-public", "pattern": "src/modules/*/adapters/public/**" },
+      { "type": "adapters", "pattern": "src/modules/*/adapters/**" },
+      { "type": "module-root", "pattern": "src/modules/*/*.module.ts" },
+      { "type": "shared", "pattern": "src/shared/**" }
+    ]
+  },
+  "rules": {
+    "boundaries/element-types": [
+      "error",
+      {
+        "default": "disallow",
+        "rules": [
+          { "from": "domain", "allow": ["shared"] },
+          { "from": "application", "allow": ["domain", "shared", "adapters-public"] },
+          { "from": "adapters", "allow": ["domain", "application", "shared", "adapters-public"] },
+          { "from": "module-root", "allow": ["domain", "application", "adapters", "shared"] },
+          { "from": "shared", "allow": ["shared"] }
+        ]
+      }
+    ]
+  },
+  "env": {
+    "node": true,
+    "jest": true
+  },
+  "ignorePatterns": ["dist", "node_modules"]
+}

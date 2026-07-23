@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build-and-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build shared-types
+        run: npm run build --workspace=@asb/shared-types
+
+      - name: Generate Prisma client
+        run: npm run prisma:generate --workspace=@asb/backend
+
+      - name: Lint backend (eslint-plugin-boundaries dahil)
+        run: npm run lint --workspace=@asb/backend
+
+      - name: Build backend
+        run: npm run build --workspace=@asb/backend
+
+      - name: Test backend
+        run: npm run test --workspace=@asb/backend

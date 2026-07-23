@@ -1,0 +1,310 @@
+// ASB Platform — Veritabanı Şeması
+// Kaynak: docs/teknikPlan.md Bölüm 4 (15 tablo, FAZ 0'da tek seferde tanımlandı)
+// Bu dosya ortaktır — modül bazlı bölünmez (CLAUDE.md kural 4)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── 4.1 Kullanıcı ve Firma ──────────────────────────────────────────────
+
+enum KullaniciRolu {
+  ziyaretci
+  firma_calisani
+  firma_yetkilisi
+  admin
+}
+
+model Kullanici {
+  id                String   @id @default(uuid())
+  email             String   @unique @db.VarChar(150)
+  telefon           String?  @unique @db.VarChar(20)
+  sifreHash         String?  @map("sifre_hash") @db.VarChar(255)
+  ad                String   @db.VarChar(60)
+  soyad             String   @db.VarChar(60)
+  firmaId           String?  @map("firma_id")
+  firma             Firma?   @relation(fields: [firmaId], references: [id])
+  rol               KullaniciRolu
+  epostaDogrulandi  Boolean  @default(false) @map("eposta_dogrulandi")
+  olusturmaTarihi   DateTime @default(now()) @map("olusturma_tarihi")
+  guncellemeTarihi  DateTime @updatedAt @map("guncelleme_tarihi")
+
+  olusturduguDuyurular Duyuru[]              @relation("DuyuruOlusturanAdmin")
+  isIlanlariOlusturan  IsIlani[]             @relation("IsIlaniOlusturanKullanici")
+  isBasvurulari        IsBasvurusu[]
+  ikinciElIlanlari     IkinciElIlani[]
+  cookzoneSiparisleri  CookzoneSiparis[]
+  acilDurumBildirimleri AcilDurumBildirimi[]
+  paketTeslimleri      PaketTeslimi[]
+
+  @@map("kullanici")
+}
+
+enum FirmaOnayDurumu {
+  beklemede
+  onaylandi
+  reddedildi
+}
+
+model Firma {
+  id              String          @id @default(uuid())
+  ad              String          @db.VarChar(150)
+  logoUrl         String?         @map("logo_url") @db.VarChar(255)
+  sektor          String          @db.VarChar(80)
+  adres           String          @db.VarChar(255)
+  telefon         String?         @db.VarChar(20)
+  eposta          String?         @db.VarChar(150)
+  onayDurumu      FirmaOnayDurumu @default(beklemede) @map("onay_durumu")
+  aktif           Boolean         @default(true)
+  olusturmaTarihi DateTime        @default(now()) @map("olusturma_tarihi")
+
+  calisanlar     Kullanici[]
+  isIlanlari     IsIlani[]
+  bolgeNoktalari BolgeNoktasi[]
+
+  @@map("firma")
+}
+
+// ── 4.2 Ana Sayfa İçerikleri ─────────────────────────────────────────────
+
+model Banner {
+  id        String  @id @default(uuid())
+  gorselUrl String  @map("gorsel_url") @db.VarChar(255)
+  linkUrl   String? @map("link_url") @db.VarChar(255)
+  sira      Int
+  aktif     Boolean @default(true)
+
+  @@map("banner")
+}
+
+model Duyuru {
+  id                String    @id @default(uuid())
+  baslik            String    @db.VarChar(200)
+  icerik            String
+  kategori          String?   @db.VarChar(60)
+  yayinTarihi       DateTime  @default(now()) @map("yayin_tarihi")
+  olusturanAdminId  String    @map("olusturan_admin_id")
+  olusturanAdmin    Kullanici @relation("DuyuruOlusturanAdmin", fields: [olusturanAdminId], references: [id])
+
+  @@map("duyuru")
+}
+
+model IsOrtagi {
+  id       String  @id @default(uuid())
+  ad       String  @db.VarChar(150)
+  logoUrl  String  @map("logo_url") @db.VarChar(255)
+  kategori String? @db.VarChar(80)
+
+  @@map("is_ortagi")
+}
+
+// ── 4.3 İş İlanları (Faz 2) ──────────────────────────────────────────────
+
+enum IsIlaniDurumu {
+  aktif
+  kapali
+}
+
+model IsIlani {
+  id                    String        @id @default(uuid())
+  firmaId               String        @map("firma_id")
+  firma                 Firma         @relation(fields: [firmaId], references: [id])
+  baslik                String        @db.VarChar(150)
+  aciklama              String
+  konum                 String?       @db.VarChar(150)
+  yayinTarihi           DateTime      @default(now()) @map("yayin_tarihi")
+  durum                 IsIlaniDurumu @default(aktif)
+  olusturanKullaniciId  String        @map("olusturan_kullanici_id")
+  olusturanKullanici    Kullanici     @relation("IsIlaniOlusturanKullanici", fields: [olusturanKullaniciId], references: [id])
+
+  basvurular IsBasvurusu[]
+
+  @@map("is_ilani")
+}
+
+enum IsBasvurusuDurumu {
+  beklemede
+  incelendi
+  reddedildi
+  kabul
+}
+
+model IsBasvurusu {
+  id             String            @id @default(uuid())
+  isIlaniId      String            @map("is_ilani_id")
+  isIlani        IsIlani           @relation(fields: [isIlaniId], references: [id])
+  kullaniciId    String            @map("kullanici_id")
+  kullanici      Kullanici         @relation(fields: [kullaniciId], references: [id])
+  basvuruTarihi  DateTime          @default(now()) @map("basvuru_tarihi")
+  durum          IsBasvurusuDurumu @default(beklemede)
+
+  @@map("is_basvurusu")
+}
+
+// ── 4.4 İkinci El Pazar (Faz 2) ──────────────────────────────────────────
+
+enum IkinciElIlaniDurumu {
+  aktif
+  satildi
+  pasif
+}
+
+model IkinciElIlani {
+  id              String              @id @default(uuid())
+  kullaniciId     String              @map("kullanici_id")
+  kullanici       Kullanici           @relation(fields: [kullaniciId], references: [id])
+  baslik          String              @db.VarChar(150)
+  aciklama        String
+  fiyat           Decimal             @db.Decimal(10, 2)
+  kategori        String              @db.VarChar(80)
+  fotografUrls    String[]            @map("fotograf_urls")
+  durum           IkinciElIlaniDurumu @default(aktif)
+  olusturmaTarihi DateTime            @default(now()) @map("olusturma_tarihi")
+
+  @@map("ikinci_el_ilani")
+}
+
+// ── 4.5 Bölge İçi Navigasyon (Faz 2) ─────────────────────────────────────
+
+enum BolgeNoktasiTuru {
+  firma
+  giris_cikis
+  ortak_alan
+  acil_nokta
+}
+
+model BolgeNoktasi {
+  id      String           @id @default(uuid())
+  ad      String           @db.VarChar(150)
+  tur     BolgeNoktasiTuru
+  firmaId String?          @map("firma_id")
+  firma   Firma?           @relation(fields: [firmaId], references: [id])
+  enlem   Decimal          @db.Decimal(9, 6)
+  boylam  Decimal          @db.Decimal(9, 6)
+
+  cookzoneIsletmeleri  CookzoneIsletme[]
+  acilDurumBildirimleri AcilDurumBildirimi[]
+  paketTeslimleri      PaketTeslimi[]
+
+  @@map("bolge_noktasi")
+}
+
+// ── 4.6 Cookzone (Faz 3) ──────────────────────────────────────────────────
+
+model CookzoneIsletme {
+  id             String       @id @default(uuid())
+  ad             String       @db.VarChar(150)
+  bolgeNoktasiId String       @map("bolge_noktasi_id")
+  bolgeNoktasi   BolgeNoktasi @relation(fields: [bolgeNoktasiId], references: [id])
+
+  menuOgeleri CookzoneMenuOgesi[]
+  siparisler  CookzoneSiparis[]
+
+  @@map("cookzone_isletme")
+}
+
+model CookzoneMenuOgesi {
+  id        String          @id @default(uuid())
+  isletmeId String          @map("isletme_id")
+  isletme   CookzoneIsletme @relation(fields: [isletmeId], references: [id])
+  ad        String          @db.VarChar(150)
+  aciklama  String?
+  fiyat     Decimal         @db.Decimal(8, 2)
+  kategori  String          @db.VarChar(60)
+  aktif     Boolean         @default(true)
+
+  siparisKalemleri CookzoneSiparisKalemi[]
+
+  @@map("cookzone_menu_ogesi")
+}
+
+enum CookzoneSiparisDurumu {
+  alindi
+  hazirlaniyor
+  hazir
+  teslim_edildi
+}
+
+model CookzoneSiparis {
+  id              String                @id @default(uuid())
+  kullaniciId     String                @map("kullanici_id")
+  kullanici       Kullanici             @relation(fields: [kullaniciId], references: [id])
+  isletmeId       String                @map("isletme_id")
+  isletme         CookzoneIsletme       @relation(fields: [isletmeId], references: [id])
+  durum           CookzoneSiparisDurumu @default(alindi)
+  toplamTutar     Decimal               @map("toplam_tutar") @db.Decimal(10, 2)
+  olusturmaTarihi DateTime              @default(now()) @map("olusturma_tarihi")
+
+  kalemler CookzoneSiparisKalemi[]
+
+  @@map("cookzone_siparis")
+}
+
+model CookzoneSiparisKalemi {
+  id          String            @id @default(uuid())
+  siparisId   String            @map("siparis_id")
+  siparis     CookzoneSiparis   @relation(fields: [siparisId], references: [id])
+  menuOgesiId String            @map("menu_ogesi_id")
+  menuOgesi   CookzoneMenuOgesi @relation(fields: [menuOgesiId], references: [id])
+  adet        Int
+
+  @@map("cookzone_siparis_kalemi")
+}
+
+// ── 4.7 Acil Durum (Faz 3) ────────────────────────────────────────────────
+
+enum AcilDurumTuru {
+  yangin
+  kaza
+  saglik
+  diger
+}
+
+enum AcilDurumBildirimDurumu {
+  yeni
+  inceleniyor
+  kapatildi
+}
+
+model AcilDurumBildirimi {
+  id              String                  @id @default(uuid())
+  kullaniciId     String                  @map("kullanici_id")
+  kullanici       Kullanici               @relation(fields: [kullaniciId], references: [id])
+  tur             AcilDurumTuru
+  enlem           Decimal?                @db.Decimal(9, 6)
+  boylam          Decimal?                @db.Decimal(9, 6)
+  bolgeNoktasiId  String?                 @map("bolge_noktasi_id")
+  bolgeNoktasi    BolgeNoktasi?           @relation(fields: [bolgeNoktasiId], references: [id])
+  aciklama        String?
+  durum           AcilDurumBildirimDurumu @default(yeni)
+  olusturmaTarihi DateTime                @default(now()) @map("olusturma_tarihi")
+
+  @@map("acil_durum_bildirimi")
+}
+
+// ── 4.8 Paket Teslimi (Faz 3) ─────────────────────────────────────────────
+
+enum PaketTeslimiDurumu {
+  beklemede
+  bolgede
+  teslim_edildi
+}
+
+model PaketTeslimi {
+  id               String             @id @default(uuid())
+  kullaniciId      String             @map("kullanici_id")
+  kullanici        Kullanici          @relation(fields: [kullaniciId], references: [id])
+  kargoFirmasi     String?            @map("kargo_firmasi") @db.VarChar(100)
+  takipNo          String?            @map("takip_no") @db.VarChar(100)
+  durum            PaketTeslimiDurumu @default(beklemede)
+  teslimNoktasiId  String?            @map("teslim_noktasi_id")
+  teslimNoktasi    BolgeNoktasi?      @relation(fields: [teslimNoktasiId], references: [id])
+  olusturmaTarihi  DateTime           @default(now()) @map("olusturma_tarihi")
+
+  @@map("paket_teslimi")
+}
