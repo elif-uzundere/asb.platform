@@ -50,3 +50,17 @@ Detaylı adım adım plan (girdi/çıktı/bağımlılık tablosu) → `docs/izle
 - Her yeni dosya/karar bu dosyadaki kurallarla çelişiyorsa, **önce dur ve sor** — tahmin yürütüp ilerleme.
 - SOLID/KISS/DRY ilkelerinden ödün verme; basit modüle gereksiz katman ekleme.
 - Flutter değil, **React Native/Expo** kullanılıyor — eski örnekler/eğitimlerdeki Flutter kod desenlerini kopyalama.
+
+## Alınan Kararlar (sohbet geçmişi yerine buraya yazılır)
+
+- **21.07.2026 sonrası — Auth OAuth kapsamı:** `auth` modülü Adım 4'te önce e-posta/şifre + JWT ile bitirilecek (Seçenek 1). Google/LinkedIn/Apple OAuth aynı modülün alt-adımı (4b) olarak, sağlayıcı hesapları (client ID/secret) hazır olduğunda eklenecek. US-001'in sosyal giriş kabul kriteri bu ara dönemde "bekliyor" olarak işaretlenir, mentöre bu şekilde raporlanır.
+
+
+## Alınan Kararlar
+
+- **OAuth (Google/LinkedIn/Apple):** Adım 4b'ye ertelendi — önce e-posta/şifre + JWT tamamlandı. "Beni Hatırla" ve "Şifremi Unuttum" da aynı alt-adımda ele alınacak.
+- **Token saklama (mobile):** AsyncStorage değil `expo-secure-store` (web'de localStorage fallback) — JWT şifreli saklanmalı.
+- **CORS:** Geliştirme için `origin: true` açıldı (main.ts). FAZ 4/Adım 15'te gerçek domain listesiyle sınırlanacak.
+- **main.ts düzeltmesi:** `setGlobalPrefix('api')` eklendi — endpoint'ler artık gerçekten `/api/v1/...` altında.
+- **Expo Router açılış:** `app/index.tsx` → `(tabs)`'a Redirect ((admin)/(tabs) çakışması çözümü).
+- **UI notu:** Giriş/kayıt ekranları fonksiyonel iskelet — mockup'a görsel uyum ayrı bir UI adımında yapılacak.
