@@ -64,3 +64,7 @@ Detaylı adım adım plan (girdi/çıktı/bağımlılık tablosu) → `docs/izle
 - **main.ts düzeltmesi:** `setGlobalPrefix('api')` eklendi — endpoint'ler artık gerçekten `/api/v1/...` altında.
 - **Expo Router açılış:** `app/index.tsx` → `(tabs)`'a Redirect ((admin)/(tabs) çakışması çözümü).
 - **UI notu:** Giriş/kayıt ekranları fonksiyonel iskelet — mockup'a görsel uyum ayrı bir UI adımında yapılacak.
+
+- **US-001 sapması (kayıt akışı):** isterler.md'de "kayıt sonrası otomatik giriş" kabul kriteri vardı, bilinçli olarak değiştirildi — kayıt sonrası kullanıcı otomatik oturum açmıyor, `/giris` ekranına yönlendirilip elle giriş yapıyor. Sebep: ürün tercihi (Berzan).
+
+- **Beni Hatırla:** İşaretliyse JWT 30 gün, işaretsizse 1 gün geçerli oluyor (`JwtTokenUreticiAdapter`).

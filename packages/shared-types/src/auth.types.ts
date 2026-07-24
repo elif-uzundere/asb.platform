@@ -11,6 +11,7 @@ export interface RegisterRequest {
 export interface LoginRequest {
   email: string;
   sifre: string;
+  beniHatirla?: boolean;
 }
 
 export interface KullaniciOzet {

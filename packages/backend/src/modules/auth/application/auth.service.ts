@@ -55,11 +55,11 @@ export class AuthService {
       throw new GecersizKimlikBilgisiException();
     }
 
-    return this.yanitOlustur(kullanici);
+    return this.yanitOlustur(kullanici, dto.beniHatirla);
   }
 
-  private async yanitOlustur(kullanici: Kullanici): Promise<LoginResponse> {
-    const accessToken = await this.tokenUretici.uret(kullanici);
+  private async yanitOlustur(kullanici: Kullanici, uzunSureli = false): Promise<LoginResponse> {
+    const accessToken = await this.tokenUretici.uret(kullanici, uzunSureli);
     const ozet: KullaniciOzet = {
       id: kullanici.id,
       ad: kullanici.ad,
