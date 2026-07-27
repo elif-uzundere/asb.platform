@@ -15,3 +15,8 @@ export class GecersizKimlikBilgisiException extends Error {
     super('E-posta veya şifre hatalı');
   }
 }
+export class GecersizSifirlamaTokenException extends Error {
+  constructor() {
+    super('Şifre sıfırlama linki geçersiz veya süresi dolmuş');
+  }
+}

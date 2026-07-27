@@ -1,4 +1,5 @@
 export const KULLANICI_REPOSITORY = Symbol('KULLANICI_REPOSITORY');
 export const SIFRE_HASH_PORT = Symbol('SIFRE_HASH_PORT');
 export const TOKEN_URETICI_PORT = Symbol('TOKEN_URETICI_PORT');
+export const EMAIL_GONDER_PORT = Symbol('EMAIL_GONDER_PORT');
 export const AUTH_SERVICE = Symbol('AUTH_SERVICE');

@@ -1,13 +1,22 @@
 import { randomUUID } from 'crypto';
-import type { RegisterRequest, LoginRequest, LoginResponse, KullaniciOzet } from '@asb/shared-types';
+import type {
+  RegisterRequest,
+  LoginRequest,
+  LoginResponse,
+  KullaniciOzet,
+  SifremiUnuttumRequest,
+  SifreSifirlaRequest,
+} from '@asb/shared-types';
 import {
   Email,
   Kullanici,
   KullaniciRepository,
   SifreHashPort,
   TokenUreticiPort,
+  EmailGonderPort,
   EmailZatenKayitliException,
   GecersizKimlikBilgisiException,
+  GecersizSifirlamaTokenException,
 } from '../domain';
 
 export class AuthService {
@@ -15,6 +24,8 @@ export class AuthService {
     private readonly kullaniciRepo: KullaniciRepository,
     private readonly sifreHash: SifreHashPort,
     private readonly tokenUretici: TokenUreticiPort,
+    private readonly emailGonderici: EmailGonderPort,
+    private readonly sifirlamaLinkTabani: string,
   ) {}
 
   async kayitOl(dto: RegisterRequest): Promise<LoginResponse> {
@@ -56,6 +67,29 @@ export class AuthService {
     }
 
     return this.yanitOlustur(kullanici, dto.beniHatirla);
+  }
+
+  async sifremiUnuttum(dto: SifremiUnuttumRequest): Promise<void> {
+    const kullanici = await this.kullaniciRepo.emailIleBul(dto.email);
+    if (!kullanici) return;
+
+    const token = await this.tokenUretici.sifirlamaTokenUret(kullanici);
+    const link = `${this.sifirlamaLinkTabani}?token=${token}`;
+    const icerik = `<p>Merhaba ${kullanici.ad},</p><p>Şifreni sıfırlamak için <a href="${link}">buraya tıkla</a>. Bu link 15 dakika geçerlidir.</p>`;
+    await this.emailGonderici.gonder(
+      kullanici.email.toString(),
+      'ASB Platform - Şifre Sıfırlama',
+      icerik,
+    );
+  }
+
+  async sifreSifirla(dto: SifreSifirlaRequest): Promise<void> {
+    const kullaniciId = await this.tokenUretici.sifirlamaTokenDogrula(dto.token);
+    if (!kullaniciId) {
+      throw new GecersizSifirlamaTokenException();
+    }
+    const yeniHash = await this.sifreHash.hashle(dto.yeniSifre);
+    await this.kullaniciRepo.sifreGuncelle(kullaniciId, yeniHash);
   }
 
   private async yanitOlustur(kullanici: Kullanici, uzunSureli = false): Promise<LoginResponse> {

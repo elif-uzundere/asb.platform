@@ -28,3 +28,12 @@ export interface LoginResponse {
   accessToken: string;
   kullanici: KullaniciOzet;
 }
+
+export interface SifremiUnuttumRequest {
+  email: string;
+}
+
+export interface SifreSifirlaRequest {
+  token: string;
+  yeniSifre: string;
+}

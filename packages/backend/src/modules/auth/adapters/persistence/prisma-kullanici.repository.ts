@@ -28,6 +28,19 @@ export class PrismaKullaniciRepository implements KullaniciRepository {
     return this.entiteyeCevir(kayit);
   }
 
+  async idIleBul(id: string): Promise<Kullanici | null> {
+    const kayit = await this.prisma.kullanici.findUnique({ where: { id } });
+    if (!kayit) return null;
+    return this.entiteyeCevir(kayit);
+  }
+
+  async sifreGuncelle(id: string, yeniSifreHash: string): Promise<void> {
+    await this.prisma.kullanici.update({
+      where: { id },
+      data: { sifreHash: yeniSifreHash },
+    });
+  }
+
   private entiteyeCevir(kayit: {
     id: string;
     email: string;

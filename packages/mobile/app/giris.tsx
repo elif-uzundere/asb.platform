@@ -89,9 +89,9 @@ export default function GirisScreen() {
               />
               <Text style={styles.hatirlaYazi}>Beni hatırla</Text>
             </Pressable>
-            <Pressable onPress={() => Alert.alert('Yakında', 'Şifre sıfırlama henüz eklenmedi.')}>
-              <Text style={styles.unuttumYazi}>Şifremi unuttum?</Text>
-            </Pressable>
+            <Link href="/sifremi-unuttum">
+            <Text style={styles.unuttumYazi}>Şifremi unuttum?</Text>
+            </Link>
           </View>
 
           <Pressable style={styles.buton} onPress={gonder} disabled={yukleniyor}>
