@@ -6,6 +6,9 @@ import { GlobalExceptionFilter } from './shared/web/global-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors({ origin: true });
+
+app.setGlobalPrefix('api');
 
   app.enableVersioning({
     type: VersioningType.URI,

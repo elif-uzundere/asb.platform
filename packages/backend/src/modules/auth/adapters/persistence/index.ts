@@ -1,1 +1,1 @@
-export {};
+export  * from './prisma-kullanici.repository';
