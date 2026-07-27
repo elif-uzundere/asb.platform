@@ -29,12 +29,15 @@ export default function SifreSifirlaScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.baslik}>Yeni şifre belirle</Text>
-      <TextInput
-        style={styles.girdi}
-        placeholder="Sıfırlama kodu (e-postadaki linkten)"
-        value={token}
-        onChangeText={setToken}
-      />
+      {!params.token && (
+        <TextInput
+          style={styles.girdi}
+          placeholder="Sıfırlama kodu (e-postadaki linkten)"
+          value={token}
+          onChangeText={setToken}
+        />
+      )}
+      {params.token && <Text style={styles.aciklama}>E-posta linkin doğrulandı, yeni şifreni belirle.</Text>}
       <TextInput
         style={styles.girdi}
         placeholder="Yeni şifre"
@@ -52,6 +55,7 @@ export default function SifreSifirlaScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', padding: 24, gap: 12 },
   baslik: { fontSize: 20, fontWeight: '500', textAlign: 'center', color: renkler.lacivert },
+  aciklama: { fontSize: 13, color: renkler.metinIkincil, textAlign: 'center', marginBottom: 4 },
   girdi: {
     borderWidth: 1,
     borderColor: renkler.kenarlik,

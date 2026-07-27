@@ -1,9 +1,11 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiResponseDto } from './api-response.dto';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger('GlobalExceptionFilter');
+
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -13,6 +15,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const message = isHttpException
       ? this.extractMessage(exception)
       : 'Beklenmeyen bir hata oluştu';
+
+    if (!isHttpException) {
+      this.logger.error(
+        exception instanceof Error ? exception.stack : String(exception),
+      );
+    }
 
     response.status(status).json(ApiResponseDto.fail(HttpStatus[status] ?? 'ERROR', message));
   }

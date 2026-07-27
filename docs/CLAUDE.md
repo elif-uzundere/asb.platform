@@ -68,3 +68,5 @@ Detaylı adım adım plan (girdi/çıktı/bağımlılık tablosu) → `docs/izle
 - **US-001 sapması (kayıt akışı):** isterler.md'de "kayıt sonrası otomatik giriş" kabul kriteri vardı, bilinçli olarak değiştirildi — kayıt sonrası kullanıcı otomatik oturum açmıyor, `/giris` ekranına yönlendirilip elle giriş yapıyor. Sebep: ürün tercihi (Berzan).
 
 - **Beni Hatırla:** İşaretliyse JWT 30 gün, işaretsizse 1 gün geçerli oluyor (`JwtTokenUreticiAdapter`).
+
+- **Şifremi Unuttum:** JWT tabanlı, 15 dakika geçerli, tek amaçlı ("sifre-sifirlama" claim'i) token ile çalışıyor. E-posta gönderimi Mailtrap (geliştirme) üzerinden, `EMAIL_HOST/PORT/USER/PASS` env değişkenleriyle. Sıfırlama linki şu an web adresine (`localhost:8081/sifre-sifirla`) gidiyor, native derin link (`asbplatform://`) ileride `SIFIRLAMA_LINK_TABANI` env değişkeniyle devreye alınabilir.
