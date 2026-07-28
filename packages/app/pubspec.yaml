@@ -1,0 +1,38 @@
+name: asb_app
+description: "ASB Platform mobil/web uygulaması (Flutter)."
+# Bu paket pub.dev'e yayınlanmaz.
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # Durum yönetimi (packages/mobile'daki Zustand karşılığı)
+  flutter_riverpod: ^2.6.1
+  # Yönlendirme (Expo Router karşılığı)
+  go_router: ^14.6.2
+  # HTTP istemcisi (axios karşılığı)
+  dio: ^5.7.0
+  # Token saklama (expo-secure-store karşılığı)
+  flutter_secure_storage: ^9.2.2
+  # Banner linkUrl'lerini açmak için
+  url_launcher: ^6.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
