@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { VersioningType } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './shared/web/global-exception.filter';
@@ -14,6 +14,17 @@ app.setGlobalPrefix('api');
     type: VersioningType.URI,
     defaultVersion: '1',
   });
+
+  // DTO'lardaki class-validator kuralları ancak bu pipe ile işler.
+  // Doğrulama hataları BadRequestException olarak fırlar; GlobalExceptionFilter
+  // bunların `message` dizisini birleştirip ApiResponseDto zarfına sarıyor —
+  // yani istemci tek bir response şekli görmeye devam ediyor.
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // DTO'da tanımsız alanları gövdeden düşür
+      transform: true, // gövdeyi DTO örneğine dönüştür
+    }),
+  );
 
   app.useGlobalFilters(new GlobalExceptionFilter());
 
