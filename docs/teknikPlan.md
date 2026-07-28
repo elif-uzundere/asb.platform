@@ -1,7 +1,9 @@
 # Teknik Plan — ASB Platform
-## React Native + NestJS + PostgreSQL Mimarisi
+## Flutter + NestJS + PostgreSQL Mimarisi
 
 > **Not (21.07.2026 güncellemesi):** Frontend kararı Flutter'dan **React Native**'e değişti; backend **TypeScript (NestJS)** olarak kesinleşti (dil birliği avantajı için). Bu dosyadaki veri modeli (Bölüm 4) ve API listesi (Bölüm 6) dilden bağımsız olduğu için aynen geçerli; frontend'e özel bölümler (2, 7) güncellendi. Katmanlı backend mimarisinin (modül-önce ayrım, SOLID/KISS/DRY, Nielsen ilkeleri) detaylı ve güncel hali için `izlence-typescript-nestjs.md`'ye bakın — bu doküman artık öncelikle **veri modeli ve API referansı** olarak kullanılıyor.
+>
+> **Not (27.07.2026 güncellemesi):** Frontend kararı bu kez **React Native'den tekrar Flutter'a** döndü — mentör talimatıyla, zorunlu. Backend TypeScript (NestJS) değişmedi, "dil birliği" argümanı (satır 31) artık geçerli değil — bkz. `docs/CLAUDE.md` Alınan Kararlar. Bölüm 1, 2 ve 7'deki "React Native" ifadeleri Flutter'ın karşılığı olarak okunmalı; veri modeli (Bölüm 4) ve API listesi (Bölüm 6) yine dilden bağımsız, değişmedi.
 
 > **İlgili dokümanlar:** `isterler.md` (ne), `izlence-typescript-nestjs.md` (mimari, kurulum ve adım planı)
 
@@ -11,7 +13,7 @@
 
 ```
 ┌───────────────────────────┐        HTTPS/JSON        ┌───────────────────────────┐
-│   React Native Uygulaması │  ◄──────────────────────► │   NestJS Backend API      │
+│   Flutter Uygulaması      │  ◄──────────────────────► │   NestJS Backend API      │
 │   iOS / Android / Web     │                            │   (TypeScript)            │
 │   (tek kod tabanı)        │                            │                            │
 └───────────────────────────┘                            │  Controller → Service      │
@@ -28,7 +30,7 @@
 
 | Karar | Gerekçe |
 |-------|---------|
-| React Native (TypeScript) | iOS/Android için tek kod tabanı; backend TypeScript ile aynı dil olduğu için ekip dil birliği kazanıyor. Web için `react-native-web` (topluluk çözümü, Flutter Web kadar "resmi" değil) |
+| Flutter (Dart) | iOS/Android/Web için tek kod tabanı; Flutter Web resmi ve olgun bir hedef (React Native Web'in aksine). Dil birliği artık yok (backend TS, frontend Dart) — bkz. Not (27.07.2026) |
 | NestJS | ASP.NET Core'a kavramsal olarak yakın (Decorator, DI, Module) — geçmişte .NET görmüş biri kolay adapte olur |
 | Modüler Monolith | 10 yıl vadeli proje için mikroservisin karmaşıklığı gereksiz; modüller net ayrılırsa ileride bölünebilir |
 | PostgreSQL | Veri yapısı ilişkisel (firma-kullanıcı-ilan bağları), migration ve tutarlılık kritik |
@@ -40,7 +42,7 @@
 
 | Katman | Teknoloji | Not |
 |--------|-----------|-----|
-| Mobil + Web Frontend | **React Native** (TypeScript), Web için `react-native-web` | Zustand veya Redux Toolkit (state management) — karar Adım 1'de netleşir |
+| Mobil + Web Frontend | **Flutter** (Dart) | State management: Riverpod, routing: go_router, HTTP: dio, token saklama: flutter_secure_storage (27.07.2026 kararı) |
 | Backend | **NestJS** (TypeScript) | Node.js 20 LTS üzerinde |
 | ORM | **Prisma** | Migration + type-safe query |
 | Veritabanı | **PostgreSQL 16** | Docker container ile |
@@ -70,7 +72,7 @@ main            ← stabil, canlıya alınabilir kod
 - Commit mesajları: `feat:`, `fix:`, `docs:`, `refactor:`, `test:` (Conventional Commits)
 - Her modül kendi feature branch'inde geliştirilir
 
-**Repo yapısı ve klasör detayları:** Artık `izlence-typescript-nestjs.md` Bölüm 2'de güncel — monorepo (`packages/backend`, `packages/mobile`, `packages/shared-types`), her backend modülünün `domain/application/adapters` katmanlarına ayrıldığı yapı orada tanımlı. **Bu dosyada tekrarlanmıyor** (aynı bilginin iki yerde, birbirinden bağımsız güncellenmesi zamanla tutarsızlığa yol açar — tam da DRY'ın önlemeye çalıştığı şey). Katman sorumlulukları da aynı dosyanın Bölüm 1 ve 3'ünde (`domain` iş kuralı, `application` orkestrasyon, `adapters/web` HTTP, `adapters/persistence` veritabanı) tanımlı.
+**Repo yapısı ve klasör detayları:** Artık `izlence-typescript-nestjs.md` Bölüm 2'de güncel — monorepo (`packages/backend`, `packages/shared-types` + Flutter için `packages/app`), her backend modülünün `domain/application/adapters` katmanlarına ayrıldığı yapı orada tanımlı. **Bu dosyada tekrarlanmıyor** (aynı bilginin iki yerde, birbirinden bağımsız güncellenmesi zamanla tutarsızlığa yol açar — tam da DRY'ın önlemeye çalıştığı şey). Katman sorumlulukları da aynı dosyanın Bölüm 1 ve 3'ünde (`domain` iş kuralı, `application` orkestrasyon, `adapters/web` HTTP, `adapters/persistence` veritabanı) tanımlı.
 
 ---
 
@@ -353,15 +355,42 @@ POST   /api/v1/paket-teslimleri
 PUT    /api/v1/paket-teslimleri/{id}/durum
 ```
 
-### Hata Yanıt Formatı
+### Response Zarfı — TÜM endpoint'ler için tek şekil
+
+Kaynak: `packages/backend/src/shared/web/api-response.dto.ts`. Her controller
+`ApiResponseDto.ok(...)` döner; çıplak dizi/nesne dönülmez. Hatalar
+`GlobalExceptionFilter` tarafından aynı zarfa sarılır.
+
+**Başarılı:**
+```json
+{ "success": true, "data": { "accessToken": "...", "kullanici": { } } }
+```
+
+`data` boş olabilir (ör. `POST /auth/sifremi-unuttum` → `"data": null`).
+
+**Hatalı:**
 ```json
 {
-  "message": "Doğrulama hatası",
-  "errors": {
-    "email": ["Bu e-posta zaten kayıtlı."]
-  }
+  "success": false,
+  "error": { "code": "BAD_REQUEST", "message": "Şifre en az 8 karakter olmalı" }
 }
 ```
+
+**Kritik kural — `error.message` doğrudan kullanıcıya gösterilir.** Flutter tarafı
+kod→metin eşleme tablosu tutmuyor, mesajı olduğu gibi ekrana basıyor. Bu yüzden
+**her class-validator decorator'ına Türkçe `message` yazılmalıdır**:
+
+```ts
+@IsEmail({}, { message: 'Geçerli bir e-posta adresi girin' })
+email!: string;
+```
+
+Türkçe mesaj yazılmazsa kullanıcı class-validator'ın İngilizce varsayılanını
+("email must be an email") görür. Birden fazla kural birden ihlal edilirse
+mesajlar virgülle birleştirilir.
+
+Global `ValidationPipe` `whitelist: true` ile çalışır — DTO'da tanımlı olmayan
+alanlar gövdeden **düşürülür** (ör. `"rol": "admin"` enjekte edilemez).
 
 ### HTTP Status Kod Beklentileri
 
@@ -379,27 +408,35 @@ PUT    /api/v1/paket-teslimleri/{id}/durum
 
 ---
 
-## 7. React Native Uygulaması — Ekran Planı
+## 7. Flutter Uygulaması — Ekran Planı
 
-Mockup'taki ekranlar temel alınarak (React Navigation ile stack + bottom tab yapısı):
+Mockup'taki ekranlar temel alınarak — **go_router** ile `ShellRoute` (bottom tab) + üstte tam ekran auth rotaları.
 
-| Ekran | Karşılık gelen API | Faz |
-|-------|---------------------|-----|
-| Giriş / Kayıt | `/auth/*` | 1 |
-| Ana Sayfa (carousel + hızlı erişim + öne çıkanlar + iş ortakları) | `/banners`, `/duyurular`, `/is-ortaklari` | 1 |
-| Firmalar listesi + detay | `/firmalar` | 1 |
-| Duyurular listesi + detay | `/duyurular` | 1 |
-| Profil | `/auth/me` | 1 |
-| İş İlanları listesi + detay + başvuru | `/is-ilanlari` | 2 |
-| İkinci El Pazar listesi + ilan verme | `/ikinci-el-ilanlari` | 2 |
-| Harita / Navigasyon | `/bolge-noktalari` | 2 |
-| Cookzone menü + sipariş | `/cookzone/*` | 3 |
-| Acil Durum bildirimi | `/acil-durum` | 3 |
-| Paket Teslimi takibi | `/paket-teslimleri` | 3 |
+| Ekran | Karşılık gelen API | Faz | Durum |
+|-------|---------------------|-----|-------|
+| Giriş / Kayıt | `/auth/register`, `/auth/login` | 1 | ✅ yazıldı |
+| Şifremi Unuttum / Şifre Sıfırla | `/auth/sifremi-unuttum`, `/auth/sifre-sifirla` | 1 | ✅ yazıldı |
+| Ana Sayfa (banner carousel) | `/banners` | 1 | ✅ yazıldı (uçtan uca bağlı) |
+| Ana Sayfa (hızlı erişim + öne çıkanlar + iş ortakları) | `/duyurular`, `/is-ortaklari` | 1 | ⬜ placeholder metin |
+| Profil | oturum durumundan (`/auth/me` henüz yok) | 1 | ✅ yazıldı |
+| Firmalar listesi + detay | `/firmalar` | 1 | ⬜ boş placeholder |
+| Duyurular listesi + detay | `/duyurular` | 1 | ⬜ boş placeholder |
+| Harita / Navigasyon | `/bolge-noktalari` | 2 | ⬜ boş placeholder |
+| İş İlanları listesi + detay + başvuru | `/is-ilanlari` | 2 | ⬜ |
+| İkinci El Pazar listesi + ilan verme | `/ikinci-el-ilanlari` | 2 | ⬜ |
+| Cookzone menü + sipariş | `/cookzone/*` | 3 | ⬜ |
+| Acil Durum bildirimi | `/acil-durum` | 3 | ⬜ |
+| Paket Teslimi takibi | `/paket-teslimleri` | 3 | ⬜ |
 
-**Bottom Tab (mockuptaki gibi):** Ana Sayfa, Firmalar, Harita, Duyurular, Profil
+**Bottom Tab (mockuptaki gibi):** Ana Sayfa, Firmalar, Harita, Duyurular, Profil — `SekmeKabugu` (ShellRoute gövdesi).
 
-**Web notu:** Harita ve fotoğraf yükleme gibi native modül gerektiren ekranlar, `react-native-web` üzerinde web'e özel küçük uyarlamalar gerektirebilir (bkz. `izlence-typescript-nestjs.md` Bölüm 5).
+**Rota koruması:** `yonlendirici.dart` içindeki `redirect` callback'i oturumsuz kullanıcıyı `/giris`'e yollar. Açık rotalar: `/giris`, `/kayit`, `/sifremi-unuttum`, `/sifre-sifirla`.
+
+**Admin rotası bilerek kurulmadı** — AdminJS kararı netleşmedi (bkz. `CLAUDE.md`).
+
+**Ekran yazarken:** klasör/katman tarifi ve kontrol listesi `docs/YENI-MODUL-REHBERI.md` Bölüm 3'te. Widget içinde API çağrısı/iş kuralı yazılmaz.
+
+**Web notu:** Geliştirme hedefi Chrome (`flutter run -d chrome`). Flutter web **hash routing** kullanıyor (`/#/giris`) — e-posta/derin link üretirken bu format esas alınmalı. Harita ve fotoğraf yükleme gibi native yetenekler Adım 14'te (Web uyarlaması) ele alınacak.
 
 ---
 
@@ -410,7 +447,7 @@ Mockup'taki ekranlar temel alınarak (React Navigation ile stack + bottom tab ya
 | %25 | Mimari — modül ayrımı, DI, servis/controller sorumluluk ayrımı |
 | %25 | İş kuralları — Bölüm 5'teki kuralların doğru uygulanması |
 | %20 | API tasarımı — RESTful, DTO, hata yönetimi, Swagger |
-| %15 | React Native tarafı — ekranlar, state management, API entegrasyonu, web/native tutarlılığı |
+| %15 | Flutter tarafı — ekranlar, state management, API entegrasyonu, web/native tutarlılığı |
 | %10 | Git disiplini — anlamlı commit, branch, README |
 | %5 | Test — en az temel unit testler |
 

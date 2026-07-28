@@ -17,7 +17,7 @@
 
 Avrupa Serbest Bölgesi'nde faaliyet gösteren firmaların, çalışanların ve ziyaretçilerin bölgeyle ilgili tüm hizmetlere **tek bir platformdan** ulaşabilmesi hedeflenmektedir. Uygulama; iş ilanları, ikinci el eşya pazarı, firma dizini, bölge içi navigasyon, acil durum bildirimi, yemek siparişi (Cookzone) ve duyurular gibi farklı hizmetleri tek çatı altında toplayan bir **kurumsal hizmet platformu**dur.
 
-Platform **iOS ve Android** için tek kod tabanından **React Native** ile geliştirilecek; **Web** için `react-native-web` kullanılacaktır (native modül gerektiren birkaç ekranda küçük platforma özel uyarlamalar olabilir). Arka uç **TypeScript (NestJS)** olarak kesinleşmiştir — frontend ile aynı dilde kalınarak ekip içi dil birliği ve tip paylaşımı avantajından yararlanılır (bkz. `izlence-typescript-nestjs.md` Bölüm 6). Veritabanı **PostgreSQL**'dir.
+Platform **iOS, Android ve Web** için tek kod tabanından **Flutter (Dart)** ile geliştirilecektir — 27.07.2026'da mentör talimatıyla React Native/Expo'dan geçilmiştir (bkz. `docs/CLAUDE.md` Alınan Kararlar). Arka uç **TypeScript (NestJS)** olarak kesinleşmiştir; frontend artık farklı bir dilde (Dart) olduğu için önceki "aynı dilde kalınarak tip paylaşımı" avantajı geçerli değildir — bu konu ayrıca çözülecektir. Veritabanı **PostgreSQL**'dir.
 
 **Proje adı:** ASB Platform (çalışma adı)
 **Kaynak:** Bölge yönetiminden gelen mobil uygulama mockup'ı (login + ana sayfa ekranı)
@@ -91,14 +91,14 @@ Platform **iOS ve Android** için tek kod tabanından **React Native** ile geli�
 | A1 | İlk fazda tek bir "bölge" (Avrupa Serbest Bölgesi) yönetilecek, çoklu bölge desteği yok |
 | A2 | Firma hesapları bölge yönetimi tarafından onaylanarak açılacak (self-servis firma kaydı yok) |
 | A3 | Bireysel kullanıcı (çalışan/ziyaretçi) kaydı e-posta doğrulama ile self-servis olabilir |
-| A4 | Web sürümü aynı React Native kod tabanından (`react-native-web` ile) üretilecek |
+| A4 | Web sürümü aynı Flutter kod tabanından (Flutter'ın resmi web hedefiyle) üretilecek |
 | A5 | Admin paneli ayrı bir arayüz olarak (web üzerinden, aynı backend'e bağlı) düşünülecek |
 
 ### 3.6 Kısıtlar
 
 | # | Kısıt |
 |---|-------|
-| C1 | Frontend: React Native + TypeScript (iOS + Android tek kod tabanı), Web için `react-native-web` |
+| C1 | Frontend: Flutter (Dart) — iOS + Android + Web tek kod tabanı (27.07.2026'da React Native/Expo'dan değişti) |
 | C2 | Backend: NestJS (TypeScript) |
 | C3 | Veritabanı: PostgreSQL |
 | C4 | ORM: Prisma |
@@ -130,19 +130,20 @@ Platform **iOS ve Android** için tek kod tabanından **React Native** ile geli�
 > **Kullanıcı olarak**, e-posta/telefon ve şifremle **veya** Google/LinkedIn/Apple ile kayıt olabilmek **istiyorum**, **böylece** platforma hızlıca erişebilirim.
 
 **Kabul kriterleri:**
-- [ ] E-posta formatı doğrulanır, aynı e-posta ile ikinci kayıt engellenir (409)
-- [ ] Şifre minimum güvenlik kuralına uyar (min 8 karakter, en az 1 rakam)
-- [ ] Sosyal giriş seçeneklerinden biri seçildiğinde ilgili OAuth akışı başlar
-- [ ] Başarılı kayıt sonrası otomatik giriş yapılır ve ana sayfaya yönlendirilir
+- [x] E-posta formatı doğrulanır, aynı e-posta ile ikinci kayıt engellenir (409)
+- [x] Şifre minimum güvenlik kuralına uyar (min 8 karakter, en az 1 rakam) — *backend'de `ValidationPipe` ile zorlanıyor (28.07.2026'da devreye alındı; öncesinde kural yazılıydı ama çalışmıyordu)*
+- [ ] Sosyal giriş seçeneklerinden biri seçildiğinde ilgili OAuth akışı başlar — **BEKLİYOR** (Adım 4b; düğmeler şu an "Yakında" mesajı gösteriyor)
+- [x] ~~Başarılı kayıt sonrası otomatik giriş yapılır ve ana sayfaya yönlendirilir~~ → **DEĞİŞTİRİLDİ:** kayıt sonrası otomatik giriş yapılmaz, kullanıcı `/giris` ekranına yönlendirilip elle giriş yapar. Bilinçli ürün kararı (Berzan) — gerekçe ve kodun yeri `CLAUDE.md` → Alınan Kararlar / US-001 sapması.
 
 **US-002 — Giriş yapma**
 > **Kullanıcı olarak**, e-posta/telefon + şifre ile **veya** sosyal hesapla giriş yapabilmek **istiyorum**.
 
 **Kabul kriterleri:**
-- [ ] Hatalı bilgi girişinde genel bir hata mesajı gösterilir (hangi alanın yanlış olduğu belirtilmez — güvenlik)
-- [ ] "Beni Hatırla" işaretlenirse oturum süresi uzatılır
-- [ ] "Şifremi Unuttum" akışı e-posta ile sıfırlama linki gönderir
-- [ ] Başarılı giriş sonrası JWT token alınır, ana sayfaya yönlendirilir
+- [x] Hatalı bilgi girişinde genel bir hata mesajı gösterilir (hangi alanın yanlış olduğu belirtilmez — güvenlik): *"E-posta veya şifre hatalı"*
+- [x] "Beni Hatırla" işaretlenirse oturum süresi uzatılır — *işaretli: 30 gün, işaretsiz: 1 gün*
+- [x] "Şifremi Unuttum" akışı e-posta ile sıfırlama linki gönderir — *15 dk geçerli, tek amaçlı JWT; Mailtrap üzerinden*
+- [x] Başarılı giriş sonrası JWT token alınır, ana sayfaya yönlendirilir — *token `flutter_secure_storage`'da saklanır, uygulama yeniden açıldığında oturum sürer*
+- [ ] Sosyal hesapla giriş — **BEKLİYOR** (Adım 4b)
 
 ---
 
@@ -152,7 +153,7 @@ Platform **iOS ve Android** için tek kod tabanından **React Native** ile geli�
 > **Kullanıcı olarak**, giriş yaptıktan sonra bölgeyle ilgili öne çıkan içerikleri tek ekranda görebilmek **istiyorum**.
 
 **Kabul kriterleri:**
-- [ ] Üstte otomatik kayan banner (en az 3 görsel) gösterilir, API'den beslenir
+- [x] Üstte otomatik kayan banner (en az 3 görsel) gösterilir, API'den beslenir — *`GET /banners` uçtan uca bağlı; 2 sn'de bir kayan carousel + nokta göstergesi; `linkUrl` doluysa tıklanabilir (sadece http/https)*
 - [ ] Hızlı Erişim bölümünde en az 8 modül ikonu görünür (Firmalar, Navigasyon, İş İlanları, İkinci El Pazar, Cookzone, Paket Teslimi, Acil Durum, Duyurular)
 - [ ] Öne Çıkanlar bölümü en güncel 4 duyuru/haberi tarih + başlık ile listeler
 - [ ] İş Ortakları bölümü sponsor logolarını listeler
@@ -268,7 +269,7 @@ Platform **iOS ve Android** için tek kod tabanından **React Native** ile geli�
 | D3 | Prisma migration + seed script | 0 | ✓ |
 | D4 | Swagger dokümantasyonu | 1 | ✓ |
 | D5 | Backend API — Faz 1 modülleri (Auth, Ana Sayfa, Firmalar, Duyurular, Profil) | 1 | ✓ |
-| D6 | React Native uygulaması — Faz 1 ekranları (iOS/Android/Web) | 1 | ✓ |
+| D6 | Flutter uygulaması — Faz 1 ekranları (iOS/Android/Web) | 1 | ✓ |
 | D7 | Backend + Frontend — Faz 2 modülleri (İş İlanları, İkinci El Pazar, Navigasyon) | 2 | |
 | D8 | Backend + Frontend — Faz 3 modülleri (Cookzone, Paket Teslimi, Acil Durum) | 3 | |
 | D9 | Unit test projesi (min. iş kuralı testleri) | 1+ | ✓ |
@@ -308,7 +309,9 @@ Her faz, kendi kapsamındaki User Story'lerin kabul kriterlerinin tamamı karş�
 | Versiyon | Tarih | Değişiklik |
 |----------|-------|------------|
 | 1.0 | 21.07.2026 | İlk taslak — mockup ve fikir alışverişi sonrası oluşturuldu |
+| 1.1 | 27.07.2026 | Frontend kararı React Native/Expo → **Flutter (Dart)** (mentör talimatı, zorunlu). Bölüm 1 ve C1 kısıtı güncellendi |
+| 1.2 | 28.07.2026 | Epic 1 (US-001/US-002) ve US-003'ün banner maddesi **gerçekleşen duruma göre işaretlendi**. US-001'in "kayıt sonrası otomatik giriş" kriteri bilinçli olarak değiştirildi (kullanıcı `/giris`'e yönlendiriliyor). Sosyal giriş "BEKLİYOR" olarak netleştirildi (Adım 4b) |
 
 ---
 
-*Bu doküman, `teknikPlan.md` ve `izlence-typescript-nestjs.md` ile birlikte kullanılmalıdır.*
+*Bu doküman, `teknikPlan.md` ve `izlence-typescript-nestjs(1).md` ile birlikte kullanılmalıdır. Yeni modül yazarken uygulama tarifi için `YENI-MODUL-REHBERI.md`.*
