@@ -57,9 +57,14 @@ class BannerCarousel extends ConsumerWidget {
         ),
       ),
       data: (liste) {
-        if (liste.isEmpty) return const SizedBox.shrink();
-        return _BannerKaydirici(bannerlar: liste);
-      },
+  if (liste.isEmpty) {
+    return const _BannerKabi(
+      child: SizedBox(),
+    );
+  }
+
+  return _BannerKaydirici(bannerlar: liste);
+},
     );
   }
 }
