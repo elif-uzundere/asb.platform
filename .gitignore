@@ -13,3 +13,9 @@ coverage/
 .DS_Store
 Thumbs.db
 packages/backend/generated/
+
+# Prisma seed script'i ts-node ile TypeScript olarak calisir; derlenmis
+# ciktilari (bir kere yanlislikla uretildi) repoya girmesin.
+packages/backend/prisma/*.js
+packages/backend/prisma/*.d.ts
+packages/backend/prisma/*.js.map

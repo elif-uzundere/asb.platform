@@ -1,0 +1,3 @@
+export const FIRMA_REPOSITORY = Symbol('FIRMA_REPOSITORY');
+export const FIRMA_SERVICE = Symbol('FIRMA_SERVICE');
+export const FIRMA_SORGULAMA_PORT = Symbol('FIRMA_SORGULAMA_PORT');

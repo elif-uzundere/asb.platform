@@ -11,7 +11,10 @@
     "dev:backend": "npm run start:dev --workspace=@asb/backend",
     "build": "npm run build --workspace=@asb/shared-types && npm run build --workspace=@asb/backend",
     "lint": "npm run lint --workspace=@asb/backend",
-    "test": "npm run test --workspace=@asb/backend"
+    "test": "npm run test --workspace=@asb/backend",
+    "typecheck": "npm run typecheck --workspace=@asb/backend",
+    "dogrula": "npm run build --workspace=@asb/shared-types && npm run typecheck --workspace=@asb/backend && npm run lint --workspace=@asb/backend && npm run test --workspace=@asb/backend",
+    "dogrula:app": "cd packages/app && node -e \"require('fs').rmSync('ios/Flutter/ephemeral',{recursive:true,force:true})\" && flutter analyze && node -e \"require('fs').rmSync('ios/Flutter/ephemeral',{recursive:true,force:true})\" && flutter test"
   },
   "devDependencies": {
     "typescript": "^5.4.5"

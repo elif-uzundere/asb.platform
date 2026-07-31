@@ -1,5 +1,17 @@
 {
   "eslint.workingDirectories": [
     { "directory": "packages/backend", "changeProcessCWD": true }
-  ]
+  ],
+  "files.watcherExclude": {
+    "**/dist/**": true,
+    "**/node_modules/**": true,
+    "**/build/**": true,
+    "**/.dart_tool/**": true,
+    "**/ios/Flutter/ephemeral/**": true
+  },
+  "search.exclude": {
+    "**/dist": true,
+    "**/build": true,
+    "**/.dart_tool": true
+  }
 }

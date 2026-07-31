@@ -73,7 +73,7 @@ Platform **iOS, Android ve Web** için tek kod tabanından **Flutter (Dart)** il
 | Modül | Açıklama |
 |-------|----------|
 | Cookzone | Bölge içi yemek/kafeterya menüsü ve sipariş |
-| Paket Teslimi | Kargo/paket takibi ve teslim bildirimi |
+| Palet Tesisi | Kargo/paket takibi ve teslim bildirimi |
 | Acil Durum | Tek dokunuşla acil durum bildirimi, konum paylaşımı |
 
 ### 3.4 Kapsam dışı (Won't Have — bu fazda yok)
@@ -154,7 +154,7 @@ Platform **iOS, Android ve Web** için tek kod tabanından **Flutter (Dart)** il
 
 **Kabul kriterleri:**
 - [x] Üstte otomatik kayan banner (en az 3 görsel) gösterilir, API'den beslenir — *`GET /banners` uçtan uca bağlı; 2 sn'de bir kayan carousel + nokta göstergesi; `linkUrl` doluysa tıklanabilir (sadece http/https)*
-- [ ] Hızlı Erişim bölümünde en az 8 modül ikonu görünür (Firmalar, Navigasyon, İş İlanları, İkinci El Pazar, Cookzone, Paket Teslimi, Acil Durum, Duyurular)
+- [ ] Hızlı Erişim bölümünde en az 8 modül ikonu görünür (Firmalar, Navigasyon, İş İlanları, İkinci El Pazar, Cookzone, Palet Tesisi, Acil Durum, Duyurular)
 - [ ] Öne Çıkanlar bölümü en güncel 4 duyuru/haberi tarih + başlık ile listeler
 - [ ] İş Ortakları bölümü sponsor logolarını listeler
 - [ ] Tüm bölümlerde "Tümünü Gör" linki ilgili tam listeye yönlendirir
@@ -271,7 +271,7 @@ Platform **iOS, Android ve Web** için tek kod tabanından **Flutter (Dart)** il
 | D5 | Backend API — Faz 1 modülleri (Auth, Ana Sayfa, Firmalar, Duyurular, Profil) | 1 | ✓ |
 | D6 | Flutter uygulaması — Faz 1 ekranları (iOS/Android/Web) | 1 | ✓ |
 | D7 | Backend + Frontend — Faz 2 modülleri (İş İlanları, İkinci El Pazar, Navigasyon) | 2 | |
-| D8 | Backend + Frontend — Faz 3 modülleri (Cookzone, Paket Teslimi, Acil Durum) | 3 | |
+| D8 | Backend + Frontend — Faz 3 modülleri (Cookzone, Palet Tesisi, Acil Durum) | 3 | |
 | D9 | Unit test projesi (min. iş kuralı testleri) | 1+ | ✓ |
 | D10 | docker-compose.yml (PostgreSQL + API) | 0 | ✓ |
 

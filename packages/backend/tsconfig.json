@@ -4,6 +4,13 @@
     "moduleResolution": "nodenext",
     "target": "ES2021",
     "lib": ["ES2021"],
+    // Global tipler açıkça bildiriliyor. Yazılmazsa TypeScript node_modules/@types
+    // klasörlerini kendisi tarar; monorepo'da tipler köke "hoist" edildiği için
+    // bu tarama IDE'nin önbelleğine takılıp "Cannot find name 'describe'" gibi
+    // hayalet hatalar üretebiliyor. Açık liste bu belirsizliği ortadan kaldırır.
+    // (Sadece GLOBAL tipler için geçerli — express/bcrypt gibi paketler zaten
+    // `import` ile geldiği için bu listede olmalarına gerek yok.)
+    "types": ["node", "jest"],
     "rootDir": "src",
     "declaration": true,
     "outDir": "./dist",
@@ -16,5 +23,14 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
-  }
+  },
+  // Program SADECE `src` ile sınırlı. Yazılmazsa TypeScript varsayılan olarak
+  // `**/*` kullanır ve `prisma/seed.ts`'i de programa alır; o dosya `rootDir`
+  // (src) dışında kaldığı için üç ayrı belirti doğuyordu:
+  //   1) IDE'de "File is not under rootDir" hatası
+  //   2) build çıktısında gereksiz `dist/prisma/` klasörü
+  //   3) `rimraf dist` → EPERM (Windows, boş ama tutamağı açık klasör)
+  // `prisma/seed.ts` kendi tsconfig'i ile denetlenir (bkz. prisma/tsconfig.json)
+  // ve `prisma db seed` tarafından ts-node ile çalıştırılır.
+  "include": ["src/**/*"]
 }

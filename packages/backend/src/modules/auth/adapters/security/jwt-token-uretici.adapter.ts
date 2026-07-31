@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Kullanici, TokenUreticiPort } from '../../domain';
+// Token'ın payload sözleşmesi shared'da: guard'lar da aynı tipi okuyor.
+// Buradaki `JwtIcerigi` tiplemesi sayesinde, biri payload'ı değiştirirse
+// derleyici guard tarafında da hatayı gösterir.
+import { JwtIcerigi } from '../../../../shared/web/jwt-icerigi';
 
 const KISA_SURE = '1d';
 const UZUN_SURE = '30d';
@@ -12,7 +16,7 @@ export class JwtTokenUreticiAdapter implements TokenUreticiPort {
   constructor(private readonly jwtService: JwtService) {}
 
   async uret(kullanici: Kullanici, uzunSureli = false): Promise<string> {
-    const payload = {
+    const payload: JwtIcerigi = {
       sub: kullanici.id,
       email: kullanici.email.toString(),
       rol: kullanici.rol,

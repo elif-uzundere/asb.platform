@@ -6,7 +6,7 @@
 
 ## Proje Özeti
 
-Avrupa Serbest Bölgesi için bölge içi firmalar, çalışanlar ve ziyaretçiler için hizmet platformu. Modüller: Auth, Ana Sayfa (banner/duyuru/iş ortağı), Firmalar, İş İlanları, İkinci El Pazar, Cookzone, Acil Durum, Paket Teslimi, Bölge İçi Navigasyon.
+Avrupa Serbest Bölgesi için bölge içi firmalar, çalışanlar ve ziyaretçiler için hizmet platformu. Modüller: Auth, Ana Sayfa (banner/duyuru/iş ortağı), Firmalar, İş İlanları, İkinci El Pazar, Cookzone, Acil Durum, Palet Tesisi, Bölge İçi Navigasyon.
 
 ## Teknoloji Yığını (kesinleşti, değiştirilmez)
 
@@ -17,7 +17,7 @@ Avrupa Serbest Bölgesi için bölge içi firmalar, çalışanlar ve ziyaretçil
 
 ## Mimari Kuralları — Backend (asla ihlal etme)
 
-1. **Modül-önce, sonra katman.** Her backend modülü kendi klasöründe: basit modüller (`duyuru`, `banner`, `is-ortaklari`, `harita`, `paket-teslimi`) 2 katman (`domain` + `adapters`); karmaşık modüller (`auth`, `firma`, `is-ilanlari`, `ikinci-el-pazar`, `cookzone`, `acil-durum`) 3 katman (`domain` + `application` + `adapters`).
+1. **Modül-önce, sonra katman.** Her backend modülü kendi klasöründe: basit modüller (`duyuru`, `banner`, `is-ortaklari`, `harita`, `palet-tesisi`) 2 katman (`domain` + `adapters`); karmaşık modüller (`auth`, `firma`, `is-ilanlari`, `ikinci-el-pazar`, `cookzone`, `acil-durum`) 3 katman (`domain` + `application` + `adapters`).
 2. **`domain` ve `application` katmanlarında NestJS decorator'ı YOK.** Saf TypeScript class'lar. Nest'e bağlama (`@Injectable`, `useFactory`) sadece modülün `.module.ts` dosyasında yapılır.
 3. **Modüller arası erişim SADECE `adapters/public/*.port.ts` üzerinden.** Bir modül başka bir modülün `domain` veya `persistence` katmanına asla doğrudan import edemez. `eslint-plugin-boundaries` bunu CI'da denetler.
 4. **Veritabanı şeması ortaktır, modül bazlı değil.** `schema.prisma` tek dosyadır ve tüm 15 tablo FAZ 0'da birlikte, tek seferde tanımlandı (bkz. `docs/teknikPlan.md` Bölüm 4). Yeni bir tablo/kolon gerekirse bu küçük, hızlı bir PR ile yapılır — sessizce, tek başına değiştirilmez.
@@ -54,7 +54,7 @@ Adım adım dosya/klasör tarifi ve kontrol listesi → `docs/YENI-MODUL-REHBERI
 
 2 kişilik ekip, **dikey bölünme** (her kişi kendi modülünün hem backend hem frontend tarafını uçtan uca yazar):
 - **Kişi A:** `auth`, `firma`, `is-ilanlari`, `cookzone`, `harita`
-- **Kişi B:** `duyuru`, `banner`, `is-ortaklari`, `ikinci-el-pazar`, `acil-durum`, `paket-teslimi`
+- **Kişi B:** `duyuru`, `banner`, `is-ortaklari`, `ikinci-el-pazar`, `acil-durum`, `palet-tesisi`
 
 Detaylı adım adım plan (girdi/çıktı/bağımlılık tablosu) → `docs/izlence-typescript-nestjs(1).md` Bölüm 7.
 
@@ -70,6 +70,11 @@ Detaylı adım adım plan (girdi/çıktı/bağımlılık tablosu) → `docs/izle
 - React Native/Expo değil, **Flutter (Dart)** kullanılıyor (27.07.2026'dan itibaren). Eski Expo kodu silindi; tasarım sabitleri ve geçiş karşılıkları için `izlence-typescript-nestjs(1).md` **Ek A**'ya bak.
 
 ---
+
+## Bilinen Ortam Sorunları (her yeni sohbette/makinede tekrar keşfetme)
+
+- **`packages/shared-types` değiştiğinde derlenmiş kod eski kalır:** Bu paket kaynaktan değil, derlenmiş `dist/` klasöründen okunuyor. Bir `.ts` dosyasını (örn. `auth.types.ts`) değiştirdikten sonra `npm run build --workspace=@asb/shared-types` çalıştırılmadan backend "has no exported member" hatası verir. `nest start --watch` bu değişikliği otomatik yakalamaz — build'den sonra backend'i elle yeniden başlat (`Ctrl+C` + `npm run dev:backend`).
+- **Windows'ta EPERM / "cannot delete directory" hataları (Flutter `ios/Flutter/ephemeral`, `build/`; backend `dist/`):** Sebep genelde Windows Defender'ın gerçek zamanlı taraması — Flutter/Node çok sayıda dosyayı hızlıca yazıp silerken Defender araya girip anlık kilitliyor (Visual Studio'daki `obj`/`bin` kilitlenmesiyle aynı kök sebep). Kalıcı çözüm: proje klasörünü (`C:\Dev\AppforASB` ya da eşdeğeri) Windows Güvenliği → Virüs ve tehdit koruması → Ayarları yönet → Dışlamalar'a klasör olarak eklemek. Eklenene kadar geçici çözüm: ilgili klasörü silip tekrar dene (`Remove-Item -Recurse -Force <klasör>` ya da daha agresif `cmd /c "rmdir /s /q <klasör>"`). Proje klasörü OneDrive gibi bulut senkronizasyonlu bir yerdeyse (eskiden yaşandı) aynı belirtiler çıkar — klasörün senkronize olmadığından da emin ol.
 
 ## Alınan Kararlar (sohbet geçmişi yerine buraya yazılır)
 
@@ -98,3 +103,4 @@ Detaylı adım adım plan (girdi/çıktı/bağımlılık tablosu) → `docs/izle
 - **28.07.2026 — Sıfırlama linki tabanı:** Backend e-postada `http://localhost:8081/sifre-sifirla?token=...` gönderiyor (eski Expo portu, path stili). Flutter web hash routing kullanıyor: `http://localhost:5000/#/sifre-sifirla?token=...`. Kod değişikliği gerekmiyor, `SIFIRLAMA_LINK_TABANI` env değişkeni Flutter'ın adresine ayarlanmalı. Native derin link (`asbplatform://`) ileride aynı değişkenle devreye alınabilir.
 - **28.07.2026 — Frontend katmanlama refactor'ü:** Ekranlar doğrudan `authApiProvider` çağırıyor, `launchUrl` widget içinde duruyor, her ekran kendi `bool _yukleniyor` + `try/catch` üçlüsünü tekrar ediyordu. Backend'deki katman felsefesinin karşılığı kuruldu: her feature `data/` + `domain/` + `presentation/{durum,ekranlar,widgets}/` şeklinde ayrıldı, ortak `FormNotifier`/`IslemDurumu` tabanı ve `apiIstegi()` zarf çözücüsü eklendi. Yan kazanç: çift tıklama koruması artık tek yerde ve tüm formlarda geçerli. Uygulama tarifi → `docs/YENI-MODUL-REHBERI.md`.
 - **28.07.2026 — Banner linki güvenlik sıkılaştırması:** `banner.linkUrl` artık yalnızca **mutlak http/https** adresi ise açılıyor (`features/ana_sayfa/domain/banner_kurallari.dart`); `javascript:`, `file:` gibi şemalar ve göreli yollar reddediliyor. Banner verisi ileride admin panelinden girileceği için sınır domain katmanında ve testli.
+- **30.07.2026 — "Paket Teslimi" → "Palet Tesisi" isim düzeltmesi:** FAZ 0'da 15 tablo tek seferde tanımlanırken bu modülün adı yanlış okunmuş/yazılmış — proje sahibinin asıl niyeti "Palet Tesisi" idi. Modül Faz 3'te henüz hiç yazılmadığı (backend'de boş `@Module({})` iskeleti, Flutter'da sadece Ana Sayfa'daki Hızlı Erişim ikonu) için bu bir **isim düzeltmesi**, geri uyumluluk kaygısı yok. Değişenler: Prisma `model PaketTeslimi`→`PaletTesisi`, `enum PaketTeslimiDurumu`→`PaletTesisiDurumu`, `@@map("paket_teslimi")`→`@@map("palet_tesisi")`, `Kullanici`/`BolgeNoktasi` üzerindeki `paketTeslimleri`→`paletTesisleri` ilişki alanları; backend `modules/paket-teslimi/`→`modules/palet-tesisi/` (klasör+dosya+sınıf); Flutter `HizliErisimModulu.paketTeslimi`→`paletTesisi` ve ikonu (`local_shipping_outlined` teslimat kamyonu→`inventory_2_outlined` envanter/palet, isimle tutarlı olsun diye); `docs/` içindeki 6 dosyadaki tüm geçişler. **BİLEREK değiştirilmeyen:** Prisma modelindeki alan adları (`kargoFirmasi`, `takipNo`, `teslimNoktasi`) ve durum enum değerleri (`beklemede`/`bolgede`/`teslim_edildi`) — bunlar hâlâ "kargo/paket takibi" iş akışını tarif ediyor, "palet tesisi" (depo/envanter) kavramına tam oturmuyor olabilir. Modül gerçekten Faz 3'te yazılırken bu alanların da gözden geçirilmesi gerekecek; şimdilik sadece isim/etiket düzeltildi, iş kuralı tasarımı yapılmadı. **DB migration:** yeni bir `prisma migrate dev` migration'ı ile tablo/enum adı canlı geliştirme veritabanında da yeniden adlandırıldı (henüz veri yoktu, kayıp riski yok).

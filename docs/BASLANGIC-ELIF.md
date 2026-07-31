@@ -13,7 +13,7 @@
 | Kişi | Rol | Sorumlu olduğu modüller (hem backend hem mobile, uçtan uca) |
 |------|-----|----------------------------------------------------------|
 | **Berzan (Kişi A)** | Backend + Mobile | `auth`, `firma`, `is-ilanlari`, `cookzone`, `harita` |
-| **Elif (Kişi B)** | Backend + Mobile | `duyuru`, `banner`, `is-ortaklari`, `ikinci-el-pazar`, `acil-durum`, `paket-teslimi` |
+| **Elif (Kişi B)** | Backend + Mobile | `duyuru`, `banner`, `is-ortaklari`, `ikinci-el-pazar`, `acil-durum`, `palet-tesisi` |
 
 **Dikey bölünme** kullanılıyor — yani kendi modülünün hem NestJS (backend) hem Flutter (mobile, 27.07.2026'dan itibaren) tarafını sen yazıyorsun. API şeklini "tahmin etmen" gerekmiyor çünkü sözleşmeyi (DTO/port) de sen yazacaksın (aşağıda Bölüm 5).
 

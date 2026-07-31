@@ -241,9 +241,9 @@ main            ← stabil, canlıya alınabilir kod
 | durum | enum | `yeni`, `inceleniyor`, `kapatildi` |
 | olusturma_tarihi | timestamp | |
 
-### 4.8 Paket Teslimi *(Faz 3)*
+### 4.8 Palet Tesisi *(Faz 3)*
 
-#### `paket_teslimi`
+#### `palet_tesisi`
 | Kolon | Tip | Not |
 |-------|-----|-----|
 | id | uuid | PK |
@@ -348,11 +348,11 @@ GET    /api/v1/acil-durum              (admin — tüm bildirimler)
 PUT    /api/v1/acil-durum/{id}/durum   (admin)
 ```
 
-### Paket Teslimi *(Faz 3)*
+### Palet Tesisi *(Faz 3)*
 ```
-GET    /api/v1/paket-teslimleri
-POST   /api/v1/paket-teslimleri
-PUT    /api/v1/paket-teslimleri/{id}/durum
+GET    /api/v1/palet-tesisleri
+POST   /api/v1/palet-tesisleri
+PUT    /api/v1/palet-tesisleri/{id}/durum
 ```
 
 ### Response Zarfı — TÜM endpoint'ler için tek şekil
@@ -426,7 +426,7 @@ Mockup'taki ekranlar temel alınarak — **go_router** ile `ShellRoute` (bottom 
 | İkinci El Pazar listesi + ilan verme | `/ikinci-el-ilanlari` | 2 | ⬜ |
 | Cookzone menü + sipariş | `/cookzone/*` | 3 | ⬜ |
 | Acil Durum bildirimi | `/acil-durum` | 3 | ⬜ |
-| Paket Teslimi takibi | `/paket-teslimleri` | 3 | ⬜ |
+| Palet Tesisi takibi | `/palet-tesisleri` | 3 | ⬜ |
 
 **Bottom Tab (mockuptaki gibi):** Ana Sayfa, Firmalar, Harita, Duyurular, Profil — `SekmeKabugu` (ShellRoute gövdesi).
 

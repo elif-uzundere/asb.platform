@@ -5,7 +5,13 @@
       "Bash(echo \"export {};\")",
       "Bash(rm -rf ana-sayfa firmalar)",
       "Bash(rm -f auth/index.ts ikinci-el-pazar/index.ts is-ilanlari/index.ts)",
-      "Bash(PGPASSWORD=asb docker exec -e PGPASSWORD=asb appforasb-postgres-1 psql -h localhost -U asb -d asb_platform -c \"select current_user;\")"
+      "Bash(PGPASSWORD=asb docker exec -e PGPASSWORD=asb appforasb-postgres-1 psql -h localhost -U asb -d asb_platform -c \"select current_user;\")",
+      "Bash(sed -n '/## 5. İş Kuralları/,/## 6. REST API/p' teknikPlan.md)",
+      "Bash(sed -n '/### Firmalar/,/### Duyurular/p' teknikPlan.md)",
+      "Bash(cd /c/Dev/AppforASB/packages/backend/src *)",
+      "Read(//c/Dev/prisma/**)",
+      "PowerShell(Set-Location C:\\\\Dev\\\\AppforASB; npm run dogrula:app 2>&1 | Select-Object -Last 10; Write-Output \"APP_EXIT=$LASTEXITCODE\")",
+      "Bash(python -)"
     ]
   }
 }

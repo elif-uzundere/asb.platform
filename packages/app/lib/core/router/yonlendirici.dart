@@ -18,8 +18,10 @@ import '../../features/auth/presentation/ekranlar/profil_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/sifre_sifirla_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/sifremi_unuttum_ekrani.dart';
 import '../../features/duyurular/presentation/ekranlar/duyurular_ekrani.dart';
+import '../../features/firmalar/presentation/ekranlar/firma_detay_ekrani.dart';
 import '../../features/firmalar/presentation/ekranlar/firmalar_ekrani.dart';
 import '../../features/harita/presentation/ekranlar/harita_ekrani.dart';
+import 'route_gozlemci.dart';
 import 'sekme_kabugu.dart';
 
 /// Oturum gerektirmeyen rotalar.
@@ -51,6 +53,7 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
   // sonra iniyor ve giriş ekranı bir an görünüyor.
   return GoRouter(
     refreshListenable: tetikleyici,
+    observers: [routeGozlemci],
     redirect: (context, state) {
       final durum = ref.read(authProvider);
 
@@ -108,6 +111,14 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
         // /sifre-sifirla?token=...
         builder: (context, state) =>
             SifreSifirlaEkrani(token: state.uri.queryParameters['token']),
+      ),
+      // ShellRoute DIŞINDA — detay ekranı tam sayfa açılır, alt sekme
+      // çubuğu görünmez ve kendi geri butonuna sahiptir. Derin link
+      // (/firmalar/abc123) doğrudan bu rotaya düşer.
+      GoRoute(
+        path: '/firmalar/:id',
+        builder: (context, state) =>
+            FirmaDetayEkrani(firmaId: state.pathParameters['id']!),
       ),
     ],
   );

@@ -40,7 +40,7 @@ model Kullanici {
   ikinciElIlanlari     IkinciElIlani[]
   cookzoneSiparisleri  CookzoneSiparis[]
   acilDurumBildirimleri AcilDurumBildirimi[]
-  paketTeslimleri      PaketTeslimi[]
+  paletTesisleri       PaletTesisi[]
 
   @@map("kullanici")
 }
@@ -61,7 +61,11 @@ model Firma {
   eposta          String?         @db.VarChar(150)
   onayDurumu      FirmaOnayDurumu @default(beklemede) @map("onay_durumu")
   aktif           Boolean         @default(true)
+  webAdres        String?         @map("web_adres") @db.VarChar(255)
+  kurulusTarihi   DateTime?       @map("kurulus_tarihi")
+  personelSayisi  Int?            @map("personel_sayisi")
   olusturmaTarihi DateTime        @default(now()) @map("olusturma_tarihi")
+  guncellemeTarihi DateTime       @default(now()) @updatedAt @map("guncelleme_tarihi")
 
   calisanlar     Kullanici[]
   isIlanlari     IsIlani[]
@@ -189,7 +193,7 @@ model BolgeNoktasi {
 
   cookzoneIsletmeleri  CookzoneIsletme[]
   acilDurumBildirimleri AcilDurumBildirimi[]
-  paketTeslimleri      PaketTeslimi[]
+  paletTesisleri       PaletTesisi[]
 
   @@map("bolge_noktasi")
 }
@@ -287,24 +291,28 @@ model AcilDurumBildirimi {
   @@map("acil_durum_bildirimi")
 }
 
-// ── 4.8 Paket Teslimi (Faz 3) ─────────────────────────────────────────────
+// ── 4.8 Palet Tesisi (Faz 3) ──────────────────────────────────────────────
+// 27.07.2026'da "Paket Teslimi" olarak yanlış okunmuş/yazılmıştı, isim
+// düzeltildi (bkz. docs/CLAUDE.md Alınan Kararlar). Alan adları (kargoFirmasi,
+// takipNo, teslimNoktasi vb.) BİLEREK değiştirilmedi — modül Faz 3'te henüz
+// yazılmadı, gerçek iş kuralları o zaman netleşince alanlar da gözden geçirilir.
 
-enum PaketTeslimiDurumu {
+enum PaletTesisiDurumu {
   beklemede
   bolgede
   teslim_edildi
 }
 
-model PaketTeslimi {
-  id               String             @id @default(uuid())
-  kullaniciId      String             @map("kullanici_id")
-  kullanici        Kullanici          @relation(fields: [kullaniciId], references: [id])
-  kargoFirmasi     String?            @map("kargo_firmasi") @db.VarChar(100)
-  takipNo          String?            @map("takip_no") @db.VarChar(100)
-  durum            PaketTeslimiDurumu @default(beklemede)
-  teslimNoktasiId  String?            @map("teslim_noktasi_id")
-  teslimNoktasi    BolgeNoktasi?      @relation(fields: [teslimNoktasiId], references: [id])
-  olusturmaTarihi  DateTime           @default(now()) @map("olusturma_tarihi")
+model PaletTesisi {
+  id               String            @id @default(uuid())
+  kullaniciId      String            @map("kullanici_id")
+  kullanici        Kullanici         @relation(fields: [kullaniciId], references: [id])
+  kargoFirmasi     String?           @map("kargo_firmasi") @db.VarChar(100)
+  takipNo          String?           @map("takip_no") @db.VarChar(100)
+  durum            PaletTesisiDurumu @default(beklemede)
+  teslimNoktasiId  String?           @map("teslim_noktasi_id")
+  teslimNoktasi    BolgeNoktasi?     @relation(fields: [teslimNoktasiId], references: [id])
+  olusturmaTarihi  DateTime          @default(now()) @map("olusturma_tarihi")
 
-  @@map("paket_teslimi")
+  @@map("palet_tesisi")
 }

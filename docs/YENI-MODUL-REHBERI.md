@@ -59,7 +59,7 @@ gerekir — saf fonksiyon çağırıp sonuca bakarsın.
 
 | Modül tipi | Katman | Örnekler |
 |---|---|---|
-| **Basit** (CRUD, karmaşık kural yok) | `domain` + `adapters` | `duyuru`, `banner`, `is-ortaklari`, `harita`, `paket-teslimi` |
+| **Basit** (CRUD, karmaşık kural yok) | `domain` + `adapters` | `duyuru`, `banner`, `is-ortaklari`, `harita`, `palet-tesisi` |
 | **Karmaşık** (çok adımlı akış, durum makinesi) | `domain` + `application` + `adapters` | `auth`, `firma`, `is-ilanlari`, `ikinci-el-pazar`, `cookzone`, `acil-durum` |
 
 > Basit modüle `application` ekleme — boş bir servis katmanı sadece gürültü (KISS).

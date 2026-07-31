@@ -43,7 +43,7 @@ Aynı prensip: her modül kendi karmaşıklığına göre 2 veya 3 katmanlı olu
 | `ikinci-el-pazar` | E-posta doğrulama şartı (BR-3), durum yönetimi (BR-8) | **3 katman** |
 | `cookzone` | Çoklu entity + sipariş durum makinesi | **3 katman** |
 | `acil-durum` | Zorunlu alan kombinasyonu (BR-5) | **3 katman** |
-| `paket-teslimi`, `harita` | Basit durum takibi / coğrafi sorgu | **2 katman** |
+| `palet-tesisi`, `harita` | Basit durum takibi / coğrafi sorgu | **2 katman** |
 
 ### Neden `domain` katmanında NestJS decorator'ı olmaz
 
@@ -188,10 +188,10 @@ asb-platform/                             # npm workspaces root
 │   │   │   │   │   ├── adapters/{web,persistence}/
 │   │   │   │   │   └── acil-durum.module.ts
 │   │   │   │   │
-│   │   │   │   ├── paket-teslimi/            # 2 katman — application yok
+│   │   │   │   ├── palet-tesisi/            # 2 katman — application yok
 │   │   │   │   │   ├── domain/
 │   │   │   │   │   ├── adapters/{web,persistence}/
-│   │   │   │   │   └── paket-teslimi.module.ts
+│   │   │   │   │   └── palet-tesisi.module.ts
 │   │   │   │   │
 │   │   │   │   ├── harita/                   # 2 katman
 │   │   │   │   │   ├── domain/
@@ -369,9 +369,9 @@ Java+Flutter'da "yatay bölünme" (biri hep backend, biri hep frontend) önermi�
 ### Önerilen model: Dikey bölünme
 
 - **Kişi A:** `auth`, `firma`, `is-ilanlari`, `cookzone`, `harita` modüllerinin **hem backend (NestJS) hem frontend (Flutter)** tarafını uçtan uca yazar
-- **Kişi B:** `duyuru`, `banner`, `is-ortaklari`, `ikinci-el-pazar`, `acil-durum`, `paket-teslimi` modüllerinin **hem backend hem frontend** tarafını yazar
+- **Kişi B:** `duyuru`, `banner`, `is-ortaklari`, `ikinci-el-pazar`, `acil-durum`, `palet-tesisi` modüllerinin **hem backend hem frontend** tarafını yazar
 
-**İş yükü dengesi:** Kişi A'nın 4 modülü (`auth`, `firma`, `is-ilanlari`, `cookzone`) 3 katmanlı/karmaşık olduğu için, yanına basit bir modül (`harita`, 2 katman) eklendi. Kişi B'nin 6 modülünden 4'ü (`duyuru`, `banner`, `is-ortaklari`, `paket-teslimi`) basit/2 katmanlı, 2'si (`ikinci-el-pazar`, `acil-durum`) karmaşık — toplamda iki kişinin iş yükü kabaca dengeleniyor.
+**İş yükü dengesi:** Kişi A'nın 4 modülü (`auth`, `firma`, `is-ilanlari`, `cookzone`) 3 katmanlı/karmaşık olduğu için, yanına basit bir modül (`harita`, 2 katman) eklendi. Kişi B'nin 6 modülünden 4'ü (`duyuru`, `banner`, `is-ortaklari`, `palet-tesisi`) basit/2 katmanlı, 2'si (`ikinci-el-pazar`, `acil-durum`) karmaşık — toplamda iki kişinin iş yükü kabaca dengeleniyor.
 
 **Avantajı:** Bekleme neredeyse sıfır — kendi modülünü uçtan uca sen yazdığın için API şeklini "tahmin etmen" gerekmez, sözleşme senin kafanda zaten net. Ayrıca ikiniz de tam yığın (full-stack) deneyim kazanır — kariyer açısından, sadece "ben backend'ciyim" ya da "ben frontend'ciyim" demekten daha güçlü bir konum.
 
@@ -435,13 +435,13 @@ Eğer ikinizden biri "ben backend'de kalayım, frontend'e hiç girmeyeyim" gibi 
 
 **FAZ 2 Teslim Kriteri (Milestone 2):** Mentor demosu, `isterler.md` US-006/007/010 kabul kriterleri manuel test edilir.
 
-### FAZ 3 — Cookzone + Acil Durum + Paket Teslimi
+### FAZ 3 — Cookzone + Acil Durum + Palet Tesisi
 
 | Adım | Kim | Girdi (ne bekler) | Yapılacaklar | Teslim/Çıktı |
 |------|-----|---------------------|--------------|----------------|
 | 11 | Kişi A | Yok | `cookzone` modülü — durum makinesi (`SiparisDurumYoneticisi`) + menü/sipariş ekranları | Çalışan Cookzone modülü |
 | 12 | Kişi B (paralel) | Yok | `acil-durum` modülü — BR-5 + bildirim ekranı | Çalışan Acil Durum modülü |
-| 13 | Kişi B | Yok | `paket-teslimi` modülü (2 katman) — iş yükü dengelemesi için B'ye atandı | Çalışan Paket Teslimi modülü |
+| 13 | Kişi B | Yok | `palet-tesisi` modülü (2 katman) — iş yükü dengelemesi için B'ye atandı | Çalışan Palet Tesisi modülü |
 
 **FAZ 3 Teslim Kriteri (Milestone 3):** Mentor demosu, US-008/009 kabul kriterleri manuel test edilir.
 
@@ -471,7 +471,7 @@ Eğer ikinizden biri "ben backend'de kalayım, frontend'e hiç girmeyeyim" gibi 
 
 - [ ] `domain` ve `application` katmanlarında Nest decorator'ı yok (saf TS)
 - [ ] `eslint-plugin-boundaries` CI'da çalışıyor, ihlal yok
-- [ ] Basit modüllerde (`duyuru`, `harita`, `paket-teslimi`) gereksiz `application` katmanı yok
+- [ ] Basit modüllerde (`duyuru`, `harita`, `palet-tesisi`) gereksiz `application` katmanı yok
 - [ ] Modüller arası erişim sadece `adapters/public/` üzerinden
 - [ ] Hata formatı tüm API'de tutarlı
 - [ ] Her Flutter ekranı Nielsen checklist'inden geçmiş

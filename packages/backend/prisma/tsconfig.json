@@ -1,0 +1,19 @@
+// `seed.ts` uygulamanın parçası değil, tek başına çalışan bir geliştirme
+// script'i — bu yüzden ana tsconfig'in programına (src) dahil edilmiyor.
+//
+// Ama denetimsiz de kalmasın: bu dosya sayesinde `npm run typecheck` seed'i de
+// kontrol eder. Şema değişip seed uyumsuz kalırsa CI'da yakalanır.
+//
+// `noEmit: true` — seed derlenmez, `prisma db seed` onu ts-node ile
+// doğrudan TypeScript olarak çalıştırır (bkz. package.json → prisma.seed).
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "noEmit": true,
+    "declaration": false,
+    "sourceMap": false,
+    "types": ["node"]
+  },
+  "include": ["**/*.ts"]
+}
