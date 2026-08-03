@@ -1,3 +1,7 @@
+// `.env`'i process.env'e AÇIKÇA yükler — önceden bu örtük olarak Prisma
+// Client'ın kendi iç dotenv yüklemesine dayanıyordu (belgelenmemiş bir yan
+// etki). Bu satır aynı sonucu güvenilir/görünür şekilde garanti eder.
+import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';

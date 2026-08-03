@@ -17,6 +17,7 @@ import '../../features/auth/presentation/ekranlar/kayit_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/profil_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/sifre_sifirla_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/sifremi_unuttum_ekrani.dart';
+import '../../features/duyurular/presentation/ekranlar/duyuru_detay_ekrani.dart';
 import '../../features/duyurular/presentation/ekranlar/duyurular_ekrani.dart';
 import '../../features/firmalar/presentation/ekranlar/firma_detay_ekrani.dart';
 import '../../features/firmalar/presentation/ekranlar/firmalar_ekrani.dart';
@@ -119,6 +120,12 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
         path: '/firmalar/:id',
         builder: (context, state) =>
             FirmaDetayEkrani(firmaId: state.pathParameters['id']!),
+      ),
+      // Derin link (/duyurular/abc123) doğrudan bu rotaya düşer.
+      GoRoute(
+        path: '/duyurular/:id',
+        builder: (context, state) =>
+            DuyuruDetayEkrani(duyuruId: state.pathParameters['id']!),
       ),
     ],
   );

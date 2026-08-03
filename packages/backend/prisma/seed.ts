@@ -10,6 +10,22 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
+  await rolYetkileriniYaz();
+  await firmalariYaz();
+}
+
+/** admin rolüne duyuru_yonet yetkisini tanımlar — `upsert` olduğu için
+ * tekrar çalıştırmak yinelenen satır oluşturmaz. */
+async function rolYetkileriniYaz() {
+  await prisma.rolYetki.upsert({
+    where: { rol_yetki: { rol: 'admin', yetki: 'duyuru_yonet' } },
+    update: {},
+    create: { rol: 'admin', yetki: 'duyuru_yonet' },
+  });
+  console.log('Rol-yetki eşleşmesi yazıldı: admin → duyuru_yonet.');
+}
+
+async function firmalariYaz() {
   console.log('Firma seed verisi yazılıyor...');
 
   const firmalar = [

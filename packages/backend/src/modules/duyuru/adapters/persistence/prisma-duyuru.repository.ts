@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../shared/infrastructure/prisma.service';
-import { DuyuruData, DuyuruRepository } from '../../domain';
+import { DuyuruData, DuyuruOlusturmaVerisi, DuyuruRepository } from '../../domain';
 
 @Injectable()
 export class PrismaDuyuruRepository extends DuyuruRepository {
@@ -27,6 +27,25 @@ export class PrismaDuyuruRepository extends DuyuruRepository {
     return this.prisma.duyuru.findUnique({
       where: {
         id,
+      },
+      select: {
+        id: true,
+        baslik: true,
+        icerik: true,
+        kategori: true,
+        yayinTarihi: true,
+      },
+    });
+  }
+
+  async duyuruOlustur(veri: DuyuruOlusturmaVerisi): Promise<DuyuruData> {
+    return this.prisma.duyuru.create({
+      data: {
+        baslik: veri.baslik,
+        icerik: veri.icerik,
+        ...(veri.kategori !== undefined ? { kategori: veri.kategori } : {}),
+        ...(veri.yayinTarihi ? { yayinTarihi: veri.yayinTarihi } : {}),
+        olusturanKullaniciId: veri.olusturanKullaniciId,
       },
       select: {
         id: true,

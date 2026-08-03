@@ -19,6 +19,7 @@ import { Global, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { RollerGuard } from './roller.guard';
+import { YetkiGuard } from './yetki.guard';
 
 @Global()
 @Module({
@@ -31,12 +32,15 @@ import { RollerGuard } from './roller.guard';
       secret: process.env.JWT_SECRET ?? 'dev-secret-change-me',
     }),
   ],
-  providers: [JwtAuthGuard, RollerGuard],
+  // YetkiGuard da burada — PrismaService (PrismaModule zaten @Global) ve
+  // JwtService (üstteki JwtModule) ihtiyaçlarının ikisi de burada zaten
+  // karşılanıyor, ayrı bir modülün import etmesine gerek yok.
+  providers: [JwtAuthGuard, RollerGuard, YetkiGuard],
   // JwtModule de export edilmek ZORUNDA. Aksi halde guard her modüle görünür
   // olur ama bağımlılığı (JwtService) olmaz; Nest guard'ı tüketen modülün
   // bağlamında kurmaya çalışıp "can't resolve dependencies of the JwtAuthGuard"
   // hatasıyla açılışta düşer. Provider'ı dışa açarken bağımlılıklarını da
   // açmak gerekir — yoksa soyutlama yarım kalır.
-  exports: [JwtAuthGuard, RollerGuard, JwtModule],
+  exports: [JwtAuthGuard, RollerGuard, YetkiGuard, JwtModule],
 })
 export class GuvenlikModule {}

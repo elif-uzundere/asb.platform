@@ -14,6 +14,7 @@ import { BannerModule } from './modules/banner/banner.module';
 import { IsOrtaklariModule } from './modules/is-ortaklari/is-ortaklari.module';
 import { PaletTesisiModule } from './modules/palet-tesisi/palet-tesisi.module';
 import { HaritaModule } from './modules/harita/harita.module';
+import { AdminPanelModule } from './admin/admin-panel.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { HaritaModule } from './modules/harita/harita.module';
     FileStorageModule,
     GuvenlikModule, // @Global — guard'ları tüm modüllere açar
     HealthModule,
+    AdminPanelModule,
     AuthModule,
     FirmaModule,
     IsIlanlariModule,

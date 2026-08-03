@@ -13,5 +13,9 @@
     "**/dist": true,
     "**/build": true,
     "**/.dart_tool": true
-  }
+  },
+  // node_modules içindeki paketlerin KENDİ tsconfig.json'larını (ör. adminjs)
+  // TS sunucusunun ayrı bir "proje" gibi tarayıp Problems panelinde
+  // ilgisiz hatalar (eksik @types/mocha vb.) göstermesini engeller.
+  "typescript.tsserver.exclude": ["**/node_modules/**"]
 }

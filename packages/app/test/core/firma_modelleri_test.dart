@@ -14,6 +14,10 @@ void main() {
       'adres': 'Serbest Bölge, 3. Cadde No:12',
       'telefon': '02321234567',
       'eposta': 'info@egelojistik.com',
+      'webAdres': null,
+      'kurulusTarihi': null,
+      'personelSayisi': null,
+      'guncellemeTarihi': '2026-08-03T00:00:00.000Z',
     });
 
     expect(firma.id, 'f1');
@@ -30,6 +34,10 @@ void main() {
       'adres': 'Test adres',
       'telefon': null,
       'eposta': null,
+      'webAdres': null,
+      'kurulusTarihi': null,
+      'personelSayisi': null,
+      'guncellemeTarihi': '2026-08-03T00:00:00.000Z',
     });
 
     expect(firma.telefon, isNull);

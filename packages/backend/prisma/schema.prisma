@@ -20,6 +20,23 @@ enum KullaniciRolu {
   admin
 }
 
+// Rol bazlı ince taneli yetkiler (bkz. shared/web/yetki.guard.ts). KullaniciRolu
+// "kim olduğunu", RolYetki "neye izinli olduğunu" tanımlar — ileride bir role
+// yeni bir işlem yetkisi tanımlanmak istendiğinde kod değişikliği değil,
+// sadece yeni bir RolYetki satırı yeterli olur.
+enum Yetki {
+  duyuru_yonet
+}
+
+model RolYetki {
+  id    String        @id @default(uuid())
+  rol   KullaniciRolu
+  yetki Yetki
+
+  @@unique([rol, yetki])
+  @@map("rol_yetki")
+}
+
 model Kullanici {
   id                String   @id @default(uuid())
   email             String   @unique @db.VarChar(150)
@@ -34,7 +51,7 @@ model Kullanici {
   olusturmaTarihi   DateTime @default(now()) @map("olusturma_tarihi")
   guncellemeTarihi  DateTime @updatedAt @map("guncelleme_tarihi")
 
-  olusturduguDuyurular Duyuru[]              @relation("DuyuruOlusturanAdmin")
+  olusturduguDuyurular Duyuru[]              @relation("DuyuruOlusturanKullanici")
   isIlanlariOlusturan  IsIlani[]             @relation("IsIlaniOlusturanKullanici")
   isBasvurulari        IsBasvurusu[]
   ikinciElIlanlari     IkinciElIlani[]
@@ -87,13 +104,18 @@ model Banner {
 }
 
 model Duyuru {
-  id                String    @id @default(uuid())
-  baslik            String    @db.VarChar(200)
-  icerik            String
-  kategori          String?   @db.VarChar(60)
-  yayinTarihi       DateTime  @default(now()) @map("yayin_tarihi")
-  olusturanAdminId  String    @map("olusturan_admin_id")
-  olusturanAdmin    Kullanici @relation("DuyuruOlusturanAdmin", fields: [olusturanAdminId], references: [id])
+  id                   String    @id @default(uuid())
+  baslik               String    @db.VarChar(200)
+  icerik               String
+  kategori             String?   @db.VarChar(60)
+  yayinTarihi          DateTime  @default(now()) @map("yayin_tarihi")
+  // Alan adı `olusturanKullaniciId` (DB kolonu hâlâ `olusturan_admin_id` —
+  // 30.07.2026'da bu Prisma alanı sadece "admin" oluşturabilir varsayımıyla
+  // adlandırılmıştı; duyuru_yonet yetkisiyle admin OLMAYAN roller de
+  // oluşturabildiği için isim genelleştirildi, DB'de gerçek bir taşıma
+  // gerekmiyor çünkü @map aynı kalıyor).
+  olusturanKullaniciId String    @map("olusturan_admin_id")
+  olusturanKullanici   Kullanici @relation("DuyuruOlusturanKullanici", fields: [olusturanKullaniciId], references: [id])
 
   @@map("duyuru")
 }
