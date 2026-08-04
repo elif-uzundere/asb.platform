@@ -12,6 +12,7 @@ const prisma = new PrismaClient();
 async function main() {
   await rolYetkileriniYaz();
   await firmalariYaz();
+  await duyurulariYaz();
 }
 
 /** admin rolüne duyuru_yonet yetkisini tanımlar — `upsert` olduğu için
@@ -134,6 +135,59 @@ async function firmalariYaz() {
   await prisma.firma.createMany({ data: firmalar });
 
   console.log(`${firmalar.length} firma oluşturuldu.`);
+}
+
+/**
+ * `olusturanKullaniciId` zorunlu (NOT NULL) — bir admin kaydı bulunamazsa
+ * (tertemiz bir veritabanında henüz kimse kayıt olup admin yapılmadıysa)
+ * seed'i çökertmek yerine sessizce atlıyoruz. Firma/rol-yetki seed'i
+ * kullanıcıdan bağımsız olduğu için onlar yine de yazılır.
+ */
+async function duyurulariYaz() {
+  const admin = await prisma.kullanici.findFirst({ where: { rol: 'admin' } });
+  if (!admin) {
+    console.log(
+      'Duyuru seed verisi atlandı: henüz admin rolünde bir kullanıcı yok (önce kayıt olup admin yapılması gerekiyor).',
+    );
+    return;
+  }
+
+  console.log('Duyuru seed verisi yazılıyor...');
+
+  const duyurular = [
+    {
+      baslik: 'Bölge İçi Elektrik Kesintisi Bilgilendirmesi',
+      icerik:
+        'Değerli firma yetkilileri ve çalışanları,\n\n15 Ağustos 2026 Cuma günü saat 09:00 - 13:00 arasında, bölge içi trafo bakım çalışması nedeniyle 3. ve 5. Cadde hattında planlı elektrik kesintisi yaşanacaktır.\n\nKesinti süresince jeneratör destekli alanlar (Bölge Yönetim Binası, Acil Durum Merkezi) etkilenmeyecektir.\n\nAnlayışınız için teşekkür ederiz.\n\nAvrupa Serbest Bölgesi Yönetimi',
+      kategori: 'Bakım',
+    },
+    {
+      baslik: 'Yeni Firma Kayıt Süreci Hakkında',
+      icerik:
+        'Bölgemize yeni katılan firmaların kayıt başvuruları artık mobil uygulama üzerinden de takip edilebilmektedir. Başvurunuzun onay durumunu Profil ekranınızdan görüntüleyebilirsiniz.',
+      kategori: 'Duyuru',
+    },
+    {
+      baslik: 'Bölge İçi Ulaşım Güzergahı Değişikliği',
+      icerik:
+        'Yol yenileme çalışmaları nedeniyle 2. Cadde üzerindeki servis güzergahı geçici olarak 4. Cadde üzerinden yönlendirilmiştir. Değişiklik bir sonraki duyuruya kadar geçerlidir.',
+      kategori: 'Genel',
+    },
+  ];
+
+  const basliklar = duyurular.map((d) => d.baslik);
+  const { count: silinen } = await prisma.duyuru.deleteMany({
+    where: { baslik: { in: basliklar } },
+  });
+  if (silinen > 0) {
+    console.log(`Önceki seed kaydı temizlendi: ${silinen} satır.`);
+  }
+
+  await prisma.duyuru.createMany({
+    data: duyurular.map((d) => ({ ...d, olusturanKullaniciId: admin.id })),
+  });
+
+  console.log(`${duyurular.length} duyuru oluşturuldu.`);
 }
 
 main()
