@@ -14,8 +14,9 @@ class ProfilEkrani extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final kullanici = ref.watch(authProvider).kullanici;
 
-    // Router zaten oturumsuz kullanıcıyı /giris'e yönlendiriyor; bu dal
-    // yalnızca çıkış anındaki geçiş karesi için duruyor.
+    // '/profil' BİLEREK açık rota (bkz. yonlendirici.dart) — Ana Sayfa'nın
+    // kendi Giriş Yap/Kayıt Ol daveti kaldırıldığından bu dal artık asıl akış:
+    // oturumsuz kullanıcı sekmeye basınca burada karşılanıyor.
     if (kullanici == null) {
       return Scaffold(
         body: Center(
@@ -31,10 +32,30 @@ class ProfilEkrani extends ConsumerWidget {
                 'Devam etmek için giriş yapın.',
                 style: TextStyle(color: Renkler.metinIkincil),
               ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => context.go('/giris'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Renkler.altin,
+                  foregroundColor: Renkler.lacivert,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Giriş Yap',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
               const SizedBox(height: 8),
               TextButton(
-                onPressed: () => context.go('/giris'),
-                child: const Text('Giriş Yap'),
+                onPressed: () => context.go('/kayit'),
+                child: const Text('Hesabın yok mu? Kayıt Ol'),
               ),
             ],
           ),

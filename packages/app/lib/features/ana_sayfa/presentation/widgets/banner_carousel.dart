@@ -10,7 +10,6 @@
 // olarak gösteriliyor, `linkUrl` doluysa banner tıklanabilir oluyor.
 
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,10 +20,11 @@ import '../../data/banner_api.dart';
 import '../../data/banner_baglanti_servisi.dart';
 import '../../domain/banner_kurallari.dart';
 
-/// banner.tsx: height 100, borderRadius 16, maxWidth 700.
-const double _bannerYuksekligi = 100;
-const double _bannerKosesi = 16;
-const double _bannerAzamiGenislik = 700;
+/// Ana Sayfa artık header'sız — banner tam genişlikte, sayfanın en üstünde
+/// ASB'nin kendi web sitesindeki gibi bir "hero" görseli olarak duruyor
+/// (bkz. kullanıcının paylaştığı ekran görüntüsü).
+const double _bannerYuksekligi = 200;
+const double _bannerKosesi = 24;
 
 /// banner.tsx: dot #cccccc 8x8, aktif nokta #0A4D8C ve 20 genişlik.
 const Color _noktaRengi = Color(0xFFCCCCCC);
@@ -69,7 +69,8 @@ class BannerCarousel extends ConsumerWidget {
   }
 }
 
-/// Ortak dış kap: genişlik min(ekran - 32, 700), yükseklik 100, radius 16.
+/// Tam genişlik, sadece alt köşeleri yuvarlak — sayfanın en üstünde header
+/// yerine geçen bir hero banner.
 class _BannerKabi extends StatelessWidget {
   const _BannerKabi({required this.child});
 
@@ -77,22 +78,15 @@ class _BannerKabi extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final genislik = math.min(
-      MediaQuery.sizeOf(context).width - 32,
-      _bannerAzamiGenislik,
-    );
-
-    return Padding(
-      padding: const EdgeInsets.only(top: 8, bottom: 20),
-      child: Center(
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(_bannerKosesi),
-          child: SizedBox(
-            width: genislik,
-            height: _bannerYuksekligi,
-            child: ColoredBox(color: Renkler.beyaz, child: child),
-          ),
-        ),
+    return ClipRRect(
+      borderRadius: const BorderRadius.only(
+        bottomLeft: Radius.circular(_bannerKosesi),
+        bottomRight: Radius.circular(_bannerKosesi),
+      ),
+      child: SizedBox(
+        width: double.infinity,
+        height: _bannerYuksekligi,
+        child: ColoredBox(color: Renkler.beyaz, child: child),
       ),
     );
   }

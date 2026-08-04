@@ -64,10 +64,23 @@ class _GirisEkraniDurumu extends ConsumerState<GirisEkrani> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Image.asset(
-                    'assets/images/giris-hero.jpeg',
-                    height: 380,
-                    fit: BoxFit.cover,
+                  Stack(
+                    children: [
+                      Image.asset(
+                        'assets/images/giris-hero.jpeg',
+                        height: 380,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                      SafeArea(
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: GeriButonu(
+                            basildi: () => context.go('/profil'),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   Transform.translate(
                     offset: const Offset(0, -28),

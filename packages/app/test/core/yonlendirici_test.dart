@@ -64,11 +64,30 @@ String _kullaniciJson() =>
     '"rol":"ziyaretci","firmaId":null,"epostaDogrulandi":false}';
 
 void main() {
-  testWidgets('oturumsuz kullanıcı ana sayfadan /giris`e yönlendiriliyor',
+  testWidgets(
+      'oturumsuz kullanıcı ana sayfada kalıyor, alt sekme çubuğunu görüyor',
       (tester) async {
+    // '/' artık ASB'nin kendi sitesi gibi girişsiz de görülebilen bir
+    // karşılama sayfası (bkz. yonlendirici.dart _acikRotalar notu) —
+    // /giris'e ATILMIYOR. Giriş Yap/Kayıt Ol artık Ana Sayfa'nın kendi
+    // header'ında değil, Profil sekmesinde — o yüzden burada alt sekme
+    // çubuğunun (Profil dahil) hâlâ görünür olduğunu doğruluyoruz.
     await uygulamayiKur(tester, baslangicRotasi: '/', oturumAcik: false);
 
-    expect(find.text('Hoş geldiniz!'), findsOneWidget);
+    expect(find.text('Hoş geldiniz!'), findsNothing);
+    expect(find.text('Hızlı Erişim'), findsOneWidget);
+    expect(find.text('Profil'), findsOneWidget);
+  });
+
+  testWidgets('oturumsuz kullanıcı Profil sekmesinde Giriş Yap daveti görüyor',
+      (tester) async {
+    // '/profil' de BİLEREK açık rota (bkz. yonlendirici.dart) — sekme
+    // oturumsuzken de tıklanabilir olmalı, kendi "Giriş Yap" davetini
+    // gösteriyor, /giris'e ATILMIYOR.
+    await uygulamayiKur(tester, baslangicRotasi: '/profil', oturumAcik: false);
+
+    expect(find.text('Hoş geldiniz!'), findsNothing);
+    expect(find.text('Devam etmek için giriş yapın.'), findsOneWidget);
   });
 
   testWidgets('oturumsuz kullanıcı /sifre-sifirla derin linkine erişebiliyor '

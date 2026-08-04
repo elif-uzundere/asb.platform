@@ -6,6 +6,32 @@ import 'package:flutter/material.dart';
 
 import '../theme/renkler.dart';
 
+/// Giriş/Kayıt Ol hero görselinin üstüne bindirilen geri/kapat düğmesi —
+/// bu ekranlar ShellRoute DIŞINda olduğu için alt sekme çubuğu yok, kullanıcı
+/// Profil sekmesine dönebilsin diye eklendi.
+class GeriButonu extends StatelessWidget {
+  const GeriButonu({super.key, required this.basildi});
+
+  final VoidCallback basildi;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: basildi,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.35),
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(Icons.arrow_back, color: Renkler.beyaz, size: 20),
+      ),
+    );
+  }
+}
+
 class GirdiKutusu extends StatelessWidget {
   const GirdiKutusu({
     super.key,
@@ -148,28 +174,28 @@ class SosyalGirisSatiri extends StatelessWidget {
               icerik: const Text(
                 'G',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 15,
                   fontWeight: FontWeight.bold,
                   color: Renkler.lacivert,
                 ),
               ),
               basildi: () => _yakinda(context),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 14),
             _SosyalButon(
               icerik: const Text(
                 'in',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 13,
                   fontWeight: FontWeight.bold,
                   color: Renkler.lacivert,
                 ),
               ),
               basildi: () => _yakinda(context),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 14),
             _SosyalButon(
-              icerik: const Icon(Icons.apple, size: 22, color: Renkler.lacivert),
+              icerik: const Icon(Icons.apple, size: 18, color: Renkler.lacivert),
               basildi: () => _yakinda(context),
             ),
           ],
@@ -195,10 +221,10 @@ class _SosyalButon extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: basildi,
-      borderRadius: BorderRadius.circular(22),
+      borderRadius: BorderRadius.circular(19),
       child: Container(
-        width: 44,
-        height: 44,
+        width: 38,
+        height: 38,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(color: Renkler.kenarlik),

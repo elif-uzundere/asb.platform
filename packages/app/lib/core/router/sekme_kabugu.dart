@@ -9,19 +9,50 @@ import '../../features/auth/presentation/durum/auth_durumu.dart';
 import '../theme/renkler.dart';
 
 class SekmeTanimi {
-  const SekmeTanimi({required this.yol, required this.baslik, required this.ikon});
+  const SekmeTanimi({
+    required this.yol,
+    required this.baslik,
+    required this.ikon,
+    required this.aktifIkon,
+  });
 
   final String yol;
   final String baslik;
   final IconData ikon;
+  final IconData aktifIkon;
 }
 
 const List<SekmeTanimi> sekmeler = [
-  SekmeTanimi(yol: '/', baslik: 'Ana Sayfa', ikon: Icons.home_outlined),
-  SekmeTanimi(yol: '/firmalar', baslik: 'Firmalar', ikon: Icons.business_outlined),
-  SekmeTanimi(yol: '/harita', baslik: 'Harita', ikon: Icons.map_outlined),
-  SekmeTanimi(yol: '/duyurular', baslik: 'Duyurular', ikon: Icons.campaign_outlined),
-  SekmeTanimi(yol: '/profil', baslik: 'Profil', ikon: Icons.person_outline),
+  SekmeTanimi(
+    yol: '/',
+    baslik: 'Ana Sayfa',
+    ikon: Icons.home_outlined,
+    aktifIkon: Icons.home,
+  ),
+  SekmeTanimi(
+    yol: '/firmalar',
+    baslik: 'Firmalar',
+    ikon: Icons.business_center_outlined,
+    aktifIkon: Icons.business_center,
+  ),
+  SekmeTanimi(
+    yol: '/harita',
+    baslik: 'Harita',
+    ikon: Icons.location_on_outlined,
+    aktifIkon: Icons.location_on,
+  ),
+  SekmeTanimi(
+    yol: '/duyurular',
+    baslik: 'Duyurular',
+    ikon: Icons.campaign_outlined,
+    aktifIkon: Icons.campaign,
+  ),
+  SekmeTanimi(
+    yol: '/profil',
+    baslik: 'Profil',
+    ikon: Icons.person_outline,
+    aktifIkon: Icons.person,
+  ),
 ];
 
 class SekmeKabugu extends ConsumerWidget {
@@ -41,32 +72,42 @@ class SekmeKabugu extends ConsumerWidget {
 
     // Oturum güvenli depodan okunmadan korumalı ekranları çizme —
     // yoksa yönlendirme kararı verilmeden içerik (ve API isteği) başlıyor.
-    if (!ref.watch(authProvider).hazir) {
+    final authDurumu = ref.watch(authProvider);
+    if (!authDurumu.hazir) {
       return const Scaffold(
         backgroundColor: Renkler.beyaz,
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
+    // Alt sekme çubuğu HER ZAMAN görünür — girişsiz kullanıcı sadece '/'
+    // (Ana Sayfa) rotasına erişebilir (bkz. yonlendirici.dart _acikRotalar),
+    // diğer sekmelere basınca zaten /giris'e yönlendiriliyor. Ana Sayfa'nın
+    // (aktif == 0) kendi hero banner'ı en üstte olduğu için burada genel
+    // AppBar'ı GÖSTERMİYORUZ, ama alt sekme çubuğu her rotada aynı.
     return Scaffold(
-      appBar: AppBar(
-        title: Text(sekmeler[aktif].baslik),
-        backgroundColor: Renkler.beyaz,
-        foregroundColor: Renkler.lacivert,
-        elevation: 0,
-      ),
+      appBar: aktif == 0
+          ? null
+          : AppBar(
+              title: Text(sekmeler[aktif].baslik),
+              backgroundColor: Renkler.beyaz,
+              foregroundColor: Renkler.lacivert,
+              elevation: 0,
+            ),
       body: cocuk,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: aktif,
         onTap: (indeks) => context.go(sekmeler[indeks].yol),
         type: BottomNavigationBarType.fixed,
         backgroundColor: Renkler.beyaz,
-        selectedItemColor: Renkler.lacivert,
+        selectedItemColor: Renkler.mavi,
         unselectedItemColor: Renkler.metinIkincil,
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
         items: [
           for (final sekme in sekmeler)
             BottomNavigationBarItem(
               icon: Icon(sekme.ikon),
+              activeIcon: Icon(sekme.aktifIkon),
               label: sekme.baslik,
             ),
         ],
