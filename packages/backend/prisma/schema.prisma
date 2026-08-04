@@ -38,26 +38,26 @@ model RolYetki {
 }
 
 model Kullanici {
-  id                String   @id @default(uuid())
-  email             String   @unique @db.VarChar(150)
-  telefon           String?  @unique @db.VarChar(20)
-  sifreHash         String?  @map("sifre_hash") @db.VarChar(255)
-  ad                String   @db.VarChar(60)
-  soyad             String   @db.VarChar(60)
-  firmaId           String?  @map("firma_id")
-  firma             Firma?   @relation(fields: [firmaId], references: [id])
-  rol               KullaniciRolu
-  epostaDogrulandi  Boolean  @default(false) @map("eposta_dogrulandi")
-  olusturmaTarihi   DateTime @default(now()) @map("olusturma_tarihi")
-  guncellemeTarihi  DateTime @updatedAt @map("guncelleme_tarihi")
+  id               String        @id @default(uuid())
+  email            String        @unique @db.VarChar(150)
+  telefon          String?       @unique @db.VarChar(20)
+  sifreHash        String?       @map("sifre_hash") @db.VarChar(255)
+  ad               String        @db.VarChar(60)
+  soyad            String        @db.VarChar(60)
+  firmaId          String?       @map("firma_id")
+  firma            Firma?        @relation(fields: [firmaId], references: [id])
+  rol              KullaniciRolu
+  epostaDogrulandi Boolean       @default(false) @map("eposta_dogrulandi")
+  olusturmaTarihi  DateTime      @default(now()) @map("olusturma_tarihi")
+  guncellemeTarihi DateTime      @updatedAt @map("guncelleme_tarihi")
 
-  olusturduguDuyurular Duyuru[]              @relation("DuyuruOlusturanKullanici")
-  isIlanlariOlusturan  IsIlani[]             @relation("IsIlaniOlusturanKullanici")
-  isBasvurulari        IsBasvurusu[]
-  ikinciElIlanlari     IkinciElIlani[]
-  cookzoneSiparisleri  CookzoneSiparis[]
+  olusturduguDuyurular  Duyuru[]             @relation("DuyuruOlusturanKullanici")
+  isIlanlariOlusturan   IsIlani[]            @relation("IsIlaniOlusturanKullanici")
+  isBasvurulari         IsBasvurusu[]
+  ikinciElIlanlari      IkinciElIlani[]
+  cookzoneSiparisleri   CookzoneSiparis[]
   acilDurumBildirimleri AcilDurumBildirimi[]
-  paletTesisleri       PaletTesisi[]
+  paletTesisleri        PaletTesisi[]
 
   @@map("kullanici")
 }
@@ -69,20 +69,20 @@ enum FirmaOnayDurumu {
 }
 
 model Firma {
-  id              String          @id @default(uuid())
-  ad              String          @db.VarChar(150)
-  logoUrl         String?         @map("logo_url") @db.VarChar(255)
-  sektor          String          @db.VarChar(80)
-  adres           String          @db.VarChar(255)
-  telefon         String?         @db.VarChar(20)
-  eposta          String?         @db.VarChar(150)
-  onayDurumu      FirmaOnayDurumu @default(beklemede) @map("onay_durumu")
-  aktif           Boolean         @default(true)
-  webAdres        String?         @map("web_adres") @db.VarChar(255)
-  kurulusTarihi   DateTime?       @map("kurulus_tarihi")
-  personelSayisi  Int?            @map("personel_sayisi")
-  olusturmaTarihi DateTime        @default(now()) @map("olusturma_tarihi")
-  guncellemeTarihi DateTime       @default(now()) @updatedAt @map("guncelleme_tarihi")
+  id               String          @id @default(uuid())
+  ad               String          @db.VarChar(150)
+  logoUrl          String?         @map("logo_url") @db.VarChar(255)
+  sektor           String          @db.VarChar(80)
+  adres            String          @db.VarChar(255)
+  telefon          String?         @db.VarChar(20)
+  eposta           String?         @db.VarChar(150)
+  onayDurumu       FirmaOnayDurumu @default(beklemede) @map("onay_durumu")
+  aktif            Boolean         @default(true)
+  webAdres         String?         @map("web_adres") @db.VarChar(255)
+  kurulusTarihi    DateTime?       @map("kurulus_tarihi")
+  personelSayisi   Int?            @map("personel_sayisi")
+  olusturmaTarihi  DateTime        @default(now()) @map("olusturma_tarihi")
+  guncellemeTarihi DateTime        @default(now()) @updatedAt @map("guncelleme_tarihi")
 
   calisanlar     Kullanici[]
   isIlanlari     IsIlani[]
@@ -137,16 +137,16 @@ enum IsIlaniDurumu {
 }
 
 model IsIlani {
-  id                    String        @id @default(uuid())
-  firmaId               String        @map("firma_id")
-  firma                 Firma         @relation(fields: [firmaId], references: [id])
-  baslik                String        @db.VarChar(150)
-  aciklama              String
-  konum                 String?       @db.VarChar(150)
-  yayinTarihi           DateTime      @default(now()) @map("yayin_tarihi")
-  durum                 IsIlaniDurumu @default(aktif)
-  olusturanKullaniciId  String        @map("olusturan_kullanici_id")
-  olusturanKullanici    Kullanici     @relation("IsIlaniOlusturanKullanici", fields: [olusturanKullaniciId], references: [id])
+  id                   String        @id @default(uuid())
+  firmaId              String        @map("firma_id")
+  firma                Firma         @relation(fields: [firmaId], references: [id])
+  baslik               String        @db.VarChar(150)
+  aciklama             String
+  konum                String?       @db.VarChar(150)
+  yayinTarihi          DateTime      @default(now()) @map("yayin_tarihi")
+  durum                IsIlaniDurumu @default(aktif)
+  olusturanKullaniciId String        @map("olusturan_kullanici_id")
+  olusturanKullanici   Kullanici     @relation("IsIlaniOlusturanKullanici", fields: [olusturanKullaniciId], references: [id])
 
   basvurular IsBasvurusu[]
 
@@ -161,13 +161,13 @@ enum IsBasvurusuDurumu {
 }
 
 model IsBasvurusu {
-  id             String            @id @default(uuid())
-  isIlaniId      String            @map("is_ilani_id")
-  isIlani        IsIlani           @relation(fields: [isIlaniId], references: [id])
-  kullaniciId    String            @map("kullanici_id")
-  kullanici      Kullanici         @relation(fields: [kullaniciId], references: [id])
-  basvuruTarihi  DateTime          @default(now()) @map("basvuru_tarihi")
-  durum          IsBasvurusuDurumu @default(beklemede)
+  id            String            @id @default(uuid())
+  isIlaniId     String            @map("is_ilani_id")
+  isIlani       IsIlani           @relation(fields: [isIlaniId], references: [id])
+  kullaniciId   String            @map("kullanici_id")
+  kullanici     Kullanici         @relation(fields: [kullaniciId], references: [id])
+  basvuruTarihi DateTime          @default(now()) @map("basvuru_tarihi")
+  durum         IsBasvurusuDurumu @default(beklemede)
 
   @@map("is_basvurusu")
 }
@@ -213,9 +213,9 @@ model BolgeNoktasi {
   enlem   Decimal          @db.Decimal(9, 6)
   boylam  Decimal          @db.Decimal(9, 6)
 
-  cookzoneIsletmeleri  CookzoneIsletme[]
+  cookzoneIsletmeleri   CookzoneIsletme[]
   acilDurumBildirimleri AcilDurumBildirimi[]
-  paletTesisleri       PaletTesisi[]
+  paletTesisleri        PaletTesisi[]
 
   @@map("bolge_noktasi")
 }
@@ -326,15 +326,15 @@ enum PaletTesisiDurumu {
 }
 
 model PaletTesisi {
-  id               String            @id @default(uuid())
-  kullaniciId      String            @map("kullanici_id")
-  kullanici        Kullanici         @relation(fields: [kullaniciId], references: [id])
-  kargoFirmasi     String?           @map("kargo_firmasi") @db.VarChar(100)
-  takipNo          String?           @map("takip_no") @db.VarChar(100)
-  durum            PaletTesisiDurumu @default(beklemede)
-  teslimNoktasiId  String?           @map("teslim_noktasi_id")
-  teslimNoktasi    BolgeNoktasi?     @relation(fields: [teslimNoktasiId], references: [id])
-  olusturmaTarihi  DateTime          @default(now()) @map("olusturma_tarihi")
+  id              String            @id @default(uuid())
+  kullaniciId     String            @map("kullanici_id")
+  kullanici       Kullanici         @relation(fields: [kullaniciId], references: [id])
+  kargoFirmasi    String?           @map("kargo_firmasi") @db.VarChar(100)
+  takipNo         String?           @map("takip_no") @db.VarChar(100)
+  durum           PaletTesisiDurumu @default(beklemede)
+  teslimNoktasiId String?           @map("teslim_noktasi_id")
+  teslimNoktasi   BolgeNoktasi?     @relation(fields: [teslimNoktasiId], references: [id])
+  olusturmaTarihi DateTime          @default(now()) @map("olusturma_tarihi")
 
   @@map("palet_tesisi")
 }

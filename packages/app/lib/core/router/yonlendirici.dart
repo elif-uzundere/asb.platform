@@ -1,10 +1,12 @@
-// Kaynak (davranış): eski Expo app/_layout.tsx + app/index.tsx (silindi — bkz. docs/izlence-typescript-nestjs(1).md Ek A)
-// "giriş yapılmamışsa /giris'e yönlendir" mantığı burada go_router'ın
-// redirect callback'i ile kuruldu.
+// Kaynak (davranış): eski Expo app/_layout.tsx + app/index.tsx
+// (silindi — bkz. docs/izlence-typescript-nestjs(1).md Ek A)
 //
-// Kaynak: eski Expo app/(admin)/ route grubunun Flutter karşılığı BİLEREK (silindi — bkz. izlence Ek A)
-// kurulmadı — admin paneli kararı (rol bazlı route mu, AdminJS mi) henüz
-// netleşmedi (bkz. docs/CLAUDE.md → "Henüz Kesinleşmemiş Kararlar").
+// "Giriş yapılmamışsa /giris'e yönlendir" mantığı burada
+// go_router'ın redirect callback'i ile kuruldu.
+//
+// Kaynak: eski Expo app/(admin)/ route grubunun Flutter karşılığı
+// BİLEREK kurulmadı. Admin paneli artık Flutter içinde değil,
+// AdminJS üzerinden yönetiliyor.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,6 +24,7 @@ import '../../features/duyurular/presentation/ekranlar/duyurular_ekrani.dart';
 import '../../features/firmalar/presentation/ekranlar/firma_detay_ekrani.dart';
 import '../../features/firmalar/presentation/ekranlar/firmalar_ekrani.dart';
 import '../../features/harita/presentation/ekranlar/harita_ekrani.dart';
+import '../../features/is_ortaklari/presentation/ekranlar/is_ortaklari_ekrani.dart';
 import 'route_gozlemci.dart';
 import 'sekme_kabugu.dart';
 
@@ -47,10 +50,12 @@ const Set<String> _acikRotalar = {
 const Set<String> _herZamanAcikRotalar = {'/', '/profil'};
 
 final yonlendiriciProvider = Provider<GoRouter>((ref) {
-  // GoRouter'ı her auth değişiminde yeniden kurmamak için durumu bir
-  // Listenable üzerinden besliyoruz.
+  // GoRouter'ı her auth değişiminde yeniden kurmamak için durumu
+  // bir Listenable üzerinden besliyoruz.
   final tetikleyici = ValueNotifier<int>(0);
+
   ref.onDispose(tetikleyici.dispose);
+
   ref.listen<AuthDurumu>(
     authProvider,
     (onceki, sonraki) {
@@ -61,91 +66,143 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
     },
   );
 
-  // initialLocation BİLEREK verilmedi: web'de tarayıcı adresi (ör. e-postadaki
-  // /sifre-sifirla?token=... linki) tek yetkili kaynak olsun. Sabit bir '/'
-  // verilirse router önce '/' → '/giris' geçişini değerlendirip derin linke
-  // sonra iniyor ve giriş ekranı bir an görünüyor.
+  // initialLocation bilerek verilmedi.
+  // Web'de tarayıcı adresi tek yetkili kaynak olsun.
   return GoRouter(
     refreshListenable: tetikleyici,
     observers: [routeGozlemci],
+
     redirect: (context, state) {
       final durum = ref.read(authProvider);
 
-      // Depodan okuma bitmeden yönlendirme yapma; yoksa oturumu açık
-      // kullanıcı bir an /giris'e düşer.
-      if (!durum.hazir) return null;
+      // Depodan okuma bitmeden yönlendirme yapma.
+      if (!durum.hazir) {
+        return null;
+      }
 
-      final acikRota = _acikRotalar.contains(state.matchedLocation);
+      final acikRota = _acikRotalar.contains(
+        state.matchedLocation,
+      );
 
-      if (!durum.girisYapildi && !acikRota) return '/giris';
-      // '/' ve '/profil' HARİÇ — bunlar hem girişli hem girişsiz kullanıcının
-      // görebildiği rotalar. Diğer açık rotalar (/giris, /kayit...) zaten
-      // girişli kullanıcı için anlamsız, oradan '/'e geri yollanır.
+      // Giriş yapılmamışsa açık olmayan sayfalara gidilemez.
+      if (!durum.girisYapildi && !acikRota) {
+        return '/giris';
+      }
+
+      // Giriş yapılmışsa giriş/kayıt ekranlarına geri gönderme — '/' ve
+      // '/profil' HARİÇ, bunlar hem girişli hem girişsiz kullanıcının
+      // görebildiği rotalar (aksi halde Profil sekmesine hiç girilemezdi).
       if (durum.girisYapildi &&
           acikRota &&
           !_herZamanAcikRotalar.contains(state.matchedLocation)) {
         return '/';
       }
+
       return null;
     },
+
     routes: [
+      // Alt sekme çubuğunun görüneceği ana sayfalar.
       ShellRoute(
-        builder: (context, state, cocuk) => SekmeKabugu(cocuk: cocuk),
+        builder: (context, state, cocuk) {
+          return SekmeKabugu(cocuk: cocuk);
+        },
         routes: [
           GoRoute(
             path: '/',
-            builder: (context, state) => const AnaSayfaEkrani(),
+            builder: (context, state) {
+              return const AnaSayfaEkrani();
+            },
           ),
+
           GoRoute(
             path: '/firmalar',
-            builder: (context, state) => const FirmalarEkrani(),
+            builder: (context, state) {
+              return const FirmalarEkrani();
+            },
           ),
+
           GoRoute(
             path: '/harita',
-            builder: (context, state) => const HaritaEkrani(),
+            builder: (context, state) {
+              return const HaritaEkrani();
+            },
           ),
+
           GoRoute(
             path: '/duyurular',
-            builder: (context, state) => const DuyurularEkrani(),
+            builder: (context, state) {
+              return const DuyurularEkrani();
+            },
           ),
+
+          // Yeni eklediğimiz iş ortakları sayfası.
+          GoRoute(
+            path: '/is-ortaklari',
+            builder: (context, state) {
+              return const IsOrtaklariEkrani();
+            },
+          ),
+
           GoRoute(
             path: '/profil',
-            builder: (context, state) => const ProfilEkrani(),
+            builder: (context, state) {
+              return const ProfilEkrani();
+            },
           ),
         ],
       ),
+
+      // Giriş ve kayıt sayfaları ShellRoute dışında.
       GoRoute(
         path: '/giris',
-        builder: (context, state) => const GirisEkrani(),
+        builder: (context, state) {
+          return const GirisEkrani();
+        },
       ),
+
       GoRoute(
         path: '/kayit',
-        builder: (context, state) => const KayitEkrani(),
+        builder: (context, state) {
+          return const KayitEkrani();
+        },
       ),
+
       GoRoute(
         path: '/sifremi-unuttum',
-        builder: (context, state) => const SifremiUnuttumEkrani(),
+        builder: (context, state) {
+          return const SifremiUnuttumEkrani();
+        },
       ),
+
       GoRoute(
         path: '/sifre-sifirla',
-        // Token e-postadaki linkin query parametresinden gelir:
-        // /sifre-sifirla?token=...
-        builder: (context, state) =>
-            SifreSifirlaEkrani(token: state.uri.queryParameters['token']),
+        builder: (context, state) {
+          return SifreSifirlaEkrani(
+            token: state.uri.queryParameters['token'],
+          );
+        },
       ),
-      // ShellRoute DIŞINDA — detay ekranı tam sayfa açılır, alt sekme
-      // çubuğu görünmez ve kendi geri butonuna sahiptir. Derin link
-      // (/firmalar/abc123) doğrudan bu rotaya düşer.
+
+      // Firma detay ekranı tam sayfa açılır.
+      // Alt sekme çubuğu görünmez.
       GoRoute(
         path: '/firmalar/:id',
-        builder: (context, state) =>
-            FirmaDetayEkrani(firmaId: state.pathParameters['id']!),
+        builder: (context, state) {
+          return FirmaDetayEkrani(
+            firmaId: state.pathParameters['id']!,
+          );
+        },
       ),
-      // Derin link (/duyurular/abc123) doğrudan bu rotaya düşer.
+
+      // Duyuru detay ekranı tam sayfa açılır.
       GoRoute(
         path: '/duyurular/:id',
-        builder: (context, state) =>
-            DuyuruDetayEkrani(duyuruId: state.pathParameters['id']!),
+        builder: (context, state) {
+          return DuyuruDetayEkrani(
+            duyuruId: state.pathParameters['id']!,
+          );
+        },
       ),
     ],
   );

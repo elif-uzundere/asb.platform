@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/renkler.dart';
+import '../../../is_ortaklari/presentation/widgetlar/is_ortaklari_bolumu.dart';
 import '../widgets/banner_carousel.dart';
 import '../widgets/duyurular_hizli_erisim_karti.dart';
 import '../widgets/hizli_erisim_izgarasi.dart';
@@ -44,7 +45,7 @@ class AnaSayfaEkrani extends StatelessWidget {
                     const _BolumBasligi('Öne Çıkanlar ve İş Ortakları'),
                     DuyurularHizliErisimKarti(onTap: () => context.go('/duyurular')),
                     const SizedBox(height: 12),
-                    const _YakindaKarti(),
+                    const IsOrtaklariBolumu(),
                   ],
                 ),
               ),
@@ -72,38 +73,6 @@ class _BolumBasligi extends StatelessWidget {
           fontWeight: FontWeight.w600,
           color: Renkler.lacivert,
         ),
-      ),
-    );
-  }
-}
-
-/// İş ortakları modülü henüz yazılmadı — duyurular artık gerçek (yukarıdaki
-/// karttan erişilebiliyor), sahte bir kart uydurmak yerine ne olacağını
-/// açıkça söyleyen tek bir bilgi kartı gösteriliyor.
-class _YakindaKarti extends StatelessWidget {
-  const _YakindaKarti();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Renkler.mavi.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Renkler.mavi.withValues(alpha: 0.2)),
-      ),
-      child: const Row(
-        children: [
-          Icon(Icons.hourglass_top_outlined, color: Renkler.mavi, size: 22),
-          SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'İş ortakları burada yakında listelenecek.',
-              style: TextStyle(fontSize: 13, color: Renkler.lacivert),
-            ),
-          ),
-        ],
       ),
     );
   }

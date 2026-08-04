@@ -1,0 +1,1 @@
+export * from './is-ortagi.service';
