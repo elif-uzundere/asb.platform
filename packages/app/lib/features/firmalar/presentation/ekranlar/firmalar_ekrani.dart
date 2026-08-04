@@ -77,6 +77,13 @@ class _FirmalarEkraniDurumu extends ConsumerState<FirmalarEkrani>
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
+      appBar: AppBar(
+        title: const Text('Firmalar'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/'),
+        ),
+      ),
       body: SafeArea(
         child: Column(
           children: [

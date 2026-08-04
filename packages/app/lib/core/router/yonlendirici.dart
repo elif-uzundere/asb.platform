@@ -28,13 +28,26 @@ import '../../features/is_ortaklari/presentation/ekranlar/is_ortaklari_ekrani.da
 import 'route_gozlemci.dart';
 import 'sekme_kabugu.dart';
 
-/// Oturum gerektirmeyen rotalar.
+/// Oturum gerektirmeyen rotalar. '/' burada BİLEREK var — Ana Sayfa artık
+/// ASB'nin kendi web sitesi gibi, oturum açmadan da görülebilen bir karşılama
+/// sayfası. '/profil' de BİLEREK var — Ana Sayfa'nın kendi Giriş Yap/Kayıt Ol
+/// header'ı kaldırıldığı için giriş/kayıt akışı artık Profil sekmesinden
+/// başlıyor; sekme oturumsuzken de görünür kalmalı (kendi "Giriş Yap" davetini
+/// gösteriyor) yoksa alt sekme çubuğu kaybolur. Diğer sekmeler ('/firmalar'
+/// vb.) bu listede YOK — oraya girişsiz gidilmeye çalışılırsa /giris'e düşer.
 const Set<String> _acikRotalar = {
+  '/',
+  '/profil',
   '/giris',
   '/kayit',
   '/sifremi-unuttum',
   '/sifre-sifirla',
 };
+
+/// '/' ve '/profil' HEM girişli HEM girişsiz kullanıcı için geçerli
+/// rotalar — açık rota olsalar da girişli kullanıcı buradan '/'e geri
+/// yollanmamalı (aksi halde Profil sekmesine hiç girilemezdi).
+const Set<String> _herZamanAcikRotalar = {'/', '/profil'};
 
 final yonlendiriciProvider = Provider<GoRouter>((ref) {
   // GoRouter'ı her auth değişiminde yeniden kurmamak için durumu
@@ -76,8 +89,12 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
         return '/giris';
       }
 
-      // Giriş yapılmışsa giriş/kayıt ekranlarına geri gönderme.
-      if (durum.girisYapildi && acikRota) {
+      // Giriş yapılmışsa giriş/kayıt ekranlarına geri gönderme — '/' ve
+      // '/profil' HARİÇ, bunlar hem girişli hem girişsiz kullanıcının
+      // görebildiği rotalar (aksi halde Profil sekmesine hiç girilemezdi).
+      if (durum.girisYapildi &&
+          acikRota &&
+          !_herZamanAcikRotalar.contains(state.matchedLocation)) {
         return '/';
       }
 

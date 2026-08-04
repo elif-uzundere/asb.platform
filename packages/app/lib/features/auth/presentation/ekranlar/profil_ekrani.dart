@@ -12,35 +12,85 @@ class ProfilEkrani extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final kullanici = ref.watch(authProvider).kullanici;
 
-    // Router normalde giriş yapmamış kullanıcıyı /giris sayfasına gönderir.
-    // Bu bölüm yalnızca çıkış sırasındaki kısa geçiş anı için bulunuyor.
+    // '/profil' açık rota. Giriş yapılmamış kullanıcı burada
+    // giriş yapma veya kayıt olma seçenekleriyle karşılanır.
     if (kullanici == null) {
       return Scaffold(
         backgroundColor: const Color(0xFFF6F7FB),
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.person_outline_rounded,
-                size: 50,
-                color: Renkler.lacivert,
+        body: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 90,
+                    height: 90,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFEEF5FC),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.person_outline_rounded,
+                      size: 48,
+                      color: Renkler.lacivert,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  const Text(
+                    'Profil',
+                    style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w700,
+                      color: Renkler.lacivert,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Profilinizi görüntülemek için giriş yapın.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Renkler.metinIkincil,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      context.go('/giris');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Renkler.altin,
+                      foregroundColor: Renkler.lacivert,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 36,
+                        vertical: 14,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Giriş Yap',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextButton(
+                    onPressed: () {
+                      context.go('/kayit');
+                    },
+                    child: const Text(
+                      'Hesabın yok mu? Kayıt Ol',
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-              const Text(
-                'Devam etmek için giriş yapın.',
-                style: TextStyle(
-                  color: Renkler.metinIkincil,
-                ),
-              ),
-              const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: () {
-                  context.go('/giris');
-                },
-                child: const Text('Giriş Yap'),
-              ),
-            ],
+            ),
           ),
         ),
       );
@@ -63,7 +113,6 @@ class ProfilEkrani extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Sayfa başlığı
               Row(
                 children: [
                   const Expanded(
@@ -92,10 +141,9 @@ class ProfilEkrani extends ConsumerWidget {
                   ),
                 ],
               ),
-
               const SizedBox(height: 12),
 
-              // Sadece görsel amaçlı profil kartı
+              // Yalnızca görsel amaçlı kullanıcı kartı.
               _ProfilUstKarti(
                 basHarfler: basHarfler,
                 tamAd: kullanici.tamAd,
@@ -115,10 +163,8 @@ class ProfilEkrani extends ConsumerWidget {
                   color: Renkler.lacivert,
                 ),
               ),
-
               const SizedBox(height: 12),
 
-              // Hızlı işlem kutuları
               Row(
                 children: [
                   Expanded(
@@ -126,10 +172,7 @@ class ProfilEkrani extends ConsumerWidget {
                       ikon: Icons.person_outline_rounded,
                       baslik: 'Profil\nBilgilerim',
                       onTap: () {
-                        _yakindaMesaji(
-                          context,
-                          'Profil bilgileri',
-                        );
+                        context.push('/profil/bilgilerim');
                       },
                     ),
                   ),
@@ -177,7 +220,6 @@ class ProfilEkrani extends ConsumerWidget {
 
               const SizedBox(height: 22),
 
-              // Hesap menüsü
               Container(
                 decoration: BoxDecoration(
                   color: Renkler.beyaz,
@@ -201,14 +243,10 @@ class ProfilEkrani extends ConsumerWidget {
                       aciklama:
                           'Kişisel bilgilerinizi görüntüleyin',
                       onTap: () {
-                        _yakindaMesaji(
-                          context,
-                          'Profil bilgileri',
-                        );
+                        context.push('/profil/bilgilerim');
                       },
                     ),
                     const _MenuAyirici(),
-
                     _ProfilMenuSatiri(
                       ikon: Icons.business_outlined,
                       baslik: 'Firmam',
@@ -219,7 +257,6 @@ class ProfilEkrani extends ConsumerWidget {
                       },
                     ),
                     const _MenuAyirici(),
-
                     _ProfilMenuSatiri(
                       ikon: Icons.favorite_border_rounded,
                       baslik: 'Favorilerim',
@@ -233,7 +270,6 @@ class ProfilEkrani extends ConsumerWidget {
                       },
                     ),
                     const _MenuAyirici(),
-
                     _ProfilMenuSatiri(
                       ikon:
                           Icons.notifications_none_rounded,
@@ -248,7 +284,6 @@ class ProfilEkrani extends ConsumerWidget {
                       },
                     ),
                     const _MenuAyirici(),
-
                     _ProfilMenuSatiri(
                       ikon: Icons.help_outline_rounded,
                       baslik: 'Yardım ve Destek',
@@ -262,7 +297,6 @@ class ProfilEkrani extends ConsumerWidget {
                       },
                     ),
                     const _MenuAyirici(),
-
                     _ProfilMenuSatiri(
                       ikon: Icons.settings_outlined,
                       baslik: 'Ayarlar',
@@ -276,7 +310,6 @@ class ProfilEkrani extends ConsumerWidget {
                       },
                     ),
                     const _MenuAyirici(),
-
                     _ProfilMenuSatiri(
                       ikon: Icons.logout_rounded,
                       baslik: 'Çıkış Yap',
@@ -301,7 +334,9 @@ class ProfilEkrani extends ConsumerWidget {
     );
   }
 
-  static String _basHarfleriGetir(String tamAd) {
+  static String _basHarfleriGetir(
+    String tamAd,
+  ) {
     final kelimeler = tamAd
         .trim()
         .split(' ')
@@ -344,7 +379,9 @@ class ProfilEkrani extends ConsumerWidget {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Çıkış yapılsın mı?'),
+          title: const Text(
+            'Çıkış yapılsın mı?',
+          ),
           content: const Text(
             'Hesabınızdan çıkış yapmak istediğinize emin misiniz?',
           ),
@@ -360,7 +397,8 @@ class ProfilEkrani extends ConsumerWidget {
                 Navigator.of(dialogContext).pop(true);
               },
               style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFFDC2626),
+                backgroundColor:
+                    const Color(0xFFDC2626),
               ),
               child: const Text('Çıkış Yap'),
             ),
@@ -370,7 +408,9 @@ class ProfilEkrani extends ConsumerWidget {
     );
 
     if (cikisYapilsin == true) {
-      await ref.read(authProvider.notifier).cikisYap();
+      await ref
+          .read(authProvider.notifier)
+          .cikisYap();
     }
   }
 }
@@ -440,12 +480,11 @@ class _ProfilUstKarti extends StatelessWidget {
               ),
             ),
           ),
-
           const SizedBox(width: 18),
-
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
                 Text(
                   tamAd,
@@ -481,7 +520,8 @@ class _ProfilUstKarti extends StatelessWidget {
                     ),
                     if (!epostaDogrulandi)
                       const _ProfilEtiketi(
-                        ikon: Icons.warning_amber_rounded,
+                        ikon:
+                            Icons.warning_amber_rounded,
                         yazi: 'E-posta doğrulanmadı',
                         renk: Color(0xFFFFC84B),
                       ),
@@ -582,7 +622,8 @@ class _HizliIslemKarti extends StatelessWidget {
             ],
           ),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment:
+                MainAxisAlignment.center,
             children: [
               Icon(
                 ikon,
@@ -658,9 +699,7 @@ class _ProfilMenuSatiri extends StatelessWidget {
                   size: 22,
                 ),
               ),
-
               const SizedBox(width: 14),
-
               Expanded(
                 child: Column(
                   crossAxisAlignment:
@@ -685,7 +724,6 @@ class _ProfilMenuSatiri extends StatelessWidget {
                   ],
                 ),
               ),
-
               if (okGoster)
                 const Icon(
                   Icons.chevron_right_rounded,
