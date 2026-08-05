@@ -17,10 +17,12 @@ enum KullaniciRolu {
   /// Backend'in JSON'da gönderdiği string karşılığı.
   final String deger;
 
-  static KullaniciRolu cozumle(String? deger) => KullaniciRolu.values.firstWhere(
-        (rol) => rol.deger == deger,
-        orElse: () => KullaniciRolu.ziyaretci,
-      );
+  static KullaniciRolu cozumle(String? deger) {
+    return KullaniciRolu.values.firstWhere(
+      (rol) => rol.deger == deger,
+      orElse: () => KullaniciRolu.ziyaretci,
+    );
+  }
 }
 
 /// TS: `interface RegisterRequest`
@@ -37,19 +39,22 @@ class RegisterRequest {
   final String soyad;
   final String email;
 
-  /// min 8 karakter, en az 1 rakam — asıl validasyon backend'de (US-001).
+  /// min 8 karakter, en az 1 rakam — asıl validasyon backend'de.
   final String sifre;
 
   /// Opsiyonel, şemada nullable.
   final String? telefon;
 
-  Map<String, dynamic> jsonaDonustur() => {
-        'ad': ad,
-        'soyad': soyad,
-        'email': email,
-        'sifre': sifre,
-        if (telefon != null && telefon!.isNotEmpty) 'telefon': telefon,
-      };
+  Map<String, dynamic> jsonaDonustur() {
+    return {
+      'ad': ad,
+      'soyad': soyad,
+      'email': email,
+      'sifre': sifre,
+      if (telefon != null && telefon!.isNotEmpty)
+        'telefon': telefon,
+    };
+  }
 }
 
 /// TS: `interface LoginRequest`
@@ -66,11 +71,14 @@ class LoginRequest {
   /// true ise backend 30 gün, aksi halde 1 gün geçerli token üretir.
   final bool? beniHatirla;
 
-  Map<String, dynamic> jsonaDonustur() => {
-        'email': email,
-        'sifre': sifre,
-        if (beniHatirla != null) 'beniHatirla': beniHatirla,
-      };
+  Map<String, dynamic> jsonaDonustur() {
+    return {
+      'email': email,
+      'sifre': sifre,
+      if (beniHatirla != null)
+        'beniHatirla': beniHatirla,
+    };
+  }
 }
 
 /// TS: `interface KullaniciOzet`
@@ -83,71 +91,103 @@ class KullaniciOzet {
     required this.rol,
     required this.firmaId,
     required this.epostaDogrulandi,
+    this.telefon,
   });
 
   final String id;
   final String ad;
   final String soyad;
   final String email;
+  final String? telefon;
   final KullaniciRolu rol;
   final String? firmaId;
   final bool epostaDogrulandi;
 
   String get tamAd => '$ad $soyad';
 
-  factory KullaniciOzet.jsondan(Map<String, dynamic> json) => KullaniciOzet(
-        id: json['id'] as String,
-        ad: json['ad'] as String,
-        soyad: json['soyad'] as String,
-        email: json['email'] as String,
-        rol: KullaniciRolu.cozumle(json['rol'] as String?),
-        firmaId: json['firmaId'] as String?,
-        epostaDogrulandi: json['epostaDogrulandi'] as bool? ?? false,
-      );
+  factory KullaniciOzet.jsondan(
+    Map<String, dynamic> json,
+  ) {
+    return KullaniciOzet(
+      id: json['id'] as String,
+      ad: json['ad'] as String,
+      soyad: json['soyad'] as String,
+      email: json['email'] as String,
+      telefon: json['telefon'] as String?,
+      rol: KullaniciRolu.cozumle(
+        json['rol'] as String?,
+      ),
+      firmaId: json['firmaId'] as String?,
+      epostaDogrulandi:
+          json['epostaDogrulandi'] as bool? ?? false,
+    );
+  }
 
-  Map<String, dynamic> jsonaDonustur() => {
-        'id': id,
-        'ad': ad,
-        'soyad': soyad,
-        'email': email,
-        'rol': rol.deger,
-        'firmaId': firmaId,
-        'epostaDogrulandi': epostaDogrulandi,
-      };
+  Map<String, dynamic> jsonaDonustur() {
+    return {
+      'id': id,
+      'ad': ad,
+      'soyad': soyad,
+      'email': email,
+      'telefon': telefon,
+      'rol': rol.deger,
+      'firmaId': firmaId,
+      'epostaDogrulandi': epostaDogrulandi,
+    };
+  }
 }
 
-/// TS: `interface LoginResponse` — /auth/login ve /auth/register'ın `data` alanı.
+/// TS: `interface LoginResponse`
 class LoginResponse {
-  const LoginResponse({required this.accessToken, required this.kullanici});
+  const LoginResponse({
+    required this.accessToken,
+    required this.kullanici,
+  });
 
   final String accessToken;
   final KullaniciOzet kullanici;
 
-  factory LoginResponse.jsondan(Map<String, dynamic> json) => LoginResponse(
-        accessToken: json['accessToken'] as String,
-        kullanici:
-            KullaniciOzet.jsondan(json['kullanici'] as Map<String, dynamic>),
-      );
+  factory LoginResponse.jsondan(
+    Map<String, dynamic> json,
+  ) {
+    return LoginResponse(
+      accessToken: json['accessToken'] as String,
+      kullanici: KullaniciOzet.jsondan(
+        json['kullanici'] as Map<String, dynamic>,
+      ),
+    );
+  }
 }
 
 /// TS: `interface SifremiUnuttumRequest`
 class SifremiUnuttumRequest {
-  const SifremiUnuttumRequest({required this.email});
+  const SifremiUnuttumRequest({
+    required this.email,
+  });
 
   final String email;
 
-  Map<String, dynamic> jsonaDonustur() => {'email': email};
+  Map<String, dynamic> jsonaDonustur() {
+    return {
+      'email': email,
+    };
+  }
 }
 
 /// TS: `interface SifreSifirlaRequest`
 class SifreSifirlaRequest {
-  const SifreSifirlaRequest({required this.token, required this.yeniSifre});
+  const SifreSifirlaRequest({
+    required this.token,
+    required this.yeniSifre,
+  });
 
   final String token;
   final String yeniSifre;
 
-  Map<String, dynamic> jsonaDonustur() => {
-        'token': token,
-        'yeniSifre': yeniSifre,
-      };
+  Map<String, dynamic> jsonaDonustur() {
+    return {
+      'token': token,
+      'yeniSifre': yeniSifre,
+    };
+  }
 }

@@ -5,38 +5,59 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/renkler.dart';
 import '../durum/auth_durumu.dart';
 
-class ProfilBilgilerimEkrani extends ConsumerWidget {
-  const ProfilBilgilerimEkrani({super.key});
+class ProfilBilgilerimEkrani
+    extends ConsumerWidget {
+  const ProfilBilgilerimEkrani({
+    super.key,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final kullanici = ref.watch(authProvider).kullanici;
+  Widget build(
+    BuildContext context,
+    WidgetRef ref,
+  ) {
+    final kullanici =
+        ref.watch(authProvider).kullanici;
 
     if (kullanici == null) {
       return Scaffold(
-        backgroundColor: const Color(0xFFF6F7FB),
+        backgroundColor:
+            const Color(0xFFF6F7FB),
         appBar: AppBar(
-          title: const Text('Profil Bilgilerim'),
+          backgroundColor:
+              const Color(0xFFF6F7FB),
+          surfaceTintColor: Colors.transparent,
+          title: const Text(
+            'Profil Bilgilerim',
+          ),
         ),
         body: Center(
           child: ElevatedButton(
             onPressed: () {
               context.go('/giris');
             },
-            child: const Text('Giriş Yap'),
+            child: const Text(
+              'Giriş Yap',
+            ),
           ),
         ),
       );
     }
 
-    final basHarfler = _basHarfleriGetir(
+    final basHarfler =
+        _basHarfleriGetir(
       kullanici.tamAd,
     );
 
+    final telefon =
+        kullanici.telefon?.trim();
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7FB),
+      backgroundColor:
+          const Color(0xFFF6F7FB),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF6F7FB),
+        backgroundColor:
+            const Color(0xFFF6F7FB),
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
@@ -69,7 +90,8 @@ class ProfilBilgilerimEkrani extends ConsumerWidget {
           28,
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
           children: [
             _KullaniciOzetiKarti(
               basHarfler: basHarfler,
@@ -94,7 +116,8 @@ class ProfilBilgilerimEkrani extends ConsumerWidget {
             Container(
               decoration: BoxDecoration(
                 color: Renkler.beyaz,
-                borderRadius: BorderRadius.circular(18),
+                borderRadius:
+                    BorderRadius.circular(18),
                 border: Border.all(
                   color: Renkler.kenarlik,
                 ),
@@ -109,31 +132,44 @@ class ProfilBilgilerimEkrani extends ConsumerWidget {
               child: Column(
                 children: [
                   _BilgiSatiri(
-                    ikon: Icons.person_outline_rounded,
+                    ikon: Icons
+                        .person_outline_rounded,
                     etiket: 'Ad Soyad',
                     deger: kullanici.tamAd,
                   ),
+
                   const _Ayirici(),
 
                   _BilgiSatiri(
-                    ikon: Icons.mail_outline_rounded,
+                    ikon:
+                        Icons.mail_outline_rounded,
                     etiket: 'E-posta',
                     deger: kullanici.email,
-                    altBilgi: kullanici.epostaDogrulandi
-                        ? 'Doğrulandı'
-                        : 'Henüz doğrulanmadı',
+                    altBilgi:
+                        kullanici.epostaDogrulandi
+                            ? 'Doğrulandı'
+                            : 'Henüz doğrulanmadı',
                     altBilgiRengi:
                         kullanici.epostaDogrulandi
-                            ? const Color(0xFF15803D)
-                            : Renkler.altin,
+                            ? const Color(
+                                0xFF15803D,
+                              )
+                            : const Color(
+                                0xFFD97706,
+                              ),
                   ),
+
                   const _Ayirici(),
 
-                  const _BilgiSatiri(
+                  _BilgiSatiri(
                     ikon: Icons.phone_outlined,
                     etiket: 'Telefon',
-                    deger: 'Henüz eklenmedi',
+                    deger: telefon == null ||
+                            telefon.isEmpty
+                        ? 'Henüz eklenmedi'
+                        : telefon,
                   ),
+
                   const _Ayirici(),
 
                   _BilgiSatiri(
@@ -151,16 +187,9 @@ class ProfilBilgilerimEkrani extends ConsumerWidget {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  ScaffoldMessenger.of(context)
-                    ..hideCurrentSnackBar()
-                    ..showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Profil düzenleme özelliği yakında eklenecek.',
-                        ),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
+                  context.push(
+                    '/profil/duzenle',
+                  );
                 },
                 icon: const Icon(
                   Icons.edit_outlined,
@@ -168,19 +197,27 @@ class ProfilBilgilerimEkrani extends ConsumerWidget {
                 label: const Text(
                   'Bilgilerimi Düzenle',
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Renkler.lacivert,
-                  foregroundColor: Renkler.beyaz,
+                style:
+                    ElevatedButton.styleFrom(
+                  backgroundColor:
+                      Renkler.lacivert,
+                  foregroundColor:
+                      Renkler.beyaz,
                   elevation: 0,
-                  padding: const EdgeInsets.symmetric(
+                  padding:
+                      const EdgeInsets.symmetric(
                     vertical: 15,
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                  shape:
+                      RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(14),
                   ),
-                  textStyle: const TextStyle(
+                  textStyle:
+                      const TextStyle(
                     fontSize: 15,
-                    fontWeight: FontWeight.w700,
+                    fontWeight:
+                        FontWeight.w700,
                   ),
                 ),
               ),
@@ -207,7 +244,8 @@ class ProfilBilgilerimEkrani extends ConsumerWidget {
     }
 
     if (kelimeler.length == 1) {
-      return kelimeler.first[0].toUpperCase();
+      return kelimeler.first[0]
+          .toUpperCase();
     }
 
     return '${kelimeler.first[0]}${kelimeler.last[0]}'
@@ -215,7 +253,8 @@ class ProfilBilgilerimEkrani extends ConsumerWidget {
   }
 }
 
-class _KullaniciOzetiKarti extends StatelessWidget {
+class _KullaniciOzetiKarti
+    extends StatelessWidget {
   const _KullaniciOzetiKarti({
     required this.basHarfler,
     required this.tamAd,
@@ -235,7 +274,8 @@ class _KullaniciOzetiKarti extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Renkler.beyaz,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius:
+            BorderRadius.circular(20),
         border: Border.all(
           color: Renkler.kenarlik,
         ),
@@ -253,7 +293,8 @@ class _KullaniciOzetiKarti extends StatelessWidget {
             width: 76,
             height: 76,
             alignment: Alignment.center,
-            decoration: const BoxDecoration(
+            decoration:
+                const BoxDecoration(
               shape: BoxShape.circle,
               gradient: LinearGradient(
                 colors: [
@@ -269,7 +310,8 @@ class _KullaniciOzetiKarti extends StatelessWidget {
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 26,
-                fontWeight: FontWeight.w700,
+                fontWeight:
+                    FontWeight.w700,
               ),
             ),
           ),
@@ -284,10 +326,12 @@ class _KullaniciOzetiKarti extends StatelessWidget {
                 Text(
                   tamAd,
                   maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  overflow:
+                      TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 19,
-                    fontWeight: FontWeight.w700,
+                    fontWeight:
+                        FontWeight.w700,
                     color: Renkler.lacivert,
                   ),
                 ),
@@ -295,28 +339,37 @@ class _KullaniciOzetiKarti extends StatelessWidget {
                 Text(
                   email,
                   maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  overflow:
+                      TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 13,
-                    color: Renkler.metinIkincil,
+                    color:
+                        Renkler.metinIkincil,
                   ),
                 ),
                 const SizedBox(height: 9),
                 Container(
-                  padding: const EdgeInsets.symmetric(
+                  padding:
+                      const EdgeInsets.symmetric(
                     horizontal: 10,
                     vertical: 5,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFFF4D6),
-                    borderRadius: BorderRadius.circular(20),
+                    color: const Color(
+                      0xFFFFF4D6,
+                    ),
+                    borderRadius:
+                        BorderRadius.circular(20),
                   ),
                   child: Text(
                     rol,
                     style: const TextStyle(
-                      color: Color(0xFF9A6700),
+                      color: Color(
+                        0xFF9A6700,
+                      ),
                       fontSize: 11,
-                      fontWeight: FontWeight.w700,
+                      fontWeight:
+                          FontWeight.w700,
                     ),
                   ),
                 ),
@@ -347,17 +400,20 @@ class _BilgiSatiri extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
+      padding:
+          const EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 15,
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
         children: [
           Container(
             width: 42,
             height: 42,
-            decoration: const BoxDecoration(
+            decoration:
+                const BoxDecoration(
               color: Color(0xFFEEF5FC),
               shape: BoxShape.circle,
             ),
@@ -379,7 +435,8 @@ class _BilgiSatiri extends StatelessWidget {
                   etiket,
                   style: const TextStyle(
                     fontSize: 12,
-                    color: Renkler.metinIkincil,
+                    color:
+                        Renkler.metinIkincil,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -387,7 +444,8 @@ class _BilgiSatiri extends StatelessWidget {
                   deger,
                   style: const TextStyle(
                     fontSize: 15,
-                    fontWeight: FontWeight.w600,
+                    fontWeight:
+                        FontWeight.w600,
                     color: Renkler.lacivert,
                   ),
                 ),
@@ -397,9 +455,12 @@ class _BilgiSatiri extends StatelessWidget {
                     altBilgi!,
                     style: TextStyle(
                       fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: altBilgiRengi ??
-                          Renkler.metinIkincil,
+                      fontWeight:
+                          FontWeight.w600,
+                      color:
+                          altBilgiRengi ??
+                              Renkler
+                                  .metinIkincil,
                     ),
                   ),
                 ],
