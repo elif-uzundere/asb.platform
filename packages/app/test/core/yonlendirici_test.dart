@@ -1,6 +1,8 @@
-// Router redirect kurallarının testi:
-// oturumsuz kullanıcı korumalı rotalardan /giris'e atılmalı, açık rotalar
-// (özellikle e-postadaki /sifre-sifirla derin linki) serbest kalmalı.
+// Router rotalarının testi. Router'da artık genel bir auth-guard redirect
+// YOK (bkz. yonlendirici.dart) — koruma ekran bazında yapılıyor (örn.
+// ProfilEkrani oturumsuzken kendi davetini gösteriyor). Buradaki testler
+// özellikle e-postadaki /sifre-sifirla derin linkinin ve Ana Sayfa/Profil'in
+// oturum durumundan bağımsız davranışını doğruluyor.
 
 import 'package:asb_app/core/router/yonlendirici.dart';
 import 'package:asb_app/core/storage/auth_depo.dart';
@@ -87,7 +89,7 @@ void main() {
     await uygulamayiKur(tester, baslangicRotasi: '/profil', oturumAcik: false);
 
     expect(find.text('Hoş geldiniz!'), findsNothing);
-    expect(find.text('Devam etmek için giriş yapın.'), findsOneWidget);
+    expect(find.text('Hesabınıza giriş yapın'), findsOneWidget);
   });
 
   testWidgets('oturumsuz kullanıcı /sifre-sifirla derin linkine erişebiliyor '
@@ -115,10 +117,12 @@ void main() {
     expect(find.text('Hoş geldiniz!'), findsNothing);
   });
 
-  testWidgets('oturumu açık kullanıcı /giris`ten ana sayfaya yönlendiriliyor',
+  testWidgets(
+      'oturumu açık kullanıcı /giris`i ziyaret edebiliyor (otomatik '
+      'redirect kaldırıldı, giriş sonrası yönlendirmeyi ekran kendi yapıyor)',
       (tester) async {
     await uygulamayiKur(tester, baslangicRotasi: '/giris', oturumAcik: true);
 
-    expect(find.text('Ana Sayfa'), findsWidgets);
+    expect(find.text('Hoş geldiniz!'), findsOneWidget);
   });
 }
