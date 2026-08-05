@@ -10,6 +10,7 @@ import '../../features/auth/presentation/ekranlar/profil_bilgilerim_ekrani.dart'
 import '../../features/auth/presentation/ekranlar/profil_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/sifre_sifirla_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/sifremi_unuttum_ekrani.dart';
+import '../../features/destek/presentation/ekranlar/yardim_destek_ekrani.dart';
 import '../../features/duyurular/presentation/ekranlar/duyuru_detay_ekrani.dart';
 import '../../features/duyurular/presentation/ekranlar/duyurular_ekrani.dart';
 import '../../features/firmalar/presentation/ekranlar/firma_detay_ekrani.dart';
@@ -146,6 +147,13 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
         path: '/profil/bilgilerim',
         builder: (context, state) {
           return const ProfilBilgilerimEkrani();
+        },
+      ),
+
+      GoRoute(
+        path: '/profil/yardim-destek',
+        builder: (context, state) {
+          return const YardimDestekEkrani();
         },
       ),
     ],

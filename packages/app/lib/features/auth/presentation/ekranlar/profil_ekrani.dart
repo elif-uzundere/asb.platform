@@ -158,10 +158,7 @@ class ProfilEkrani extends ConsumerWidget {
                       ikon: Icons.headset_mic_rounded,
                       baslik: 'Yardım &\nDestek',
                       onTap: () {
-                        _yakindaMesaji(
-                          context,
-                          'Yardım ve destek',
-                        );
+                        context.push('/profil/yardim-destek');
                       },
                     ),
                   ),
