@@ -275,38 +275,26 @@ class ProfilEkrani extends ConsumerWidget {
                       },
                     ),
 
-                    const _MenuAyirici(),
-
-                    _ProfilMenuSatiri(
-                      ikon: Icons.logout_rounded,
-                      baslik: 'Çıkış Yap',
-                      aciklama: kullanici == null
-                          ? 'Şu anda giriş yapılmış hesap yok'
-                          : 'Hesabınızdan güvenli çıkış yapın',
-                      kirmizi: true,
-                      okGoster: false,
-                      onTap: () {
-                        if (kullanici == null) {
-                          ScaffoldMessenger.of(context)
-                            ..hideCurrentSnackBar()
-                            ..showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Şu anda giriş yapılmış bir hesap yok.',
-                                ),
-                                behavior:
-                                    SnackBarBehavior.floating,
-                              ),
-                            );
-                          return;
-                        }
-
-                        _cikisOnayiGoster(
-                          context,
-                          ref,
-                        );
-                      },
-                    ),
+                    // Zaten çıkış yapılmışken bu buton kafa karıştırır
+                    // (hangi hesaptan çıkacaksın?) — sadece girişliyken
+                    // gösteriliyor.
+                    if (kullanici != null) ...[
+                      const _MenuAyirici(),
+                      _ProfilMenuSatiri(
+                        ikon: Icons.logout_rounded,
+                        baslik: 'Çıkış Yap',
+                        aciklama:
+                            'Hesabınızdan güvenli çıkış yapın',
+                        kirmizi: true,
+                        okGoster: false,
+                        onTap: () {
+                          _cikisOnayiGoster(
+                            context,
+                            ref,
+                          );
+                        },
+                      ),
+                    ],
                   ],
                 ),
               ),
