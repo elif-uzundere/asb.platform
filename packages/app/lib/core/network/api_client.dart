@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../storage/auth_depo.dart';
+import 'yetkisiz_istek_akisi.dart';
 
 /// Backend geliştirme adresi. Tüm endpoint'ler /api/v1 altında (setGlobalPrefix + versioning).
 const String apiTabanAdresi = 'http://localhost:3000/api/v1';
@@ -27,6 +28,16 @@ Dio apiClientOlustur(AuthDepo authDepo) {
           secenekler.headers['Authorization'] = 'Bearer $token';
         }
         isleyici.next(secenekler);
+      },
+      // Token geçersiz/süresi dolmuş: tek yerden oturumu kapat ve girişe
+      // yönlendir (bkz. yetkisiz_istek_akisi.dart) — her yeni yazma
+      // işlemi (beğeni, yorum, sepete ekleme vb.) için ayrı ayrı kontrol
+      // yazmaya gerek kalmasın.
+      onError: (hata, isleyici) {
+        if (hata.response?.statusCode == 401) {
+          yetkisizIstekAkisi.add(null);
+        }
+        isleyici.next(hata);
       },
     ),
   );
