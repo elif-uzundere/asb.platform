@@ -20,6 +20,14 @@
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="A new Flutter project.">
 
+  <!-- Google ile Giriş — google_sign_in_web bu client id'yi normalde
+       Dart tarafındaki initialize(clientId:) çağrısından okuyor, ama bazı
+       kurulumlarda GIS script'i sayfa ilk yüklenirken bu meta etiketi de
+       arıyor. Zararsız bir önlem (web/index.html client id GİZLİ DEĞİL). -->
+  <meta name="google-signin-client_id"
+        content="453158233634-8hs3v1aihvl3j81u1gla4njjp2lsjr45.apps.googleusercontent.com">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">

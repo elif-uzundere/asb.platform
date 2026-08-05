@@ -12,7 +12,9 @@ import '../../../../core/durum/islem_durumu.dart';
 import '../../../../core/theme/renkler.dart';
 import '../../../../core/widgets/form_ogeleri.dart';
 import '../../../../core/widgets/islem_geri_bildirimi.dart';
+import '../durum/google_giris_notifier.dart';
 import '../durum/kayit_notifier.dart';
+import '../widgets/sosyal_giris_satiri.dart';
 
 class KayitEkrani extends ConsumerStatefulWidget {
   const KayitEkrani({super.key});
@@ -60,6 +62,30 @@ class _KayitEkraniDurumu extends ConsumerState<KayitEkrani> {
         sifirla: ref.read(kayitNotifierProvider.notifier).sifirla,
       );
     });
+
+    // Google ile kayıt, Google ile giriş'in AYNISI (hesap yoksa backend
+    // otomatik açıyor) — bu yüzden manuel kayıttan FARKLI olarak başarıda
+    // /giris'e değil, doğrudan '/'e (zaten oturum açılmış olarak) gider.
+    ref.listen<IslemDurumu>(
+      googleGirisNotifierProvider,
+      (onceki, sonraki) {
+        if (sonraki is IslemBasarili) {
+          ref.read(googleGirisNotifierProvider.notifier).sifirla();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            context.go('/');
+          });
+          return;
+        }
+
+        islemGeriBildirimi(
+          context,
+          sonraki,
+          hataBasligi: 'Google ile kayıt başarısız',
+          sifirla: ref.read(googleGirisNotifierProvider.notifier).sifirla,
+        );
+      },
+    );
 
     final yukleniyor = ref.watch(kayitNotifierProvider) is IslemSuruyor;
 

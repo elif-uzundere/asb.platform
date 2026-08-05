@@ -15,9 +15,11 @@ import type { AuthService } from '../../application';
 import {
   EmailZatenKayitliException,
   GecersizEmailException,
+  GecersizGoogleTokenException,
   GecersizKimlikBilgisiException,
   GecersizSifirlamaTokenException,
   MevcutSifreYanlisException,
+  SifresizHesapException,
 } from '../../domain';
 import { AUTH_SERVICE } from '../../auth.tokens';
 import { ApiResponseDto } from '../../../../shared/web/api-response.dto';
@@ -31,6 +33,7 @@ import { SifreSifirlaDto } from './reset-password.dto';
 import { SifreDegistirDto } from './sifre-degistir.dto';
 import { EpostaDegistirDto } from './eposta-degistir.dto';
 import { ProfilGuncelleDto } from './profil-guncelle.dto';
+import { GoogleGirisDto } from './google-giris.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -68,6 +71,16 @@ export class AuthController {
     try {
       await this.authService.sifreSifirla(dto);
       return ApiResponseDto.ok(null);
+    } catch (hata) {
+      throw this.httpHatayaCevir(hata);
+    }
+  }
+
+  @Post('google-giris')
+  async googleIleGiris(@Body() dto: GoogleGirisDto): Promise<ApiResponseDto<LoginResponse>> {
+    try {
+      const sonuc = await this.authService.googleIleGirisYap(dto.idToken);
+      return ApiResponseDto.ok(sonuc);
     } catch (hata) {
       throw this.httpHatayaCevir(hata);
     }
@@ -124,6 +137,8 @@ export class AuthController {
     if (hata instanceof GecersizEmailException) return new BadRequestException(hata.message);
     if (hata instanceof GecersizSifirlamaTokenException) return new BadRequestException(hata.message);
     if (hata instanceof MevcutSifreYanlisException) return new UnauthorizedException(hata.message);
+    if (hata instanceof SifresizHesapException) return new BadRequestException(hata.message);
+    if (hata instanceof GecersizGoogleTokenException) return new UnauthorizedException(hata.message);
     return hata instanceof Error ? hata : new Error('Bilinmeyen hata');
   }
 }

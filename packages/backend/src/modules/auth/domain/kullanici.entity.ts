@@ -6,7 +6,8 @@ export class Kullanici {
   constructor(
     public readonly id: string,
     public readonly email: Email,
-    public readonly sifreHash: string,
+    /** null → şifresiz hesap (Google/Apple gibi sosyal girişle açıldı). */
+    public readonly sifreHash: string | null,
     public readonly ad: string,
     public readonly soyad: string,
     public readonly rol: KullaniciRolu,

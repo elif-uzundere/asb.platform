@@ -22,6 +22,14 @@ class DuyurularEkrani extends ConsumerStatefulWidget {
 
 class _DuyurularEkraniDurumu extends ConsumerState<DuyurularEkrani> {
   String? _seciliKategori;
+  final _arama = TextEditingController();
+  String _aramaMetni = '';
+
+  @override
+  void dispose() {
+    _arama.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,15 +57,26 @@ class _DuyurularEkraniDurumu extends ConsumerState<DuyurularEkrani> {
                   }.toList()
                     ..sort();
 
-                  final gosterilecek = _seciliKategori == null
-                      ? duyurular
-                      : duyurular.where((d) => d.kategori == _seciliKategori).toList();
+                  final aramaKucuk = _aramaMetni.trim().toLowerCase();
+                  final gosterilecek = duyurular.where((d) {
+                    final kategoriUyuyor =
+                        _seciliKategori == null || d.kategori == _seciliKategori;
+                    final aramaUyuyor = aramaKucuk.isEmpty ||
+                        d.baslik.toLowerCase().contains(aramaKucuk) ||
+                        d.icerik.toLowerCase().contains(aramaKucuk);
+                    return kategoriUyuyor && aramaUyuyor;
+                  }).toList();
 
                   return RefreshIndicator(
                     onRefresh: () async => ref.invalidate(duyuruListesiProvider),
                     child: ListView(
                       padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
                       children: [
+                        _AramaKutusu(
+                          denetleyici: _arama,
+                          degisti: (metin) => setState(() => _aramaMetni = metin),
+                        ),
+                        const SizedBox(height: 14),
                         if (kategoriler.length > 1) ...[
                           Align(
                             alignment: Alignment.centerLeft,
@@ -70,9 +89,13 @@ class _DuyurularEkraniDurumu extends ConsumerState<DuyurularEkrani> {
                           const SizedBox(height: 14),
                         ],
                         if (gosterilecek.isEmpty)
-                          const Padding(
-                            padding: EdgeInsets.only(top: 40),
-                            child: _BosGorunum(),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 40),
+                            child: _BosGorunum(
+                              mesaj: aramaKucuk.isEmpty
+                                  ? null
+                                  : '"$_aramaMetni" için sonuç bulunamadı',
+                            ),
                           )
                         else
                           for (final duyuru in gosterilecek) ...[
@@ -382,7 +405,11 @@ class _KategoriCipi extends StatelessWidget {
 }
 
 class _BosGorunum extends StatelessWidget {
-  const _BosGorunum();
+  const _BosGorunum({this.mesaj});
+
+  /// null ise liste gerçekten boş (hiç duyuru yok); doluysa arama/filtre
+  /// sonucu boş kaldı — ikisi FARKLI durumlar, kullanıcıya farklı anlatılmalı.
+  final String? mesaj;
 
   @override
   Widget build(BuildContext context) {
@@ -397,14 +424,69 @@ class _BosGorunum extends StatelessWidget {
               color: Renkler.mavi.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.campaign_outlined, size: 30, color: Renkler.mavi),
+            child: Icon(
+              mesaj == null ? Icons.campaign_outlined : Icons.search_off,
+              size: 30,
+              color: Renkler.mavi,
+            ),
           ),
           const SizedBox(height: 14),
-          const Text(
-            'Henüz duyuru yok',
-            style: TextStyle(color: Renkler.metinIkincil, fontWeight: FontWeight.w500),
+          Text(
+            mesaj ?? 'Henüz duyuru yok',
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Renkler.metinIkincil, fontWeight: FontWeight.w500),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// firmalar_ekrani.dart'taki _AramaKutusu ile AYNI görsel desen — burada
+/// backend'e istek atmıyor, zaten çekilmiş listeyi client-side filtreliyor
+/// (Duyurular tek seferde tam liste döndürüyor, arama ucu yok/gerekmiyor).
+class _AramaKutusu extends StatelessWidget {
+  const _AramaKutusu({required this.denetleyici, required this.degisti});
+
+  final TextEditingController denetleyici;
+  final ValueChanged<String> degisti;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Renkler.lacivert.withValues(alpha: 0.06),
+            blurRadius: 14,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: TextField(
+        controller: denetleyici,
+        onChanged: degisti,
+        decoration: InputDecoration(
+          hintText: 'Duyuru ara...',
+          hintStyle: const TextStyle(color: Renkler.metinIkincil),
+          prefixIcon: const Icon(Icons.search, color: Renkler.metinIkincil),
+          filled: true,
+          fillColor: Renkler.beyaz,
+          contentPadding: const EdgeInsets.symmetric(vertical: 14),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: Renkler.mavi, width: 1.4),
+          ),
+        ),
       ),
     );
   }

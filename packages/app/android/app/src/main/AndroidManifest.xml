@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="asb_app"
+        android:label="ASB Platform"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

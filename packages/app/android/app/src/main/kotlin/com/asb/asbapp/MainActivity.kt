@@ -1,4 +1,4 @@
-package com.asb.asb_app
+package com.asb.asbapp
 
 import io.flutter.embedding.android.FlutterActivity
 

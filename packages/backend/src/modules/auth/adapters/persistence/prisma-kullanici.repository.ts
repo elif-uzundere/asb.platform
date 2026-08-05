@@ -78,7 +78,7 @@ export class PrismaKullaniciRepository implements KullaniciRepository {
     return new Kullanici(
       kayit.id,
       new Email(kayit.email),
-      kayit.sifreHash ?? '',
+      kayit.sifreHash,
       kayit.ad,
       kayit.soyad,
       kayit.rol as KullaniciRolu,

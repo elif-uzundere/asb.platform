@@ -25,6 +25,12 @@ dependencies:
   # Banner linkUrl'lerini açmak için
   url_launcher: ^6.3.1
   http: ^1.6.0
+  # Google ile giriş
+  google_sign_in: ^7.2.0
+  # Web'de Google'ın kendi giriş düğmesini (renderButton) çizmek için —
+  # google_sign_in bunu transitive olarak zaten getiriyor, doğrudan
+  # bağımlılık olarak da eklememiz gerekiyor (analyzer kuralı).
+  google_sign_in_web: ^1.1.3
 
 dev_dependencies:
   flutter_test:

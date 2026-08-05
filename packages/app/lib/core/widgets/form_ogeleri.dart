@@ -153,66 +153,13 @@ class BirincilButon extends StatelessWidget {
 
 /// "veya" + 3 sosyal düğme. OAuth henüz yok (Adım 4b'ye ertelendi),
 /// düğmeler "Yakında" mesajı gösteriyor — eski Expo kodu ile aynı davranış.
-class SosyalGirisSatiri extends StatelessWidget {
-  const SosyalGirisSatiri({super.key, required this.yakindaMesaji});
-
-  final String yakindaMesaji;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Text(
-          'veya',
-          style: TextStyle(fontSize: 12, color: Renkler.metinIkincil),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _SosyalButon(
-              icerik: const Text(
-                'G',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: Renkler.lacivert,
-                ),
-              ),
-              basildi: () => _yakinda(context),
-            ),
-            const SizedBox(width: 14),
-            _SosyalButon(
-              icerik: const Text(
-                'in',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  color: Renkler.lacivert,
-                ),
-              ),
-              basildi: () => _yakinda(context),
-            ),
-            const SizedBox(width: 14),
-            _SosyalButon(
-              icerik: const Icon(Icons.apple, size: 18, color: Renkler.lacivert),
-              basildi: () => _yakinda(context),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  void _yakinda(BuildContext context) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(yakindaMesaji)));
-  }
-}
-
-class _SosyalButon extends StatelessWidget {
-  const _SosyalButon({required this.icerik, required this.basildi});
+/// Giriş/Kayıt Ol formlarındaki küçük dairesel sosyal buton — Google
+/// (gerçek, feature/auth/presentation/widgets/google_giris_dugmesi.dart)
+/// ve LinkedIn/Apple ("yakında") için ortak kabuk. Feature-özel composed
+/// satır (SosyalGirisSatiri) core'da DEĞİL, features/auth altında —
+/// core, feature'lara bağımlı olmamalı (bkz. docs/CLAUDE.md mimari kuralı).
+class SosyalButon extends StatelessWidget {
+  const SosyalButon({super.key, required this.icerik, required this.basildi});
 
   final Widget icerik;
   final VoidCallback basildi;

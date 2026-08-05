@@ -54,3 +54,9 @@ export interface ProfilGuncelleRequest {
   soyad: string;
   telefon?: string;
 }
+
+export interface GoogleGirisRequest {
+  /** Google Identity Services'in ürettiği ID token — backend'de
+   * google-auth-library ile doğrulanır. */
+  idToken: string;
+}

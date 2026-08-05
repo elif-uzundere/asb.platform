@@ -55,6 +55,15 @@ class AuthApi {
             'uymuyor (min 8 karakter, 1 rakam).',
       );
 
+  Future<LoginResponse> googleIleGirisIstegi(GoogleGirisRequest dto) => apiIstegi(
+        () => _dio.post<Map<String, dynamic>>(
+          '/auth/google-giris',
+          data: dto.jsonaDonustur(),
+        ),
+        cozumle: (veri) => LoginResponse.jsondan(veri! as Map<String, dynamic>),
+        yedekMesaj: 'Google girişi başarısız, tekrar dene.',
+      );
+
   Future<void> sifreDegistirIstegi(SifreDegistirRequest dto) => apiIstegi<void>(
         () => _dio.patch<Map<String, dynamic>>(
           '/auth/sifre-degistir',

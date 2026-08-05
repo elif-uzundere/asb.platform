@@ -26,3 +26,17 @@ export class MevcutSifreYanlisException extends Error {
     super('Mevcut şifreniz hatalı');
   }
 }
+
+/** Google/Apple gibi sosyal girişle açılan hesaplarda şifre yok — bu
+ * hesaplar şifreyle giriş/değiştirme akışını kullanamaz. */
+export class SifresizHesapException extends Error {
+  constructor() {
+    super('Bu hesapta şifre tanımlı değil, sosyal girişle devam edin');
+  }
+}
+
+export class GecersizGoogleTokenException extends Error {
+  constructor() {
+    super('Google girişi doğrulanamadı, lütfen tekrar deneyin');
+  }
+}

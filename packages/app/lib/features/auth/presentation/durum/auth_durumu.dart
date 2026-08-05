@@ -48,6 +48,12 @@ class AuthNotifier extends StateNotifier<AuthDurumu> {
 
   Future<void> girisYap(LoginRequest dto) async {
     final sonuc = await _api.girisYapIstegi(dto);
+    await oturumuKaydet(sonuc);
+  }
+
+  /// Şifreli girişle Google girişinin ORTAK son adımı: ikisi de aynı
+  /// şekilde bir [LoginResponse] üretir, tek fark bunu nasıl aldıkları.
+  Future<void> oturumuKaydet(LoginResponse sonuc) async {
     await _depo.yaz(
       AuthKaydi(accessToken: sonuc.accessToken, kullanici: sonuc.kullanici),
     );

@@ -4,3 +4,4 @@ export * from './kullanici.entity';
 export * from './kullanici.repository';
 export * from './token-uretici.port';
 export * from './email-gonder.port';
+export * from './google-token-dogrulayici.port';

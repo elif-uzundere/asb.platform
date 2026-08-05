@@ -17,10 +17,12 @@ import {
   SifreHashPort,
   TokenUreticiPort,
   EmailGonderPort,
+  GoogleTokenDogrulayiciPort,
   EmailZatenKayitliException,
   GecersizKimlikBilgisiException,
   GecersizSifirlamaTokenException,
   MevcutSifreYanlisException,
+  SifresizHesapException,
 } from '../domain';
 
 export class AuthService {
@@ -29,6 +31,7 @@ export class AuthService {
     private readonly sifreHash: SifreHashPort,
     private readonly tokenUretici: TokenUreticiPort,
     private readonly emailGonderici: EmailGonderPort,
+    private readonly googleDogrulayici: GoogleTokenDogrulayiciPort,
     private readonly sifirlamaLinkTabani: string,
   ) {}
 
@@ -66,12 +69,35 @@ export class AuthService {
       throw new GecersizKimlikBilgisiException();
     }
 
+    // sifreHash null ise hesap Google gibi sosyal girişle açılmış — şifreyle
+    // giriş denemesi burada "hatalı bilgi" olarak görünür (US-002 kabul
+    // kriteri: hangi alan yanlış söylenmez, güvenlik).
+    if (!kullanici.sifreHash) {
+      throw new GecersizKimlikBilgisiException();
+    }
+
     const dogru = await this.sifreHash.dogrula(dto.sifre, kullanici.sifreHash);
     if (!dogru) {
       throw new GecersizKimlikBilgisiException();
     }
 
     return this.yanitOlustur(kullanici, dto.beniHatirla);
+  }
+
+  /** Google'ın doğruladığı e-posta ile giriş — hesap yoksa otomatik açılır
+   * (şifresiz, e-posta zaten Google tarafından doğrulanmış sayılır). */
+  async googleIleGirisYap(idToken: string): Promise<LoginResponse> {
+    const bilgi = await this.googleDogrulayici.dogrula(idToken);
+    const email = new Email(bilgi.email);
+
+    let kullanici = await this.kullaniciRepo.emailIleBul(email.toString());
+    if (!kullanici) {
+      kullanici = await this.kullaniciRepo.kaydet(
+        new Kullanici(randomUUID(), email, null, bilgi.ad, bilgi.soyad, 'ziyaretci', null, true),
+      );
+    }
+
+    return this.yanitOlustur(kullanici);
   }
 
   async sifremiUnuttum(dto: SifremiUnuttumRequest): Promise<void> {
@@ -101,6 +127,9 @@ export class AuthService {
    * burada mevcut şifre doğrulanarak kimlik teyit edilir, e-posta gitmez. */
   async sifreDegistir(kullaniciId: string, dto: SifreDegistirRequest): Promise<void> {
     const kullanici = await this.kullaniciBul(kullaniciId);
+    if (!kullanici.sifreHash) {
+      throw new SifresizHesapException();
+    }
     const dogru = await this.sifreHash.dogrula(dto.mevcutSifre, kullanici.sifreHash);
     if (!dogru) {
       throw new MevcutSifreYanlisException();
@@ -123,6 +152,9 @@ export class AuthService {
    */
   async epostaDegistir(kullaniciId: string, dto: EpostaDegistirRequest): Promise<void> {
     const kullanici = await this.kullaniciBul(kullaniciId);
+    if (!kullanici.sifreHash) {
+      throw new SifresizHesapException();
+    }
     const dogru = await this.sifreHash.dogrula(dto.mevcutSifre, kullanici.sifreHash);
     if (!dogru) {
       throw new MevcutSifreYanlisException();

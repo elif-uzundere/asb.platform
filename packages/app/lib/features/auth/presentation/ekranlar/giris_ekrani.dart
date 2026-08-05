@@ -13,6 +13,8 @@ import '../../../../core/theme/renkler.dart';
 import '../../../../core/widgets/form_ogeleri.dart';
 import '../../../../core/widgets/islem_geri_bildirimi.dart';
 import '../durum/giris_notifier.dart';
+import '../durum/google_giris_notifier.dart';
+import '../widgets/sosyal_giris_satiri.dart';
 
 class GirisEkrani extends ConsumerStatefulWidget {
   const GirisEkrani({super.key});
@@ -81,6 +83,27 @@ class _GirisEkraniDurumu
           sifirla: ref
               .read(girisNotifierProvider.notifier)
               .sifirla,
+        );
+      },
+    );
+
+    ref.listen<IslemDurumu>(
+      googleGirisNotifierProvider,
+      (onceki, sonraki) {
+        if (sonraki is IslemBasarili) {
+          ref.read(googleGirisNotifierProvider.notifier).sifirla();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            context.go('/');
+          });
+          return;
+        }
+
+        islemGeriBildirimi(
+          context,
+          sonraki,
+          hataBasligi: 'Google girişi başarısız',
+          sifirla: ref.read(googleGirisNotifierProvider.notifier).sifirla,
         );
       },
     );

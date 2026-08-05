@@ -207,3 +207,12 @@ class ProfilGuncelleRequest {
         if (telefon != null && telefon!.isNotEmpty) 'telefon': telefon,
       };
 }
+
+/// TS: `interface GoogleGirisRequest`
+class GoogleGirisRequest {
+  const GoogleGirisRequest({required this.idToken});
+
+  final String idToken;
+
+  Map<String, dynamic> jsonaDonustur() => {'idToken': idToken};
+}
