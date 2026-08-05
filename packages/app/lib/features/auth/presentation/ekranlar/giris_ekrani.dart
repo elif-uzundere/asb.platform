@@ -1,4 +1,5 @@
-// Kaynak (UX/metin): eski Expo app/giris.tsx (silindi — bkz. docs/izlence-typescript-nestjs(1).md Ek A)
+// Kaynak (UX/metin): eski Expo app/giris.tsx
+// (silindi — bkz. docs/izlence-typescript-nestjs(1).md Ek A)
 //
 // Bu dosya SADECE görünüm: form alanlarını tutar, GirisNotifier'a gönderir,
 // durumu dinler. İstek atma / girdi temizleme / hata yakalama burada YOK.
@@ -17,12 +18,15 @@ class GirisEkrani extends ConsumerStatefulWidget {
   const GirisEkrani({super.key});
 
   @override
-  ConsumerState<GirisEkrani> createState() => _GirisEkraniDurumu();
+  ConsumerState<GirisEkrani> createState() =>
+      _GirisEkraniDurumu();
 }
 
-class _GirisEkraniDurumu extends ConsumerState<GirisEkrani> {
+class _GirisEkraniDurumu
+    extends ConsumerState<GirisEkrani> {
   final _email = TextEditingController();
   final _sifre = TextEditingController();
+
   bool _sifreGoster = false;
   bool _beniHatirla = false;
 
@@ -33,25 +37,59 @@ class _GirisEkraniDurumu extends ConsumerState<GirisEkrani> {
     super.dispose();
   }
 
-  void _gonder() => ref.read(girisNotifierProvider.notifier).gonder(
-        email: _email.text,
-        sifre: _sifre.text,
-        beniHatirla: _beniHatirla,
-      );
+  void _gonder() {
+    ref.read(girisNotifierProvider.notifier).gonder(
+          email: _email.text,
+          sifre: _sifre.text,
+          beniHatirla: _beniHatirla,
+        );
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Başarıda yönlendirmeyi router'ın redirect'i yapıyor (oturum açıldı → '/').
-    ref.listen<IslemDurumu>(girisNotifierProvider, (_, sonraki) {
-      islemGeriBildirimi(
-        context,
-        sonraki,
-        hataBasligi: 'Giriş başarısız',
-        sifirla: ref.read(girisNotifierProvider.notifier).sifirla,
-      );
-    });
+    ref.listen<IslemDurumu>(
+      girisNotifierProvider,
+      (onceki, sonraki) {
+        /*
+         * Router'daki otomatik redirect kaldırıldığı için giriş başarıyla
+         * tamamlandığında yönlendirmeyi bu ekran yapıyor.
+         */
+        if (sonraki is IslemBasarili) {
+          ref
+              .read(girisNotifierProvider.notifier)
+              .sifirla();
 
-    final yukleniyor = ref.watch(girisNotifierProvider) is IslemSuruyor;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) {
+              return;
+            }
+
+            context.go('/');
+          });
+
+          return;
+        }
+
+        /*
+         * Hata olduğunda mevcut ortak geri bildirim sistemi çalışmaya
+         * devam eder. Giriş başarısızsa kullanıcıya hata mesajı gösterilir.
+         */
+        islemGeriBildirimi(
+          context,
+          sonraki,
+          hataBasligi: 'Giriş başarısız',
+          sifirla: ref
+              .read(girisNotifierProvider.notifier)
+              .sifirla,
+        );
+      },
+    );
+
+    final islemDurumu =
+        ref.watch(girisNotifierProvider);
+
+    final yukleniyor =
+        islemDurumu is IslemSuruyor;
 
     return Scaffold(
       backgroundColor: Renkler.beyaz,
@@ -60,9 +98,12 @@ class _GirisEkraniDurumu extends ConsumerState<GirisEkrani> {
         child: SingleChildScrollView(
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 430),
+              constraints: const BoxConstraints(
+                maxWidth: 430,
+              ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                crossAxisAlignment:
+                    CrossAxisAlignment.stretch,
                 children: [
                   Stack(
                     children: [
@@ -74,14 +115,18 @@ class _GirisEkraniDurumu extends ConsumerState<GirisEkrani> {
                       ),
                       SafeArea(
                         child: Padding(
-                          padding: const EdgeInsets.all(12),
+                          padding:
+                              const EdgeInsets.all(12),
                           child: GeriButonu(
-                            basildi: () => context.go('/profil'),
+                            basildi: () {
+                              context.go('/profil');
+                            },
                           ),
                         ),
                       ),
                     ],
                   ),
+
                   Transform.translate(
                     offset: const Offset(0, -28),
                     child: Container(
@@ -94,118 +139,176 @@ class _GirisEkraniDurumu extends ConsumerState<GirisEkrani> {
                       ),
                       padding: const EdgeInsets.all(24),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        crossAxisAlignment:
+                            CrossAxisAlignment.stretch,
                         children: [
                           const Text(
                             'Hoş geldiniz!',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 20,
-                              fontWeight: FontWeight.w500,
+                              fontWeight:
+                                  FontWeight.w500,
                               color: Renkler.lacivert,
                             ),
                           ),
+
                           const SizedBox(height: 14),
+
                           const Text(
                             'Hesabınıza giriş yaparak tüm hizmetlerimize kolayca ulaşabilirsiniz.',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 13,
-                              color: Renkler.metinIkincil,
+                              color:
+                                  Renkler.metinIkincil,
                             ),
                           ),
+
                           const SizedBox(height: 14),
+
                           GirdiKutusu(
                             denetleyici: _email,
-                            ipucu: 'E-posta veya telefon',
-                            ikon: Icons.person_outline,
-                            klavyeTipi: TextInputType.emailAddress,
-                            otomatikDoldurma: const [AutofillHints.email],
+                            ipucu:
+                                'E-posta veya telefon',
+                            ikon:
+                                Icons.person_outline,
+                            klavyeTipi:
+                                TextInputType
+                                    .emailAddress,
+                            otomatikDoldurma: const [
+                              AutofillHints.email,
+                            ],
                           ),
+
                           const SizedBox(height: 14),
+
                           GirdiKutusu(
                             denetleyici: _sifre,
                             ipucu: 'Şifre',
                             ikon: Icons.lock_outline,
                             gizli: !_sifreGoster,
-                            otomatikDoldurma: const [AutofillHints.password],
+                            otomatikDoldurma: const [
+                              AutofillHints.password,
+                            ],
                             sonEk: SifreGozu(
                               gorunur: _sifreGoster,
-                              degistir: () =>
-                                  setState(() => _sifreGoster = !_sifreGoster),
+                              degistir: () {
+                                setState(() {
+                                  _sifreGoster =
+                                      !_sifreGoster;
+                                });
+                              },
                             ),
                           ),
+
                           const SizedBox(height: 14),
+
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment:
+                                MainAxisAlignment
+                                    .spaceBetween,
                             children: [
                               InkWell(
-                                onTap: () => setState(
-                                  () => _beniHatirla = !_beniHatirla,
-                                ),
+                                onTap: () {
+                                  setState(() {
+                                    _beniHatirla =
+                                        !_beniHatirla;
+                                  });
+                                },
                                 child: Row(
-                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisSize:
+                                      MainAxisSize.min,
                                   children: [
                                     Icon(
                                       _beniHatirla
-                                          ? Icons.check_box
-                                          : Icons.check_box_outline_blank,
+                                          ? Icons
+                                              .check_box
+                                          : Icons
+                                              .check_box_outline_blank,
                                       size: 18,
-                                      color: Renkler.lacivert,
+                                      color:
+                                          Renkler.lacivert,
                                     ),
-                                    const SizedBox(width: 6),
+                                    const SizedBox(
+                                      width: 6,
+                                    ),
                                     const Text(
                                       'Beni hatırla',
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: Renkler.metinIkincil,
+                                        color: Renkler
+                                            .metinIkincil,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
+
                               InkWell(
-                                onTap: () => context.push('/sifremi-unuttum'),
+                                onTap: () {
+                                  context.push(
+                                    '/sifremi-unuttum',
+                                  );
+                                },
                                 child: const Text(
                                   'Şifremi unuttum?',
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: Renkler.mavi,
+                                    color:
+                                        Renkler.mavi,
                                   ),
                                 ),
                               ),
                             ],
                           ),
+
                           const SizedBox(height: 18),
+
                           BirincilButon(
-                            yazi:
-                                yukleniyor ? 'Giriş yapılıyor...' : 'Giriş yap',
+                            yazi: yukleniyor
+                                ? 'Giriş yapılıyor...'
+                                : 'Giriş yap',
                             yukleniyor: yukleniyor,
                             basildi: _gonder,
                           ),
+
                           const SizedBox(height: 14),
+
                           const SosyalGirisSatiri(
-                            yakindaMesaji: 'Sosyal giriş henüz eklenmedi.',
+                            yakindaMesaji:
+                                'Sosyal giriş henüz eklenmedi.',
                           ),
+
                           const SizedBox(height: 18),
+
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisAlignment:
+                                MainAxisAlignment
+                                    .center,
                             children: [
                               const Text(
                                 'Hesabınız yok mu? ',
                                 style: TextStyle(
                                   fontSize: 13,
-                                  color: Renkler.metinIkincil,
+                                  color: Renkler
+                                      .metinIkincil,
                                 ),
                               ),
                               InkWell(
-                                onTap: () => context.push('/kayit'),
+                                onTap: () {
+                                  context.push(
+                                    '/kayit',
+                                  );
+                                },
                                 child: const Text(
                                   'Kayıt ol',
                                   style: TextStyle(
                                     fontSize: 13,
-                                    color: Renkler.mavi,
-                                    fontWeight: FontWeight.w500,
+                                    color:
+                                        Renkler.mavi,
+                                    fontWeight:
+                                        FontWeight.w500,
                                   ),
                                 ),
                               ),

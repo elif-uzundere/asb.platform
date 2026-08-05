@@ -1,13 +1,3 @@
-// Kaynak (davranış): eski Expo app/_layout.tsx + app/index.tsx
-// (silindi — bkz. docs/izlence-typescript-nestjs(1).md Ek A)
-//
-// "Giriş yapılmamışsa /giris'e yönlendir" mantığı burada
-// go_router'ın redirect callback'i ile kuruldu.
-//
-// Kaynak: eski Expo app/(admin)/ route grubunun Flutter karşılığı
-// BİLEREK kurulmadı. Admin paneli artık Flutter içinde değil,
-// AdminJS üzerinden yönetiliyor.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -16,6 +6,7 @@ import '../../features/ana_sayfa/presentation/ekranlar/ana_sayfa_ekrani.dart';
 import '../../features/auth/presentation/durum/auth_durumu.dart';
 import '../../features/auth/presentation/ekranlar/giris_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/kayit_ekrani.dart';
+import '../../features/auth/presentation/ekranlar/profil_bilgilerim_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/profil_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/sifre_sifirla_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/sifremi_unuttum_ekrani.dart';
@@ -28,30 +19,7 @@ import '../../features/is_ortaklari/presentation/ekranlar/is_ortaklari_ekrani.da
 import 'route_gozlemci.dart';
 import 'sekme_kabugu.dart';
 
-/// Oturum gerektirmeyen rotalar. '/' burada BİLEREK var — Ana Sayfa artık
-/// ASB'nin kendi web sitesi gibi, oturum açmadan da görülebilen bir karşılama
-/// sayfası. '/profil' de BİLEREK var — Ana Sayfa'nın kendi Giriş Yap/Kayıt Ol
-/// header'ı kaldırıldığı için giriş/kayıt akışı artık Profil sekmesinden
-/// başlıyor; sekme oturumsuzken de görünür kalmalı (kendi "Giriş Yap" davetini
-/// gösteriyor) yoksa alt sekme çubuğu kaybolur. Diğer sekmeler ('/firmalar'
-/// vb.) bu listede YOK — oraya girişsiz gidilmeye çalışılırsa /giris'e düşer.
-const Set<String> _acikRotalar = {
-  '/',
-  '/profil',
-  '/giris',
-  '/kayit',
-  '/sifremi-unuttum',
-  '/sifre-sifirla',
-};
-
-/// '/' ve '/profil' HEM girişli HEM girişsiz kullanıcı için geçerli
-/// rotalar — açık rota olsalar da girişli kullanıcı buradan '/'e geri
-/// yollanmamalı (aksi halde Profil sekmesine hiç girilemezdi).
-const Set<String> _herZamanAcikRotalar = {'/', '/profil'};
-
 final yonlendiriciProvider = Provider<GoRouter>((ref) {
-  // GoRouter'ı her auth değişiminde yeniden kurmamak için durumu
-  // bir Listenable üzerinden besliyoruz.
   final tetikleyici = ValueNotifier<int>(0);
 
   ref.onDispose(tetikleyici.dispose);
@@ -66,46 +34,24 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
     },
   );
 
-  // initialLocation bilerek verilmedi.
-  // Web'de tarayıcı adresi tek yetkili kaynak olsun.
   return GoRouter(
+    // Uygulama ilk açıldığında Ana Sayfa açılır.
+    initialLocation: '/',
+
     refreshListenable: tetikleyici,
     observers: [routeGozlemci],
 
+    // Hiçbir sayfa otomatik olarak giriş ekranına gönderilmez.
     redirect: (context, state) {
-      final durum = ref.read(authProvider);
-
-      // Depodan okuma bitmeden yönlendirme yapma.
-      if (!durum.hazir) {
-        return null;
-      }
-
-      final acikRota = _acikRotalar.contains(
-        state.matchedLocation,
-      );
-
-      // Giriş yapılmamışsa açık olmayan sayfalara gidilemez.
-      if (!durum.girisYapildi && !acikRota) {
-        return '/giris';
-      }
-
-      // Giriş yapılmışsa giriş/kayıt ekranlarına geri gönderme — '/' ve
-      // '/profil' HARİÇ, bunlar hem girişli hem girişsiz kullanıcının
-      // görebildiği rotalar (aksi halde Profil sekmesine hiç girilemezdi).
-      if (durum.girisYapildi &&
-          acikRota &&
-          !_herZamanAcikRotalar.contains(state.matchedLocation)) {
-        return '/';
-      }
-
       return null;
     },
 
     routes: [
-      // Alt sekme çubuğunun görüneceği ana sayfalar.
       ShellRoute(
         builder: (context, state, cocuk) {
-          return SekmeKabugu(cocuk: cocuk);
+          return SekmeKabugu(
+            cocuk: cocuk,
+          );
         },
         routes: [
           GoRoute(
@@ -114,36 +60,24 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
               return const AnaSayfaEkrani();
             },
           ),
-
           GoRoute(
             path: '/firmalar',
             builder: (context, state) {
               return const FirmalarEkrani();
             },
           ),
-
           GoRoute(
             path: '/harita',
             builder: (context, state) {
               return const HaritaEkrani();
             },
           ),
-
           GoRoute(
             path: '/duyurular',
             builder: (context, state) {
               return const DuyurularEkrani();
             },
           ),
-
-          // Yeni eklediğimiz iş ortakları sayfası.
-          GoRoute(
-            path: '/is-ortaklari',
-            builder: (context, state) {
-              return const IsOrtaklariEkrani();
-            },
-          ),
-
           GoRoute(
             path: '/profil',
             builder: (context, state) {
@@ -153,7 +87,6 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
         ],
       ),
 
-      // Giriş ve kayıt sayfaları ShellRoute dışında.
       GoRoute(
         path: '/giris',
         builder: (context, state) {
@@ -184,8 +117,6 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
         },
       ),
 
-      // Firma detay ekranı tam sayfa açılır.
-      // Alt sekme çubuğu görünmez.
       GoRoute(
         path: '/firmalar/:id',
         builder: (context, state) {
@@ -195,13 +126,26 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
         },
       ),
 
-      // Duyuru detay ekranı tam sayfa açılır.
       GoRoute(
         path: '/duyurular/:id',
         builder: (context, state) {
           return DuyuruDetayEkrani(
             duyuruId: state.pathParameters['id']!,
           );
+        },
+      ),
+
+      GoRoute(
+        path: '/is-ortaklari',
+        builder: (context, state) {
+          return const IsOrtaklariEkrani();
+        },
+      ),
+
+      GoRoute(
+        path: '/profil/bilgilerim',
+        builder: (context, state) {
+          return const ProfilBilgilerimEkrani();
         },
       ),
     ],
