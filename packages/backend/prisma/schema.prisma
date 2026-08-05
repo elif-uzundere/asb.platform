@@ -58,6 +58,7 @@ model Kullanici {
   cookzoneSiparisleri   CookzoneSiparis[]
   acilDurumBildirimleri AcilDurumBildirimi[]
   paletTesisleri        PaletTesisi[]
+  destekTalepleri       DestekTalebi[]
 
   @@map("kullanici")
 }
@@ -118,6 +119,25 @@ model Duyuru {
   olusturanKullanici   Kullanici @relation("DuyuruOlusturanKullanici", fields: [olusturanKullaniciId], references: [id])
 
   @@map("duyuru")
+}
+
+enum DestekTalebiDurumu {
+  beklemede
+  yanitlandi
+  kapali
+}
+
+model DestekTalebi {
+  id              String             @id @default(uuid())
+  baslik          String             @db.VarChar(150)
+  aciklama        String
+  durum           DestekTalebiDurumu @default(beklemede)
+  olusturmaTarihi DateTime           @default(now()) @map("olusturma_tarihi")
+
+  kullaniciId String    @map("kullanici_id")
+  kullanici   Kullanici @relation(fields: [kullaniciId], references: [id])
+
+  @@map("destek_talebi")
 }
 
 model IsOrtagi {

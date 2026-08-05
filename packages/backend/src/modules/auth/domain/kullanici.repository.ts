@@ -5,6 +5,11 @@ export interface KullaniciRepository {
   idIleBul(id: string): Promise<Kullanici | null>;
   kaydet(kullanici: Kullanici): Promise<Kullanici>;
   sifreGuncelle(id: string, yeniSifreHash: string): Promise<void>;
+  epostaGuncelle(id: string, yeniEposta: string): Promise<void>;
+  profilGuncelle(
+    id: string,
+    veri: { ad: string; soyad: string; telefon: string | null },
+  ): Promise<Kullanici>;
 }
 
 export interface SifreHashPort {

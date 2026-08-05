@@ -17,6 +17,7 @@ export class PrismaKullaniciRepository implements KullaniciRepository {
       data: {
         id: kullanici.id,
         email: kullanici.email.toString(),
+        telefon: kullanici.telefon,
         sifreHash: kullanici.sifreHash,
         ad: kullanici.ad,
         soyad: kullanici.soyad,
@@ -41,9 +42,32 @@ export class PrismaKullaniciRepository implements KullaniciRepository {
     });
   }
 
+  async epostaGuncelle(id: string, yeniEposta: string): Promise<void> {
+    await this.prisma.kullanici.update({
+      where: { id },
+      // Yeni e-posta henüz doğrulanmadı — gerçek bir doğrulama akışı
+      // (link/kod gönderme) bu fazda YOK, bkz. YENI-MODUL-REHBERI.md'deki
+      // "henüz kesinleşmemiş" not deseni. Alan yine de yanlış bilgi
+      // vermesin diye false'a çekiliyor.
+      data: { email: yeniEposta, epostaDogrulandi: false },
+    });
+  }
+
+  async profilGuncelle(
+    id: string,
+    veri: { ad: string; soyad: string; telefon: string | null },
+  ): Promise<Kullanici> {
+    const kayit = await this.prisma.kullanici.update({
+      where: { id },
+      data: { ad: veri.ad, soyad: veri.soyad, telefon: veri.telefon },
+    });
+    return this.entiteyeCevir(kayit);
+  }
+
   private entiteyeCevir(kayit: {
     id: string;
     email: string;
+    telefon: string | null;
     sifreHash: string | null;
     ad: string;
     soyad: string;
@@ -60,6 +84,7 @@ export class PrismaKullaniciRepository implements KullaniciRepository {
       kayit.rol as KullaniciRolu,
       kayit.firmaId,
       kayit.epostaDogrulandi,
+      kayit.telefon,
     );
   }
 }

@@ -4,24 +4,33 @@ import {
   ConflictException,
   Controller,
   Inject,
+  Patch,
   Post,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
-import type { LoginResponse } from '@asb/shared-types';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import type { KullaniciOzet, LoginResponse } from '@asb/shared-types';
 import type { AuthService } from '../../application';
 import {
   EmailZatenKayitliException,
   GecersizEmailException,
   GecersizKimlikBilgisiException,
   GecersizSifirlamaTokenException,
+  MevcutSifreYanlisException,
 } from '../../domain';
 import { AUTH_SERVICE } from '../../auth.tokens';
 import { ApiResponseDto } from '../../../../shared/web/api-response.dto';
+import { AktifKullaniciBilgisi } from '../../../../shared/web/aktif-kullanici.decorator';
+import { AktifKullanici } from '../../../../shared/web/jwt-icerigi';
+import { JwtAuthGuard } from '../../../../shared/web/jwt-auth.guard';
 import { RegisterDto } from './register.dto';
 import { LoginDto } from './login.dto';
 import { SifremiUnuttumDto } from './forgot-password.dto';
 import { SifreSifirlaDto } from './reset-password.dto';
+import { SifreDegistirDto } from './sifre-degistir.dto';
+import { EpostaDegistirDto } from './eposta-degistir.dto';
+import { ProfilGuncelleDto } from './profil-guncelle.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -64,11 +73,57 @@ export class AuthController {
     }
   }
 
+  @Patch('sifre-degistir')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  async sifreDegistir(
+    @Body() dto: SifreDegistirDto,
+    @AktifKullaniciBilgisi() kullanici: AktifKullanici,
+  ): Promise<ApiResponseDto<null>> {
+    try {
+      await this.authService.sifreDegistir(kullanici.id, dto);
+      return ApiResponseDto.ok(null);
+    } catch (hata) {
+      throw this.httpHatayaCevir(hata);
+    }
+  }
+
+  @Patch('eposta-degistir')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  async epostaDegistir(
+    @Body() dto: EpostaDegistirDto,
+    @AktifKullaniciBilgisi() kullanici: AktifKullanici,
+  ): Promise<ApiResponseDto<null>> {
+    try {
+      await this.authService.epostaDegistir(kullanici.id, dto);
+      return ApiResponseDto.ok(null);
+    } catch (hata) {
+      throw this.httpHatayaCevir(hata);
+    }
+  }
+
+  @Patch('profil')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  async profilGuncelle(
+    @Body() dto: ProfilGuncelleDto,
+    @AktifKullaniciBilgisi() kullanici: AktifKullanici,
+  ): Promise<ApiResponseDto<KullaniciOzet>> {
+    try {
+      const guncellenen = await this.authService.profilGuncelle(kullanici.id, dto);
+      return ApiResponseDto.ok(guncellenen);
+    } catch (hata) {
+      throw this.httpHatayaCevir(hata);
+    }
+  }
+
   private httpHatayaCevir(hata: unknown): Error {
     if (hata instanceof EmailZatenKayitliException) return new ConflictException(hata.message);
     if (hata instanceof GecersizKimlikBilgisiException) return new UnauthorizedException(hata.message);
     if (hata instanceof GecersizEmailException) return new BadRequestException(hata.message);
     if (hata instanceof GecersizSifirlamaTokenException) return new BadRequestException(hata.message);
+    if (hata instanceof MevcutSifreYanlisException) return new UnauthorizedException(hata.message);
     return hata instanceof Error ? hata : new Error('Bilinmeyen hata');
   }
 }

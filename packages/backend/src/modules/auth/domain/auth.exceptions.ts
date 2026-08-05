@@ -20,3 +20,9 @@ export class GecersizSifirlamaTokenException extends Error {
     super('Şifre sıfırlama linki geçersiz veya süresi dolmuş');
   }
 }
+
+export class MevcutSifreYanlisException extends Error {
+  constructor() {
+    super('Mevcut şifreniz hatalı');
+  }
+}

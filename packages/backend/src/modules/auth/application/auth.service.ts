@@ -6,6 +6,9 @@ import type {
   KullaniciOzet,
   SifremiUnuttumRequest,
   SifreSifirlaRequest,
+  SifreDegistirRequest,
+  EpostaDegistirRequest,
+  ProfilGuncelleRequest,
 } from '@asb/shared-types';
 import {
   Email,
@@ -17,6 +20,7 @@ import {
   EmailZatenKayitliException,
   GecersizKimlikBilgisiException,
   GecersizSifirlamaTokenException,
+  MevcutSifreYanlisException,
 } from '../domain';
 
 export class AuthService {
@@ -47,6 +51,7 @@ export class AuthService {
       'ziyaretci',
       null,
       false,
+      dto.telefon ?? null,
     );
 
     const kaydedilen = await this.kullaniciRepo.kaydet(yeniKullanici);
@@ -92,17 +97,68 @@ export class AuthService {
     await this.kullaniciRepo.sifreGuncelle(kullaniciId, yeniHash);
   }
 
+  /** Oturum açıkken kendi şifresini değiştirme — sıfırlama linkinden FARKLI:
+   * burada mevcut şifre doğrulanarak kimlik teyit edilir, e-posta gitmez. */
+  async sifreDegistir(kullaniciId: string, dto: SifreDegistirRequest): Promise<void> {
+    const kullanici = await this.kullaniciBul(kullaniciId);
+    const dogru = await this.sifreHash.dogrula(dto.mevcutSifre, kullanici.sifreHash);
+    if (!dogru) {
+      throw new MevcutSifreYanlisException();
+    }
+    const yeniHash = await this.sifreHash.hashle(dto.yeniSifre);
+    await this.kullaniciRepo.sifreGuncelle(kullaniciId, yeniHash);
+  }
+
+  /** Hassas bir alan değiştiği için mevcut şifre yeniden istenir (re-auth). */
+  async epostaDegistir(kullaniciId: string, dto: EpostaDegistirRequest): Promise<void> {
+    const kullanici = await this.kullaniciBul(kullaniciId);
+    const dogru = await this.sifreHash.dogrula(dto.mevcutSifre, kullanici.sifreHash);
+    if (!dogru) {
+      throw new MevcutSifreYanlisException();
+    }
+
+    const yeniEmail = new Email(dto.yeniEposta);
+    const mevcutSahip = await this.kullaniciRepo.emailIleBul(yeniEmail.toString());
+    if (mevcutSahip && mevcutSahip.id !== kullaniciId) {
+      throw new EmailZatenKayitliException(yeniEmail.toString());
+    }
+
+    await this.kullaniciRepo.epostaGuncelle(kullaniciId, yeniEmail.toString());
+  }
+
+  async profilGuncelle(kullaniciId: string, dto: ProfilGuncelleRequest): Promise<KullaniciOzet> {
+    await this.kullaniciBul(kullaniciId);
+    const guncellenen = await this.kullaniciRepo.profilGuncelle(kullaniciId, {
+      ad: dto.ad,
+      soyad: dto.soyad,
+      telefon: dto.telefon ?? null,
+    });
+    return this.ozeteCevir(guncellenen);
+  }
+
+  private async kullaniciBul(id: string): Promise<Kullanici> {
+    const kullanici = await this.kullaniciRepo.idIleBul(id);
+    if (!kullanici) {
+      throw new GecersizKimlikBilgisiException();
+    }
+    return kullanici;
+  }
+
   private async yanitOlustur(kullanici: Kullanici, uzunSureli = false): Promise<LoginResponse> {
     const accessToken = await this.tokenUretici.uret(kullanici, uzunSureli);
-    const ozet: KullaniciOzet = {
+    return { accessToken, kullanici: this.ozeteCevir(kullanici) };
+  }
+
+  private ozeteCevir(kullanici: Kullanici): KullaniciOzet {
+    return {
       id: kullanici.id,
       ad: kullanici.ad,
       soyad: kullanici.soyad,
       email: kullanici.email.toString(),
+      telefon: kullanici.telefon,
       rol: kullanici.rol,
       firmaId: kullanici.firmaId,
       epostaDogrulandi: kullanici.epostaDogrulandi,
     };
-    return { accessToken, kullanici: ozet };
   }
 }

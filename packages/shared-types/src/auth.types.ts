@@ -19,6 +19,7 @@ export interface KullaniciOzet {
   ad: string;
   soyad: string;
   email: string;
+  telefon: string | null;
   rol: KullaniciRolu;
   firmaId: string | null;
   epostaDogrulandi: boolean;
@@ -36,4 +37,20 @@ export interface SifremiUnuttumRequest {
 export interface SifreSifirlaRequest {
   token: string;
   yeniSifre: string;
+}
+
+export interface SifreDegistirRequest {
+  mevcutSifre: string;
+  yeniSifre: string;
+}
+
+export interface EpostaDegistirRequest {
+  yeniEposta: string;
+  mevcutSifre: string;
+}
+
+export interface ProfilGuncelleRequest {
+  ad: string;
+  soyad: string;
+  telefon?: string;
 }

@@ -12,5 +12,6 @@ export class Kullanici {
     public readonly rol: KullaniciRolu,
     public readonly firmaId: string | null,
     public readonly epostaDogrulandi: boolean,
+    public readonly telefon: string | null = null,
   ) {}
 }

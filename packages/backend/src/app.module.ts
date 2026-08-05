@@ -9,6 +9,7 @@ import { IsIlanlariModule } from './modules/is-ilanlari/is-ilanlari.module';
 import { IkinciElPazarModule } from './modules/ikinci-el-pazar/ikinci-el-pazar.module';
 import { CookzoneModule } from './modules/cookzone/cookzone.module';
 import { AcilDurumModule } from './modules/acil-durum/acil-durum.module';
+import { DestekTalebiModule } from './modules/destek-talebi/destek-talebi.module';
 import { DuyuruModule } from './modules/duyuru/duyuru.module';
 import { BannerModule } from './modules/banner/banner.module';
 import { IsOrtaklariModule } from './modules/is-ortaklari/is-ortaklari.module';
@@ -31,6 +32,7 @@ import { IsOrtagiModule } from './modules/is-ortagi/is-ortagi.module';
     CookzoneModule,
     AcilDurumModule,
     DuyuruModule,
+    DestekTalebiModule,
     BannerModule,
     IsOrtaklariModule,
     PaletTesisiModule,
