@@ -8,13 +8,12 @@
 // bir karşılama sayfası (bkz. yonlendirici.dart _acikRotalar'daki '/' notu).
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/renkler.dart';
 import '../../../is_ortaklari/presentation/widgetlar/is_ortaklari_bolumu.dart';
 import '../widgets/banner_carousel.dart';
-import '../widgets/duyurular_hizli_erisim_karti.dart';
 import '../widgets/hizli_erisim_izgarasi.dart';
+import '../widgets/one_cikanlar_bolumu.dart';
 
 /// Ana Sayfa artık kendi header'ı olmayan, ASB'nin kendi web sitesindeki
 /// gibi doğrudan hero banner ile açılan bir karşılama sayfası (bkz.
@@ -42,8 +41,8 @@ class AnaSayfaEkrani extends StatelessWidget {
                     const _BolumBasligi('Hızlı Erişim'),
                     const HizliErisimIzgarasi(),
                     const SizedBox(height: 8),
-                    const _BolumBasligi('Öne Çıkanlar ve İş Ortakları'),
-                    DuyurularHizliErisimKarti(onTap: () => context.go('/duyurular')),
+                    const _BolumBasligi('Öne Çıkanlar'),
+                    const OneCikanlarBolumu(),
                     const SizedBox(height: 12),
                     const IsOrtaklariBolumu(),
                   ],

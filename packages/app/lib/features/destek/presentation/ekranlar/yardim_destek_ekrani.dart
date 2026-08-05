@@ -1,16 +1,22 @@
 // Kaynak (tasarım): kullanıcının paylaştığı Yardım ve Destek ekran görüntüsü.
 //
-// Bu ekranda henüz gerçek bir "destek talebi" backend'i YOK — Profil
-// ekranındaki diğer yapım-aşamasındaki menüler (Firmalarım, Başvurularım,
-// Ayarlar vb.) gibi, o bölümler bilinçli olarak "yakında" bildirimi
-// gösteriyor; sahte talep/sayı uydurmuyoruz. İletişim bilgileri ise GERÇEK
-// (Ana Sayfa footer'ında kullanılanla aynı, doğrulanmış ASB verisi).
+// İletişim bilgileri GERÇEK (Ana Sayfa footer'ında kullanılanla aynı,
+// doğrulanmış ASB verisi). Destek Talebi Oluştur/Taleplerim gerçek backend'e
+// (destek-talebi modülü) bağlı. "Bildirim Tercihleri" BİLEREK yakında
+// kalıyor — docs/isterler.md push notification'ı bu fazın kapsamı dışında
+// tutuyor.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/durum/islem_durumu.dart';
+import '../../../../core/models/destek_talebi_modelleri.dart';
 import '../../../../core/theme/renkler.dart';
+import '../../../../core/widgets/form_ogeleri.dart';
+import '../../../../core/widgets/islem_geri_bildirimi.dart';
 import '../../data/destek_iletisim_servisi.dart';
+import '../durum/destek_talebi_durumu.dart';
 
 const String _destekTelefonu = '+90 282 265 10 00';
 const String _destekEpostasi = 'asb@asb.com.tr';
@@ -43,11 +49,11 @@ class YardimDestekEkrani extends ConsumerWidget {
                     const _HeroKarti(),
                     const SizedBox(height: 16),
                     _DestekTalebiKarti(
-                      onTap: () => _yakindaMesaji(context, 'Destek talebi oluşturma'),
+                      onTap: () => _talepOlusturSayfasiniAc(context),
                     ),
                     const SizedBox(height: 24),
                     _TaleplerimBaslik(
-                      onTumunuGor: () => _yakindaMesaji(context, 'Taleplerim'),
+                      onTumunuGor: () => context.push('/profil/yardim-destek/taleplerim'),
                     ),
                     const SizedBox(height: 12),
                     const _TaleplerimSatiri(),
@@ -55,13 +61,16 @@ class YardimDestekEkrani extends ConsumerWidget {
                     const _BolumBasligi('Uygulama Hakkında'),
                     const SizedBox(height: 12),
                     _UygulamaHakkindaIzgarasi(
-                      onBasildi: (baslik) => _yakindaMesaji(context, baslik),
+                      onBasildi: (anahtar, baslik) => anahtar == null
+                          ? _yakindaMesaji(context, baslik)
+                          : context.push('/profil/yardim-destek/icerik/$anahtar'),
                     ),
                     const SizedBox(height: 24),
                     const _BolumBasligi('Destek Konuları'),
                     const SizedBox(height: 12),
                     _DestekKonulariKarti(
-                      onBasildi: (baslik) => _yakindaMesaji(context, baslik),
+                      onBasildi: (anahtar) =>
+                          context.push('/profil/yardim-destek/icerik/$anahtar'),
                     ),
                     const SizedBox(height: 24),
                     const _BolumBasligi('İletişim Bilgileri'),
@@ -72,7 +81,7 @@ class YardimDestekEkrani extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
                     _OnemliBilgilendirmeSeridi(
-                      onTap: () => _yakindaMesaji(context, 'Gizlilik politikası'),
+                      onTap: () => context.push('/profil/yardim-destek/icerik/gizlilik'),
                     ),
                   ],
                 ),
@@ -93,6 +102,94 @@ class YardimDestekEkrani extends ConsumerWidget {
           behavior: SnackBarBehavior.floating,
         ),
       );
+  }
+
+  static void _talepOlusturSayfasiniAc(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Renkler.beyaz,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => const _TalepOlusturFormu(),
+    );
+  }
+}
+
+/// Modal bottom sheet içindeki form — kendi klavye/hata durumunu yönetmesi
+/// gerektiği için ayrı bir ConsumerStatefulWidget.
+class _TalepOlusturFormu extends ConsumerStatefulWidget {
+  const _TalepOlusturFormu();
+
+  @override
+  ConsumerState<_TalepOlusturFormu> createState() => _TalepOlusturFormuDurumu();
+}
+
+class _TalepOlusturFormuDurumu extends ConsumerState<_TalepOlusturFormu> {
+  final _baslik = TextEditingController();
+  final _aciklama = TextEditingController();
+
+  @override
+  void dispose() {
+    _baslik.dispose();
+    _aciklama.dispose();
+    super.dispose();
+  }
+
+  void _gonder() => ref.read(destekTalebiOlusturNotifierProvider.notifier).gonder(
+        baslik: _baslik.text.trim(),
+        aciklama: _aciklama.text.trim(),
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    ref.listen<IslemDurumu>(destekTalebiOlusturNotifierProvider, (_, sonraki) {
+      islemGeriBildirimi(
+        context,
+        sonraki,
+        hataBasligi: 'Talep gönderilemedi',
+        basariBasligi: 'Talebiniz alındı',
+        basariMesaji: 'En kısa sürede sizinle iletişime geçeceğiz.',
+        basariSonrasi: () => Navigator.of(context).pop(),
+        sifirla: ref.read(destekTalebiOlusturNotifierProvider.notifier).sifirla,
+      );
+    });
+
+    final yukleniyor = ref.watch(destekTalebiOlusturNotifierProvider) is IslemSuruyor;
+
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 20,
+        right: 20,
+        top: 20,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text(
+            'Yeni Destek Talebi',
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: Renkler.lacivert),
+          ),
+          const SizedBox(height: 16),
+          GirdiKutusu(denetleyici: _baslik, ipucu: 'Konu başlığı', ikon: Icons.short_text),
+          const SizedBox(height: 14),
+          GirdiKutusu(
+            denetleyici: _aciklama,
+            ipucu: 'Sorununuzu ayrıntılı şekilde anlatın',
+            ikon: Icons.notes_rounded,
+          ),
+          const SizedBox(height: 18),
+          BirincilButon(
+            yazi: yukleniyor ? 'Gönderiliyor...' : 'Talebi Gönder',
+            yukleniyor: yukleniyor,
+            basildi: _gonder,
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -304,13 +401,23 @@ class _TaleplerimBaslik extends StatelessWidget {
   }
 }
 
-/// Henüz gerçek bir destek-talebi backend'i yok — sıfır göstermek, sahte
-/// sayı uydurmaktan daha doğru (bkz. dosya başındaki not).
-class _TaleplerimSatiri extends StatelessWidget {
+class _TaleplerimSatiri extends ConsumerWidget {
   const _TaleplerimSatiri();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final talepler = ref.watch(taleplerimProvider);
+
+    final sayilar = talepler.maybeWhen(
+      data: (liste) => (
+        toplam: liste.length,
+        beklemede: liste.where((t) => t.durum == DestekTalebiDurumu.beklemede).length,
+        yanitlandi: liste.where((t) => t.durum == DestekTalebiDurumu.yanitlandi).length,
+        kapali: liste.where((t) => t.durum == DestekTalebiDurumu.kapali).length,
+      ),
+      orElse: () => (toplam: 0, beklemede: 0, yanitlandi: 0, kapali: 0),
+    );
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
@@ -318,12 +425,40 @@ class _TaleplerimSatiri extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFE7EAF0)),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Expanded(child: _TalepIstatistigi(ikon: Icons.description_outlined, renk: Renkler.mavi, deger: '0', etiket: 'Toplam')),
-          Expanded(child: _TalepIstatistigi(ikon: Icons.access_time_rounded, renk: Renkler.altin, deger: '0', etiket: 'Beklemede')),
-          Expanded(child: _TalepIstatistigi(ikon: Icons.check_circle_outline, renk: Color(0xFF16A34A), deger: '0', etiket: 'Yanıtlandı')),
-          Expanded(child: _TalepIstatistigi(ikon: Icons.cancel_outlined, renk: Renkler.metinIkincil, deger: '0', etiket: 'Kapalı')),
+          Expanded(
+            child: _TalepIstatistigi(
+              ikon: Icons.description_outlined,
+              renk: Renkler.mavi,
+              deger: '${sayilar.toplam}',
+              etiket: 'Toplam',
+            ),
+          ),
+          Expanded(
+            child: _TalepIstatistigi(
+              ikon: Icons.access_time_rounded,
+              renk: Renkler.altin,
+              deger: '${sayilar.beklemede}',
+              etiket: 'Beklemede',
+            ),
+          ),
+          Expanded(
+            child: _TalepIstatistigi(
+              ikon: Icons.check_circle_outline,
+              renk: const Color(0xFF16A34A),
+              deger: '${sayilar.yanitlandi}',
+              etiket: 'Yanıtlandı',
+            ),
+          ),
+          Expanded(
+            child: _TalepIstatistigi(
+              ikon: Icons.cancel_outlined,
+              renk: Renkler.metinIkincil,
+              deger: '${sayilar.kapali}',
+              etiket: 'Kapalı',
+            ),
+          ),
         ],
       ),
     );
@@ -372,12 +507,22 @@ class _BolumBasligi extends StatelessWidget {
 }
 
 class _UygulamaHakkindaOgesi {
-  const _UygulamaHakkindaOgesi({required this.ikon, required this.renk, required this.baslik, required this.aciklama});
+  const _UygulamaHakkindaOgesi({
+    required this.ikon,
+    required this.renk,
+    required this.baslik,
+    required this.aciklama,
+    this.anahtar,
+  });
 
   final IconData ikon;
   final Color renk;
   final String baslik;
   final String aciklama;
+
+  /// null ise henüz gerçek içeriği yok — "yakında" gösterilir (bkz.
+  /// Bildirim Tercihleri, docs/isterler.md push notification notu).
+  final String? anahtar;
 }
 
 const List<_UygulamaHakkindaOgesi> _uygulamaHakkindaOgeleri = [
@@ -386,6 +531,7 @@ const List<_UygulamaHakkindaOgesi> _uygulamaHakkindaOgeleri = [
     renk: Color(0xFF16A34A),
     baslik: 'Güvenlik',
     aciklama: 'Verilerinizin güvenliği bizim için önceliklidir.',
+    anahtar: 'guvenlik',
   ),
   _UygulamaHakkindaOgesi(
     ikon: Icons.notifications_none_rounded,
@@ -398,13 +544,14 @@ const List<_UygulamaHakkindaOgesi> _uygulamaHakkindaOgeleri = [
     renk: Renkler.mavi,
     baslik: 'Sık Sorular',
     aciklama: 'En sık karşılaşılan sorunlara göz atın.',
+    anahtar: 'sik-sorular',
   ),
 ];
 
 class _UygulamaHakkindaIzgarasi extends StatelessWidget {
   const _UygulamaHakkindaIzgarasi({required this.onBasildi});
 
-  final void Function(String baslik) onBasildi;
+  final void Function(String? anahtar, String baslik) onBasildi;
 
   @override
   Widget build(BuildContext context) {
@@ -417,7 +564,7 @@ class _UygulamaHakkindaIzgarasi extends StatelessWidget {
       childAspectRatio: 1.65,
       children: [
         for (final oge in _uygulamaHakkindaOgeleri)
-          _UygulamaHakkindaKart(oge: oge, onTap: () => onBasildi(oge.baslik)),
+          _UygulamaHakkindaKart(oge: oge, onTap: () => onBasildi(oge.anahtar, oge.baslik)),
         _UygulamaHakkindaKart(
           oge: const _UygulamaHakkindaOgesi(
             ikon: Icons.sync_rounded,
@@ -477,9 +624,15 @@ class _UygulamaHakkindaKart extends StatelessWidget {
 }
 
 class _DestekKonusuVerisi {
-  const _DestekKonusuVerisi({required this.ikon, required this.baslik, required this.aciklama});
+  const _DestekKonusuVerisi({
+    required this.ikon,
+    required this.anahtar,
+    required this.baslik,
+    required this.aciklama,
+  });
 
   final IconData ikon;
+  final String anahtar;
   final String baslik;
   final String aciklama;
 }
@@ -487,16 +640,19 @@ class _DestekKonusuVerisi {
 const List<_DestekKonusuVerisi> _destekKonulari = [
   _DestekKonusuVerisi(
     ikon: Icons.person_outline_rounded,
+    anahtar: 'giris-hesap',
     baslik: 'Giriş ve hesap sorunları',
     aciklama: 'Hesabınıza erişim, şifre ve profil ayarları hakkında bilgi alın.',
   ),
   _DestekKonusuVerisi(
     ikon: Icons.work_outline_rounded,
+    anahtar: 'basvuru-ilan',
     baslik: 'Başvuru ve ilan işlemleri',
     aciklama: 'İlanlara başvuru, başvuru durumu ve süreçler hakkında destek alın.',
   ),
   _DestekKonusuVerisi(
     ikon: Icons.settings_outlined,
+    anahtar: 'bildirim-teknik',
     baslik: 'Bildirim ve teknik sorunlar',
     aciklama: 'Bildirim ayarları, hata mesajları ve teknik sorunlara yönelik çözümler.',
   ),
@@ -505,7 +661,7 @@ const List<_DestekKonusuVerisi> _destekKonulari = [
 class _DestekKonulariKarti extends StatelessWidget {
   const _DestekKonulariKarti({required this.onBasildi});
 
-  final void Function(String baslik) onBasildi;
+  final void Function(String anahtar) onBasildi;
 
   @override
   Widget build(BuildContext context) {
@@ -518,7 +674,10 @@ class _DestekKonulariKarti extends StatelessWidget {
       child: Column(
         children: [
           for (var i = 0; i < _destekKonulari.length; i++) ...[
-            _DestekKonusuSatiri(veri: _destekKonulari[i], onTap: () => onBasildi(_destekKonulari[i].baslik)),
+            _DestekKonusuSatiri(
+              veri: _destekKonulari[i],
+              onTap: () => onBasildi(_destekKonulari[i].anahtar),
+            ),
             if (i != _destekKonulari.length - 1)
               const Divider(height: 1, indent: 66, endIndent: 16, color: Color(0xFFE7EAF0)),
           ],

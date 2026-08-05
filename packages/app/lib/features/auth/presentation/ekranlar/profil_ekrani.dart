@@ -29,33 +29,13 @@ class ProfilEkrani extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  const Expanded(
-                    child: Text(
-                      'Profil',
-                      style: TextStyle(
-                        fontSize: 27,
-                        fontWeight: FontWeight.w700,
-                        color: Renkler.lacivert,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      _yakindaMesaji(
-                        context,
-                        'Bildirim merkezi',
-                      );
-                    },
-                    tooltip: 'Bildirimler',
-                    icon: const Icon(
-                      Icons.notifications_none_rounded,
-                      color: Renkler.lacivert,
-                      size: 28,
-                    ),
-                  ),
-                ],
+              const Text(
+                'Profil',
+                style: TextStyle(
+                  fontSize: 27,
+                  fontWeight: FontWeight.w700,
+                  color: Renkler.lacivert,
+                ),
               ),
 
               const SizedBox(height: 14),
@@ -123,10 +103,7 @@ class ProfilEkrani extends ConsumerWidget {
                           return;
                         }
 
-                        _yakindaMesaji(
-                          context,
-                          'Şifre değiştirme',
-                        );
+                        context.push('/profil/sifre-degistir');
                       },
                     ),
                   ),
@@ -143,10 +120,7 @@ class ProfilEkrani extends ConsumerWidget {
                           return;
                         }
 
-                        _yakindaMesaji(
-                          context,
-                          'E-posta değiştirme',
-                        );
+                        context.push('/profil/eposta-degistir');
                       },
                     ),
                   ),
@@ -190,10 +164,21 @@ class ProfilEkrani extends ConsumerWidget {
                       aciklama:
                           'Kayıtlı firmalarınızı görüntüleyin',
                       onTap: () {
-                        _yakindaMesaji(
-                          context,
-                          'Firmalarım',
-                        );
+                        final firmaId = kullanici?.firmaId;
+                        if (firmaId == null) {
+                          ScaffoldMessenger.of(context)
+                            ..hideCurrentSnackBar()
+                            ..showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Herhangi bir firmaya bağlı değilsiniz.',
+                                ),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          return;
+                        }
+                        context.push('/firmalar/$firmaId');
                       },
                     ),
 
@@ -208,21 +193,6 @@ class ProfilEkrani extends ConsumerWidget {
                         _yakindaMesaji(
                           context,
                           'İş ilanlarım',
-                        );
-                      },
-                    ),
-
-                    const _MenuAyirici(),
-
-                    _ProfilMenuSatiri(
-                      ikon: Icons.campaign_outlined,
-                      baslik: 'Duyurularım',
-                      aciklama:
-                          'Duyuru ve bildirimlerinizi görüntüleyin',
-                      onTap: () {
-                        _yakindaMesaji(
-                          context,
-                          'Duyurularım',
                         );
                       },
                     ),

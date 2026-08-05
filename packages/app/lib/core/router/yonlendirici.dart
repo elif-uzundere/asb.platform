@@ -6,10 +6,15 @@ import '../../features/ana_sayfa/presentation/ekranlar/ana_sayfa_ekrani.dart';
 import '../../features/auth/presentation/durum/auth_durumu.dart';
 import '../../features/auth/presentation/ekranlar/giris_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/kayit_ekrani.dart';
+import '../../features/auth/presentation/ekranlar/eposta_degistir_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/profil_bilgilerim_ekrani.dart';
+import '../../features/auth/presentation/ekranlar/profil_duzenle_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/profil_ekrani.dart';
+import '../../features/auth/presentation/ekranlar/sifre_degistir_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/sifre_sifirla_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/sifremi_unuttum_ekrani.dart';
+import '../../features/destek/presentation/ekranlar/destek_icerik_ekrani.dart';
+import '../../features/destek/presentation/ekranlar/taleplerim_ekrani.dart';
 import '../../features/destek/presentation/ekranlar/yardim_destek_ekrani.dart';
 import '../../features/duyurular/presentation/ekranlar/duyuru_detay_ekrani.dart';
 import '../../features/duyurular/presentation/ekranlar/duyurular_ekrani.dart';
@@ -151,9 +156,46 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
       ),
 
       GoRoute(
+        path: '/profil/bilgilerim/duzenle',
+        builder: (context, state) {
+          return const ProfilDuzenleEkrani();
+        },
+      ),
+
+      GoRoute(
+        path: '/profil/sifre-degistir',
+        builder: (context, state) {
+          return const SifreDegistirEkrani();
+        },
+      ),
+
+      GoRoute(
+        path: '/profil/eposta-degistir',
+        builder: (context, state) {
+          return const EpostaDegistirEkrani();
+        },
+      ),
+
+      GoRoute(
         path: '/profil/yardim-destek',
         builder: (context, state) {
           return const YardimDestekEkrani();
+        },
+      ),
+
+      GoRoute(
+        path: '/profil/yardim-destek/taleplerim',
+        builder: (context, state) {
+          return const TaleplerimEkrani();
+        },
+      ),
+
+      GoRoute(
+        path: '/profil/yardim-destek/icerik/:anahtar',
+        builder: (context, state) {
+          return DestekIcerikEkrani(
+            anahtar: state.pathParameters['anahtar']!,
+          );
         },
       ),
     ],

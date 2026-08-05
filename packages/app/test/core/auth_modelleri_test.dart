@@ -37,6 +37,7 @@ void main() {
       ad: 'Ali',
       soyad: 'Veli',
       email: 'ali@example.com',
+      telefon: null,
       rol: KullaniciRolu.admin,
       firmaId: null,
       epostaDogrulandi: false,

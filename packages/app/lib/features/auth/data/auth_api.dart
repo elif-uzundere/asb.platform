@@ -54,6 +54,33 @@ class AuthApi {
         yedekMesaj: 'Link geçersiz/süresi dolmuş olabilir ya da şifre kuralına '
             'uymuyor (min 8 karakter, 1 rakam).',
       );
+
+  Future<void> sifreDegistirIstegi(SifreDegistirRequest dto) => apiIstegi<void>(
+        () => _dio.patch<Map<String, dynamic>>(
+          '/auth/sifre-degistir',
+          data: dto.jsonaDonustur(),
+        ),
+        cozumle: (_) {},
+        yedekMesaj: 'Şifre değiştirilemedi, mevcut şifrenizi kontrol edin.',
+      );
+
+  Future<void> epostaDegistirIstegi(EpostaDegistirRequest dto) => apiIstegi<void>(
+        () => _dio.patch<Map<String, dynamic>>(
+          '/auth/eposta-degistir',
+          data: dto.jsonaDonustur(),
+        ),
+        cozumle: (_) {},
+        yedekMesaj: 'E-posta değiştirilemedi, mevcut şifrenizi kontrol edin.',
+      );
+
+  Future<KullaniciOzet> profilGuncelleIstegi(ProfilGuncelleRequest dto) => apiIstegi(
+        () => _dio.patch<Map<String, dynamic>>(
+          '/auth/profil',
+          data: dto.jsonaDonustur(),
+        ),
+        cozumle: (veri) => KullaniciOzet.jsondan(veri! as Map<String, dynamic>),
+        yedekMesaj: 'Profil güncellenemedi, bilgileri kontrol edin.',
+      );
 }
 
 final authApiProvider =

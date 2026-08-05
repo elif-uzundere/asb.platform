@@ -129,10 +129,10 @@ class ProfilBilgilerimEkrani extends ConsumerWidget {
                   ),
                   const _Ayirici(),
 
-                  const _BilgiSatiri(
+                  _BilgiSatiri(
                     ikon: Icons.phone_outlined,
                     etiket: 'Telefon',
-                    deger: 'Henüz eklenmedi',
+                    deger: kullanici.telefon ?? 'Henüz eklenmedi',
                   ),
                   const _Ayirici(),
 
@@ -151,16 +151,7 @@ class ProfilBilgilerimEkrani extends ConsumerWidget {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  ScaffoldMessenger.of(context)
-                    ..hideCurrentSnackBar()
-                    ..showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Profil düzenleme özelliği yakında eklenecek.',
-                        ),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
+                  context.push('/profil/bilgilerim/duzenle');
                 },
                 icon: const Icon(
                   Icons.edit_outlined,

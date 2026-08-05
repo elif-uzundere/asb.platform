@@ -80,6 +80,7 @@ class KullaniciOzet {
     required this.ad,
     required this.soyad,
     required this.email,
+    required this.telefon,
     required this.rol,
     required this.firmaId,
     required this.epostaDogrulandi,
@@ -89,17 +90,30 @@ class KullaniciOzet {
   final String ad;
   final String soyad;
   final String email;
+  final String? telefon;
   final KullaniciRolu rol;
   final String? firmaId;
   final bool epostaDogrulandi;
 
   String get tamAd => '$ad $soyad';
 
+  KullaniciOzet kopyala({String? email}) => KullaniciOzet(
+        id: id,
+        ad: ad,
+        soyad: soyad,
+        email: email ?? this.email,
+        telefon: telefon,
+        rol: rol,
+        firmaId: firmaId,
+        epostaDogrulandi: email != null ? false : epostaDogrulandi,
+      );
+
   factory KullaniciOzet.jsondan(Map<String, dynamic> json) => KullaniciOzet(
         id: json['id'] as String,
         ad: json['ad'] as String,
         soyad: json['soyad'] as String,
         email: json['email'] as String,
+        telefon: json['telefon'] as String?,
         rol: KullaniciRolu.cozumle(json['rol'] as String?),
         firmaId: json['firmaId'] as String?,
         epostaDogrulandi: json['epostaDogrulandi'] as bool? ?? false,
@@ -110,6 +124,7 @@ class KullaniciOzet {
         'ad': ad,
         'soyad': soyad,
         'email': email,
+        'telefon': telefon,
         'rol': rol.deger,
         'firmaId': firmaId,
         'epostaDogrulandi': epostaDogrulandi,
@@ -149,5 +164,46 @@ class SifreSifirlaRequest {
   Map<String, dynamic> jsonaDonustur() => {
         'token': token,
         'yeniSifre': yeniSifre,
+      };
+}
+
+/// TS: `interface SifreDegistirRequest`
+class SifreDegistirRequest {
+  const SifreDegistirRequest({required this.mevcutSifre, required this.yeniSifre});
+
+  final String mevcutSifre;
+  final String yeniSifre;
+
+  Map<String, dynamic> jsonaDonustur() => {
+        'mevcutSifre': mevcutSifre,
+        'yeniSifre': yeniSifre,
+      };
+}
+
+/// TS: `interface EpostaDegistirRequest`
+class EpostaDegistirRequest {
+  const EpostaDegistirRequest({required this.yeniEposta, required this.mevcutSifre});
+
+  final String yeniEposta;
+  final String mevcutSifre;
+
+  Map<String, dynamic> jsonaDonustur() => {
+        'yeniEposta': yeniEposta,
+        'mevcutSifre': mevcutSifre,
+      };
+}
+
+/// TS: `interface ProfilGuncelleRequest`
+class ProfilGuncelleRequest {
+  const ProfilGuncelleRequest({required this.ad, required this.soyad, this.telefon});
+
+  final String ad;
+  final String soyad;
+  final String? telefon;
+
+  Map<String, dynamic> jsonaDonustur() => {
+        'ad': ad,
+        'soyad': soyad,
+        if (telefon != null && telefon!.isNotEmpty) 'telefon': telefon,
       };
 }

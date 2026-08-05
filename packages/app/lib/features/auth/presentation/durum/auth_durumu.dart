@@ -64,6 +64,17 @@ class AuthNotifier extends StateNotifier<AuthDurumu> {
     if (!mounted) return;
     state = const AuthDurumu(hazir: true);
   }
+
+  /// Şifre/E-posta/Profil değiştirme sonrası bellekteki ve depodaki
+  /// kullanıcı özetini günceller — tam bir `girisYap` değil, yeniden token
+  /// almadan sadece görüntülenen bilgiyi tazeler.
+  Future<void> kullaniciyiGuncelle(KullaniciOzet yeni) async {
+    final token = state.accessToken;
+    if (token == null) return;
+    await _depo.yaz(AuthKaydi(accessToken: token, kullanici: yeni));
+    if (!mounted) return;
+    state = AuthDurumu(kullanici: yeni, accessToken: token, hazir: true);
+  }
 }
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthDurumu>(
