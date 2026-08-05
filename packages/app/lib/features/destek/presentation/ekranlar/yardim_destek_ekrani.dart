@@ -15,6 +15,7 @@ import '../../../../core/models/destek_talebi_modelleri.dart';
 import '../../../../core/theme/renkler.dart';
 import '../../../../core/widgets/form_ogeleri.dart';
 import '../../../../core/widgets/islem_geri_bildirimi.dart';
+import '../../../auth/presentation/durum/auth_durumu.dart';
 import '../../data/destek_iletisim_servisi.dart';
 import '../durum/destek_talebi_durumu.dart';
 
@@ -30,6 +31,11 @@ class YardimDestekEkrani extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final iletisim = ref.read(destekIletisimServisiProvider);
+    // Katalog modeli: sayfanın geri kalanı (iletişim, bilgi sayfaları)
+    // girişsiz de görülebilir, ama destek talebi KİŞİYE ÖZEL bir kaynak —
+    // hem butona basınca hem de sayaçları göstermeden önce kontrol ediyoruz
+    // (bkz. docs/YENI-MODUL-REHBERI.md "Okuma AÇIK, yazma KORUMALI").
+    final girisYapildi = ref.watch(authProvider).girisYapildi;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
@@ -49,14 +55,21 @@ class YardimDestekEkrani extends ConsumerWidget {
                     const _HeroKarti(),
                     const SizedBox(height: 16),
                     _DestekTalebiKarti(
-                      onTap: () => _talepOlusturSayfasiniAc(context),
+                      onTap: () => girisYapildi
+                          ? _talepOlusturSayfasiniAc(context)
+                          : context.push('/giris'),
                     ),
                     const SizedBox(height: 24),
                     _TaleplerimBaslik(
-                      onTumunuGor: () => context.push('/profil/yardim-destek/taleplerim'),
+                      onTumunuGor: () => girisYapildi
+                          ? context.push('/profil/yardim-destek/taleplerim')
+                          : context.push('/giris'),
                     ),
                     const SizedBox(height: 12),
-                    const _TaleplerimSatiri(),
+                    if (girisYapildi)
+                      const _TaleplerimSatiri()
+                    else
+                      const _TaleplerimGirissizKarti(),
                     const SizedBox(height: 24),
                     const _BolumBasligi('Uygulama Hakkında'),
                     const SizedBox(height: 12),
@@ -397,6 +410,38 @@ class _TaleplerimBaslik extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Girişsiz ziyaretçi için taleplerim sayaçları yerine gösterilen davet —
+/// GET /destek-talepleri hiç ÇAĞRILMIYOR (kişiye özel kaynak, bkz. build
+/// metodundaki not), bu yüzden ağa çıkmadan sahte "0" göstermek yerine
+/// açıkça "giriş yapın" diyor.
+class _TaleplerimGirissizKarti extends StatelessWidget {
+  const _TaleplerimGirissizKarti();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Renkler.beyaz,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE7EAF0)),
+      ),
+      child: const Row(
+        children: [
+          Icon(Icons.lock_outline_rounded, color: Renkler.metinIkincil, size: 20),
+          SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Taleplerinizi görmek ve yeni talep oluşturmak için giriş yapın.',
+              style: TextStyle(fontSize: 12.5, color: Renkler.metinIkincil, height: 1.4),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

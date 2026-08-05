@@ -30,9 +30,13 @@ import { FirmaOlusturDto } from './firma-olustur.dto';
 // token'ı isteğe hiç eklemez, kilit ikonu da görünmez. İkisi ayrı şeyler:
 // biri çalışma zamanı güvenliği, diğeri sadece dokümantasyon/test kolaylığı.
 @ApiBearerAuth()
-// Controller seviyesindeki guard: tüm endpoint'ler oturum ister.
-// Rol kısıtı ise metot bazında — sadece @Roller('admin') yazılan yerlerde.
-@UseGuards(JwtAuthGuard, RollerGuard)
+// BİLEREK controller seviyesinde guard YOK — katalog modeli (05.08.2026,
+// Berzan'ın kararı): bir ziyaretçi giriş yapmadan firmaları görebilmeli.
+// Guard sadece state değiştiren/kişiye-özel metotlarda tek tek yazılı
+// (bkz. docs/YENI-MODUL-REHBERI.md "Okuma AÇIK, yazma KORUMALI"). Bu
+// controller'da class-level guard vardı, GET'leri de kilitliyordu — bu
+// hata canlı testte bulunup düzeltildi, bir daha tekrarlanmasın diye
+// rehbere not düşüldü.
 @Controller('firmalar')
 export class FirmaController {
   constructor(@Inject(FIRMA_SERVICE) private readonly firmaService: FirmaService) {}
@@ -54,8 +58,9 @@ export class FirmaController {
     return ApiResponseDto.ok(await this.firmaService.sektorler());
   }
 
-  /** Onay kuyruğu — admin hangi firmayı onaylayacağını buradan görür. */
+  /** Onay kuyruğu — sadece admin görmeli, tek tek korumalı. */
   @Get('onay-bekleyenler')
+  @UseGuards(JwtAuthGuard, RollerGuard)
   @Roller('admin')
   async onayBekleyenler(): Promise<ApiResponseDto<FirmaOnayKuyrugu[]>> {
     const firmalar = await this.firmaService.onayBekleyenler();
@@ -73,6 +78,7 @@ export class FirmaController {
   }
 
   @Post()
+  @UseGuards(JwtAuthGuard, RollerGuard)
   @Roller('admin')
   async olustur(@Body() dto: FirmaOlusturDto): Promise<ApiResponseDto<FirmaOnayKuyrugu>> {
     const firma = await this.firmaService.olustur(dto);
@@ -82,6 +88,7 @@ export class FirmaController {
   }
 
   @Put(':id/onayla')
+  @UseGuards(JwtAuthGuard, RollerGuard)
   @Roller('admin')
   async onayla(@Param('id') id: string): Promise<ApiResponseDto<FirmaOnayKuyrugu>> {
     try {

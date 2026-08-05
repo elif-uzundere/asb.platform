@@ -124,6 +124,23 @@ repository'yi değil **servisi** çağırır.
 - **Modüller arası erişim:** Başka modülün `domain`/`persistence` klasörünü
   **asla** import etme — sadece `adapters/public/*.port.ts`.
 - **`schema.prisma` ortak:** kolon/tablo gerekiyorsa küçük ayrı PR, sessizce değil.
+- **Okuma AÇIK, yazma KORUMALI (katalog/Trendyol modeli — 05.08.2026, Berzan'ın
+  kararı):** Platform ASB'nin kendi web sitesi gibi davranıyor — bir ziyaretçi
+  giriş yapmadan **her şeyi görebilmeli** (firma listesi/detayı, duyurular,
+  iş ilanları, Cookzone menüsü — hangi modül olursa olsun), ama **hiçbir şeyi
+  değiştirememeli** (ilan veremez, başvuru yapamaz, destek talebi açamaz,
+  favori ekleyemez). Bu yüzden:
+  - `@UseGuards(JwtAuthGuard, ...)` **controller/sınıf seviyesine ASLA
+    konmaz** sırf "modül kapalı olsun" diye — o zaman GET'ler de kilitlenir
+    (bu hata bir kere yapıldı: `FirmaController`, düzeltildi, bkz. git geçmişi
+    05.08.2026). Guard **sadece** state değiştiren metotlara
+    (`@Post`/`@Put`/`@Patch`/`@Delete`) veya gerçekten "sadece admin görsün"
+    olan tekil `@Get`'lere (ör. onay kuyruğu) tek tek yazılır.
+  - İstisna: bir kaynağın TAMAMI kullanıcıya özel/kişiselse (ör.
+    `destek-talepleri` — "sadece KENDİ taleplerim") class-level guard
+    doğrudur, çünkü orada GET de zaten kişiye özel, herkese açık değil.
+  - Yeni bir modül yazarken kendine sor: "Bunu girişsiz bir ziyaretçi
+    görebilmeli mi?" Cevap evetse (çoğu zaman evettir) GET'e guard **koyma**.
 
 ---
 

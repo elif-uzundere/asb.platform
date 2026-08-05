@@ -32,8 +32,9 @@ extension HizliErisimDurumu on HizliErisimModulu {
       };
 
   /// null ise bu modül henüz yazılmadı — dokunulunca sadece "Yakında" gösterilir.
-  /// `/firmalar`, `/harita`, `/duyurular` zaten ShellRoute'ta gerçek ekranlara
-  /// bağlı (harita/duyurular şimdilik kendi placeholder'ları, ama rota gerçek).
+  /// `/firmalar` ve `/duyurular` gerçek API'ye bağlı, girişsiz de erişilebilir
+  /// (katalog modeli, bkz. docs/YENI-MODUL-REHBERI.md). `/harita` şimdilik
+  /// backend'i olmayan bir placeholder ama rota gerçek.
   String? get rota => switch (this) {
         HizliErisimModulu.firmalar => '/firmalar',
         HizliErisimModulu.harita => '/harita',
