@@ -60,14 +60,18 @@ Detaylı adım adım plan (girdi/çıktı/bağımlılık tablosu) → `docs/izle
 
 ## Henüz Kesinleşmemiş Kararlar (soru sormadan varsayma)
 
-- **Admin paneli:** Eski plan "React Native içinde rol bazlı `app/(admin)/` route grubu" diyordu — Flutter'da bunun karşılığı go_router'da rol bazlı route/redirect olur, ama **AdminJS**'e geçiş de konuşuluyordu, hâlâ kesinleşmedi. Bu konuda kod yazmadan önce sor. Flutter tarafında admin rotası **bilerek kurulmadı**.
 - **Zorunlu paket/kütüphane listesi:** Taslak hazırlanıyor, henüz `isterler.md`'ye eklenmedi.
+
+## Kesinleşen Kararlar (05.08.2026 sonrası)
+
+- **Admin paneli:** **AdminJS**'e karar verildi (React Native/Flutter içinde rol bazlı `app/(admin)/` route grubu fikri elendi). Firma onay akışı (`PUT /firmalar/:id/onayla`) ve ileride duyuru yetki yönetimi AdminJS panelinden yapılacak. Flutter tarafında admin rotası **bilerek kurulmuyor**. AdminJS kurulumu ayrı bir görev (Adım 6b, bkz. `izlence-typescript-nestjs(1).md` Bölüm 7).
 
 ## Kod Yazarken
 
 - Her yeni dosya/karar bu dosyadaki kurallarla çelişiyorsa, **önce dur ve sor** — tahmin yürütüp ilerleme.
 - SOLID/KISS/DRY ilkelerinden ödün verme; basit modüle gereksiz katman ekleme.
 - React Native/Expo değil, **Flutter (Dart)** kullanılıyor (27.07.2026'dan itibaren). Eski Expo kodu silindi; tasarım sabitleri ve geçiş karşılıkları için `izlence-typescript-nestjs(1).md` **Ek A**'ya bak.
+- **Anlatım tarzı (05.08.2026 — Berzan'ın talebi):** Berzan bu projeyi yardımsız kurabilmeyi ve staj komisyonuna/mentörüne sistem tasarımını anlatabilmeyi öğrenmek istiyor. Bu yüzden her kod değişikliğinde/komutta sadece "ne yapıldığı" değil, **"neden bu mimari/desen seçildiği"** açıklanmalı: hangi katmana neden konuldu, bağımlılık yönü ne, aynı desen projede başka nerede kullanıldı, alternatifi ne olurdu. Satır satır ezber değil, sistem mühendisliği muhakemesi hedefleniyor — bu, C#'tan geçiş yapan ve hiçbir şey bilmiyormuş gibi öğretilmek isteyen Berzan'ın standart talimatının bir uzantısı.
 
 ---
 
