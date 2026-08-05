@@ -109,7 +109,18 @@ export class AuthService {
     await this.kullaniciRepo.sifreGuncelle(kullaniciId, yeniHash);
   }
 
-  /** Hassas bir alan değiştiği için mevcut şifre yeniden istenir (re-auth). */
+  /**
+   * Hassas bir alan değiştiği için mevcut şifre yeniden istenir (re-auth).
+   *
+   * TODO(gelecek iş — gerçek e-posta doğrulaması): Şu an değişiklik ANINDA
+   * uygulanıyor, yeni adrese doğrulama kodu/linki GÖNDERİLMİYOR (gerçek
+   * e-posta gönderimiyle bu aşamada işimiz yok). İleride: EmailGonderPort
+   * (bkz. domain/email-gonder.port.ts, sifremiUnuttum'da kullanılan aynı
+   * port) ile yeni adrese tek kullanımlık bir kod gönderilmeli, bu metot
+   * "beklemede" bir kayıt oluşturup kod doğrulanınca asıl güncellemeyi
+   * yapmalı — sifreSifirla() metodundaki token akışına çok benzer bir
+   * ikinci adım. Unutulmasın diye ayrıca proje hafızasına da not düşüldü.
+   */
   async epostaDegistir(kullaniciId: string, dto: EpostaDegistirRequest): Promise<void> {
     const kullanici = await this.kullaniciBul(kullaniciId);
     const dogru = await this.sifreHash.dogrula(dto.mevcutSifre, kullanici.sifreHash);

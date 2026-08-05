@@ -17,3 +17,9 @@ String? opsiyonelGirdi(String ham) {
   final temiz = ham.trim();
   return temiz.isEmpty ? null : temiz;
 }
+
+/// Şifre Değiştir formunda "yeni şifre" ve "yeni şifre (tekrar)" alanları
+/// birebir aynı mı? Kural burada tek yerde — ne ekran ne notifier ayrı ayrı
+/// karşılaştırma yazar.
+bool sifrelerEslesiyor(String yeniSifre, String yeniSifreTekrar) =>
+    yeniSifre == yeniSifreTekrar;
