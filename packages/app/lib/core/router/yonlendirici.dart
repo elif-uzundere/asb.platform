@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/ana_sayfa/presentation/ekranlar/ana_sayfa_ekrani.dart';
 import '../../features/auth/presentation/durum/auth_durumu.dart';
+import '../../features/auth/presentation/ekranlar/ayarlar_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/giris_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/kayit_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/eposta_degistir_ekrani.dart';
@@ -196,6 +197,13 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
           return DestekIcerikEkrani(
             anahtar: state.pathParameters['anahtar']!,
           );
+        },
+      ),
+
+      GoRoute(
+        path: '/ayarlar',
+        builder: (context, state) {
+          return const AyarlarEkrani();
         },
       ),
     ],

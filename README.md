@@ -16,6 +16,13 @@ Avrupa Serbest Bölgesi hizmet platformu — monorepo (npm workspaces).
 npm install
 docker compose up -d
 npm run build --workspace=@asb/shared-types
+
+# .env dosyasını örnekten oluştur, ardından açıp kendi değerlerini gir
+# (Mailtrap bilgileri, Google OAuth Client ID'leri — bkz. dosyanın içindeki
+# yorumlar). DATABASE_URL/JWT_SECRET varsayılanları docker-compose.yml'daki
+# geliştirme ortamıyla zaten uyumlu, değiştirmene gerek yok.
+cp packages/backend/.env.example packages/backend/.env
+
 npx prisma migrate dev --schema packages/backend/prisma/schema.prisma
 npm run dev:backend
 

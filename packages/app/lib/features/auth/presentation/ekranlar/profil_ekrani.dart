@@ -235,10 +235,7 @@ class ProfilEkrani extends ConsumerWidget {
                       aciklama:
                           'Uygulama ayarlarınızı yönetin',
                       onTap: () {
-                        _yakindaMesaji(
-                          context,
-                          'Ayarlar',
-                        );
+                        context.push('/ayarlar');
                       },
                     ),
 

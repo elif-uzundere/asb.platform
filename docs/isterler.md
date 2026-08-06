@@ -132,7 +132,7 @@ Platform **iOS, Android ve Web** için tek kod tabanından **Flutter (Dart)** il
 **Kabul kriterleri:**
 - [x] E-posta formatı doğrulanır, aynı e-posta ile ikinci kayıt engellenir (409)
 - [x] Şifre minimum güvenlik kuralına uyar (min 8 karakter, en az 1 rakam) — *backend'de `ValidationPipe` ile zorlanıyor (28.07.2026'da devreye alındı; öncesinde kural yazılıydı ama çalışmıyordu)*
-- [ ] Sosyal giriş seçeneklerinden biri seçildiğinde ilgili OAuth akışı başlar — **BEKLİYOR** (Adım 4b; düğmeler şu an "Yakında" mesajı gösteriyor)
+- [ ] Sosyal giriş seçeneklerinden biri seçildiğinde ilgili OAuth akışı başlar — **KISMEN**: Google ile giriş uçtan uca yazıldı (05.08.2026 — backend `POST /auth/google-giris`, google-auth-library ile ID token doğrulama, hesap yoksa otomatik/şifresiz açılıyor; Flutter'da `google_sign_in` entegre, web'de Google'ın kendi düğmesi, mobilde native akış) ama henüz gerçek bir Google hesabıyla canlı tıklanarak doğrulanmadı. LinkedIn/Apple hâlâ **BEKLİYOR** (düğmeler "Yakında" gösteriyor, ayrı geliştirici hesabı/kurulum gerektiriyor).
 - [x] ~~Başarılı kayıt sonrası otomatik giriş yapılır ve ana sayfaya yönlendirilir~~ → **DEĞİŞTİRİLDİ:** kayıt sonrası otomatik giriş yapılmaz, kullanıcı `/giris` ekranına yönlendirilip elle giriş yapar. Bilinçli ürün kararı (Berzan) — gerekçe ve kodun yeri `CLAUDE.md` → Alınan Kararlar / US-001 sapması.
 
 **US-002 — Giriş yapma**
@@ -143,7 +143,7 @@ Platform **iOS, Android ve Web** için tek kod tabanından **Flutter (Dart)** il
 - [x] "Beni Hatırla" işaretlenirse oturum süresi uzatılır — *işaretli: 30 gün, işaretsiz: 1 gün*
 - [x] "Şifremi Unuttum" akışı e-posta ile sıfırlama linki gönderir — *15 dk geçerli, tek amaçlı JWT; Mailtrap üzerinden*
 - [x] Başarılı giriş sonrası JWT token alınır, ana sayfaya yönlendirilir — *token `flutter_secure_storage`'da saklanır, uygulama yeniden açıldığında oturum sürer*
-- [ ] Sosyal hesapla giriş — **BEKLİYOR** (Adım 4b)
+- [ ] Sosyal hesapla giriş — **KISMEN**: Google hazır ama canlı doğrulanmadı, bkz. US-001'deki not. LinkedIn/Apple **BEKLİYOR**.
 
 ---
 
@@ -154,10 +154,10 @@ Platform **iOS, Android ve Web** için tek kod tabanından **Flutter (Dart)** il
 
 **Kabul kriterleri:**
 - [x] Üstte otomatik kayan banner (en az 3 görsel) gösterilir, API'den beslenir — *`GET /banners` uçtan uca bağlı; 2 sn'de bir kayan carousel + nokta göstergesi; `linkUrl` doluysa tıklanabilir (sadece http/https)*
-- [ ] Hızlı Erişim bölümünde en az 8 modül ikonu görünür (Firmalar, Navigasyon, İş İlanları, İkinci El Pazar, Cookzone, Palet Tesisi, Acil Durum, Duyurular)
-- [ ] Öne Çıkanlar bölümü en güncel 4 duyuru/haberi tarih + başlık ile listeler
-- [ ] İş Ortakları bölümü sponsor logolarını listeler
-- [ ] Tüm bölümlerde "Tümünü Gör" linki ilgili tam listeye yönlendirir
+- [x] Hızlı Erişim bölümünde en az 8 modül ikonu görünür (Firmalar, Navigasyon, İş İlanları, İkinci El Pazar, Cookzone, Palet Tesisi, Acil Durum, Duyurular) — *`hizli_erisim_kurallari.dart` → `hizliErisimSirasi`, tam 8 modül; hangisinin gerçek rotaya gittiği (`aktif`) ayrı bir kural*
+- [x] Öne Çıkanlar bölümü en güncel 4 duyuru/haberi tarih + başlık ile listeler — *`OneCikanlarBolumu`, `GET /duyurular`'dan gelen listenin ilk 4'ü (05.08.2026)*
+- [x] İş Ortakları bölümü sponsor logolarını listeler — *`IsOrtaklariBolumu`, `GET /is-ortaklari`'ya bağlı*
+- [x] Tüm bölümlerde "Tümünü Gör" linki ilgili tam listeye yönlendirir — *Öne Çıkanlar → `/duyurular`, İş Ortakları → `/is-ortaklari`*
 
 ---
 
@@ -167,9 +167,10 @@ Platform **iOS, Android ve Web** için tek kod tabanından **Flutter (Dart)** il
 > **Kullanıcı olarak**, bölgedeki firmaları arayıp bulabilmek **istiyorum**.
 
 **Kabul kriterleri:**
-- [ ] Firma adına göre arama yapılabilir
-- [ ] Sektöre göre filtrelenebilir
-- [ ] Firma kartına tıklandığında detay sayfası açılır (adres, telefon, e-posta, sektör, logo)
+- [x] Firma adına göre arama yapılabilir — *`firmalar_ekrani.dart` → `_AramaKutusu`, debounce'lu, `GET /firmalar?arama=...`*
+- [x] Sektöre göre filtrelenebilir — *`_SektorFiltreSatiri`, `GET /firmalar?sektor=...`*
+- [x] Firma kartına tıklandığında detay sayfası açılır (adres, telefon, e-posta, sektör, logo) — *`/firmalar/:id`, deep-link güvenli (listeden veri taşınmaz, ID ile yeniden çekilir)*
+- [x] Girişsiz kullanıcı da firmaları görebilir (katalog modeli, 05.08.2026) — *`FirmaController`'da class-level guard kaldırıldı, sadece yazma uçları (`POST`, `onayla`, `onay-bekleyenler`) korumalı; bkz. `docs/YENI-MODUL-REHBERI.md` "Okuma AÇIK, yazma KORUMALI"*
 
 ---
 
@@ -179,9 +180,12 @@ Platform **iOS, Android ve Web** için tek kod tabanından **Flutter (Dart)** il
 > **Kullanıcı olarak**, bölge yönetiminden gelen duyuruları okuyabilmek **istiyorum**.
 
 **Kabul kriterleri:**
-- [ ] Duyurular tarihe göre (en yeni üstte) listelenir
-- [ ] Duyuru kartına tıklandığında tam içerik görüntülenir
-- [ ] Sadece Admin rolü yeni duyuru oluşturabilir/düzenleyebilir/silebilir
+- [x] Duyurular tarihe göre (en yeni üstte) listelenir — *`prisma-duyuru.repository.ts` → `orderBy: { yayinTarihi: 'desc' }`*
+- [x] Duyuru kartına tıklandığında tam içerik görüntülenir — *`/duyurular/:id`, deep-link güvenli*
+- [x] Sadece yetkili rol yeni duyuru oluşturabilir — *`YetkiGuard` + `@Yetki(DUYURU_YONET)`; DEĞİŞTİRİLDİ: "sadece Admin" değil, `rol_yetki` tablosuyla rol bazlı yetki (ileride başka bir role de aynı yetki tanımlanabilir, kod değişikliği gerekmez). Düzenleme/silme uçları henüz yazılmadı, sadece oluşturma var.*
+- [x] Başlık/içeriğe göre arama yapılabilir (dokümanda yoktu, sonradan eklendi 05.08.2026) — *`duyurular_ekrani.dart` → `_AramaKutusu`, client-side filtre*
+- [x] Kategoriye göre filtrelenebilir (dokümanda yoktu, sonradan eklendi) — *`_KategoriAcilirMenusu`*
+- [x] Girişsiz kullanıcı da duyuruları görebilir (katalog modeli) — *`DuyuruController`'da `GET` uçlarında guard yok, sadece `POST` korumalı*
 
 ---
 
@@ -311,6 +315,7 @@ Her faz, kendi kapsamındaki User Story'lerin kabul kriterlerinin tamamı karş�
 | 1.0 | 21.07.2026 | İlk taslak — mockup ve fikir alışverişi sonrası oluşturuldu |
 | 1.1 | 27.07.2026 | Frontend kararı React Native/Expo → **Flutter (Dart)** (mentör talimatı, zorunlu). Bölüm 1 ve C1 kısıtı güncellendi |
 | 1.2 | 28.07.2026 | Epic 1 (US-001/US-002) ve US-003'ün banner maddesi **gerçekleşen duruma göre işaretlendi**. US-001'in "kayıt sonrası otomatik giriş" kriteri bilinçli olarak değiştirildi (kullanıcı `/giris`'e yönlendiriliyor). Sosyal giriş "BEKLİYOR" olarak netleştirildi (Adım 4b) |
+| 1.3 | 05.08.2026 | Epic 2/3/4'ün (Ana Sayfa, Firmalar, Duyurular) kabul kriterleri **gerçekleşen duruma göre işaretlendi** — kod çoktan yazılmıştı, doküman geride kalmıştı. Google ile giriş uçtan uca eklendi (LinkedIn/Apple hâlâ bekliyor). Firmalar/Duyurular okuma uçları girişsiz erişime açıldı ("katalog modeli" — bkz. `docs/YENI-MODUL-REHBERI.md`). Duyurular'a arama/kategori filtresi eklendi (dokümanda hiç yoktu). Bölüm 8'deki "Faz Tamam" kriterlerinden ikisi hâlâ açık: backend iş kuralı testleri (bu revizyonla `auth.service`/`firma.service`/`firma.entity` için eklendi, diğer modüller için henüz yok) ve mentor/bölge yönetimi demo+onayı (insan onayı gerektirir, otomatikleştirilemez) |
 
 ---
 
