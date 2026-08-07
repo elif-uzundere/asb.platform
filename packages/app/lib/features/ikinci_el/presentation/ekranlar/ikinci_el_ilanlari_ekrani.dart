@@ -664,9 +664,7 @@ class _IkinciElIlanlariEkraniDurumu
       },
     );
 
-    enDusukController.dispose();
-    enYuksekController.dispose();
-
+    
     if (sonuc == null) {
       return;
     }
