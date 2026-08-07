@@ -1,1 +1,1 @@
-export {};
+export * from './ikinci-el-pazar.service';

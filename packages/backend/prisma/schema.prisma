@@ -204,11 +204,17 @@ model IkinciElIlani {
   id              String              @id @default(uuid())
   kullaniciId     String              @map("kullanici_id")
   kullanici       Kullanici           @relation(fields: [kullaniciId], references: [id])
+
   baslik          String              @db.VarChar(150)
   aciklama        String
   fiyat           Decimal             @db.Decimal(10, 2)
   kategori        String              @db.VarChar(80)
+
+  urunDurumu      String              @map("urun_durumu") @db.VarChar(50)
+  
+
   fotografUrls    String[]            @map("fotograf_urls")
+
   durum           IkinciElIlaniDurumu @default(aktif)
   olusturmaTarihi DateTime            @default(now()) @map("olusturma_tarihi")
 

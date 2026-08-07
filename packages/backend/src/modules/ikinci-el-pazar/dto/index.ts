@@ -1,0 +1,1 @@
+export * from './ikinci-el-ilani-olustur.dto';
