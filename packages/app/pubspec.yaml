@@ -31,6 +31,7 @@ dependencies:
   # google_sign_in bunu transitive olarak zaten getiriyor, doğrudan
   # bağımlılık olarak da eklememiz gerekiyor (analyzer kuralı).
   google_sign_in_web: ^1.1.3
+  intl: ^0.20.3
 
 dev_dependencies:
   flutter_test:

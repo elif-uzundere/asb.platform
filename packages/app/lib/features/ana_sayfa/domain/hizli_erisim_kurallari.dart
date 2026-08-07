@@ -32,15 +32,15 @@ extension HizliErisimDurumu on HizliErisimModulu {
       };
 
   /// null ise bu modül henüz yazılmadı — dokunulunca sadece "Yakında" gösterilir.
-  /// `/firmalar` ve `/duyurular` gerçek API'ye bağlı, girişsiz de erişilebilir
-  /// (katalog modeli, bkz. docs/YENI-MODUL-REHBERI.md). `/harita` şimdilik
-  /// backend'i olmayan bir placeholder ama rota gerçek.
+  /// `/firmalar` ve `/duyurular` gerçek API'ye bağlı, girişsiz de erişilebilir.
+  /// `/harita` şimdilik backend'i olmayan bir placeholder ama rota gerçek.
+  /// `/ikinci-el` şu an örnek ilan verileriyle çalışan frontend ekranıdır.
   String? get rota => switch (this) {
         HizliErisimModulu.firmalar => '/firmalar',
         HizliErisimModulu.harita => '/harita',
         HizliErisimModulu.duyurular => '/duyurular',
+        HizliErisimModulu.ikinciElPazar => '/ikinci-el',
         HizliErisimModulu.isIlanlari => null,
-        HizliErisimModulu.ikinciElPazar => null,
         HizliErisimModulu.cookzone => null,
         HizliErisimModulu.paletTesisi => null,
         HizliErisimModulu.acilDurum => null,

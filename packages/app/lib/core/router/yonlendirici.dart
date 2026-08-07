@@ -5,9 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../features/ana_sayfa/presentation/ekranlar/ana_sayfa_ekrani.dart';
 import '../../features/auth/presentation/durum/auth_durumu.dart';
 import '../../features/auth/presentation/ekranlar/ayarlar_ekrani.dart';
+import '../../features/auth/presentation/ekranlar/eposta_degistir_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/giris_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/kayit_ekrani.dart';
-import '../../features/auth/presentation/ekranlar/eposta_degistir_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/profil_bilgilerim_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/profil_duzenle_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/profil_ekrani.dart';
@@ -22,6 +22,8 @@ import '../../features/duyurular/presentation/ekranlar/duyurular_ekrani.dart';
 import '../../features/firmalar/presentation/ekranlar/firma_detay_ekrani.dart';
 import '../../features/firmalar/presentation/ekranlar/firmalar_ekrani.dart';
 import '../../features/harita/presentation/ekranlar/harita_ekrani.dart';
+import '../../features/ikinci_el/presentation/ekranlar/ikinci_el_ilan_ekle_ekrani.dart';
+import '../../features/ikinci_el/presentation/ekranlar/ikinci_el_ilanlari_ekrani.dart';
 import '../../features/is_ortaklari/presentation/ekranlar/is_ortaklari_ekrani.dart';
 import 'route_gozlemci.dart';
 import 'sekme_kabugu.dart';
@@ -42,13 +44,10 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
   );
 
   return GoRouter(
-    // Uygulama ilk açıldığında Ana Sayfa açılır.
     initialLocation: '/',
-
     refreshListenable: tetikleyici,
     observers: [routeGozlemci],
 
-    // Hiçbir sayfa otomatik olarak giriş ekranına gönderilmez.
     redirect: (context, state) {
       return null;
     },
@@ -92,6 +91,20 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
             },
           ),
         ],
+      ),
+
+      GoRoute(
+        path: '/ikinci-el',
+        builder: (context, state) {
+          return const IkinciElIlanlariEkrani();
+        },
+      ),
+
+      GoRoute(
+        path: '/ikinci-el/ilan-ekle',
+        builder: (context, state) {
+          return const IkinciElIlanEkleEkrani();
+        },
       ),
 
       GoRoute(
