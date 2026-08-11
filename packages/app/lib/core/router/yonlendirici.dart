@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
+import '../../features/acil_durum/domain/acil_durum_birimi.dart';
+import '../../features/acil_durum/presentation/ekranlar/acil_durum_ekrani.dart';
+import '../../features/acil_durum/presentation/ekranlar/birim_detay_ekrani.dart';
+import '../../features/acil_durum/presentation/ekranlar/toplanma_alanlari_ekrani.dart';
 import '../../features/ana_sayfa/presentation/ekranlar/ana_sayfa_ekrani.dart';
 import '../../features/auth/presentation/durum/auth_durumu.dart';
 import '../../features/auth/presentation/ekranlar/ayarlar_ekrani.dart';
@@ -196,7 +199,28 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
           return const YardimDestekEkrani();
         },
       ),
+GoRoute(
+  path: '/acil-durum',
+  builder: (context, state) {
+    return const AcilDurumEkrani();
+  },
+),
+GoRoute(
+  path: '/acil-durum/birim',
+  builder: (context, state) {
+    final birim = state.extra as AcilDurumBirimi;
 
+    return BirimDetayEkrani(
+      birim: birim,
+    );
+  },
+),
+GoRoute(
+  path: '/acil-durum/toplanma-alanlari',
+  builder: (context, state) {
+    return const ToplanmaAlanlariEkrani();
+  },
+),
       GoRoute(
         path: '/profil/yardim-destek/taleplerim',
         builder: (context, state) {

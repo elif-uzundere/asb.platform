@@ -1,1 +1,1 @@
-export {};
+export * from './prisma-acil-durum.repository';

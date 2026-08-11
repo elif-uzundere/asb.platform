@@ -1,1 +1,1 @@
-export {};
+export * from './acil-durum.service';

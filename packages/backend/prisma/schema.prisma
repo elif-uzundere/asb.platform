@@ -364,3 +364,26 @@ model PaletTesisi {
 
   @@map("palet_tesisi")
 }
+model AcilDurumBilgisi {
+  id              String   @id @default(uuid())
+  tur             String   @unique @db.VarChar(50)
+  telefon         String?  @db.VarChar(30)
+  eposta          String?  @db.VarChar(150)
+  adres           String?
+  aciklama        String?
+  calismaSaatleri String?  @map("calisma_saatleri")
+
+  @@map("acil_durum_bilgisi")
+}
+
+model ToplanmaAlani {
+  id        String   @id @default(uuid())
+  ad        String   @db.VarChar(120)
+  aciklama  String?
+  enlem     Decimal  @db.Decimal(10, 7)
+  boylam    Decimal  @db.Decimal(10, 7)
+  aktif     Boolean  @default(true)
+  sira      Int      @default(0)
+
+  @@map("toplanma_alani")
+}

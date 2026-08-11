@@ -1,11 +1,17 @@
-// Kaynak: eski Expo app/(tabs)/index.tsx (silindi — bkz. izlence Ek A)
+// Kaynak: eski Expo app/(tabs)/index.tsx
+// (silindi — bkz. izlence Ek A)
 //
-// Mockup'taki "Hızlı Erişim" ızgarası burada eklendi. Her ikonun aktif olup
-// olmadığı (yani gerçek bir modüle mi gittiği, yoksa "Yakında" mı gösterdiği)
-// domain/hizli_erisim_kurallari.dart'ta — bu dosya sadece görünüm.
+// Mockup'taki "Hızlı Erişim" ızgarası burada eklendi.
+// Her ikonun aktif olup olmadığı
+// (yani gerçek bir modüle mi gittiği,
+// yoksa "Yakında" mı gösterdiği)
+// domain/hizli_erisim_kurallari.dart'ta.
 //
-// Ana Sayfa artık ASB'nin kendi web sitesi gibi oturum açmadan da görülebilen
-// bir karşılama sayfası (bkz. yonlendirici.dart _acikRotalar'daki '/' notu).
+// Bu dosya sadece görünüm.
+//
+// Ana Sayfa artık ASB'nin kendi web sitesi gibi
+// oturum açmadan da görülebilen bir karşılama sayfası
+// (bkz. yonlendirici.dart _acikRotalar'daki '/' notu).
 
 import 'package:flutter/material.dart';
 
@@ -15,13 +21,19 @@ import '../widgets/banner_carousel.dart';
 import '../widgets/hizli_erisim_izgarasi.dart';
 import '../widgets/one_cikanlar_bolumu.dart';
 
-/// Ana Sayfa artık kendi header'ı olmayan, ASB'nin kendi web sitesindeki
-/// gibi doğrudan hero banner ile açılan bir karşılama sayfası (bkz.
-/// kullanıcının paylaştığı ekran görüntüsü). Giriş Yap/Kayıt Ol/Çıkış
-/// artık Profil sekmesinden erişiliyor; iletişim bilgileri (eskiden
-/// buradaki footer'da idi) de Profil > İletişim'e taşınacak.
+/// Ana Sayfa artık kendi header'ı olmayan,
+/// ASB'nin kendi web sitesindeki gibi doğrudan
+/// hero banner ile açılan bir karşılama sayfası.
+///
+/// Giriş Yap / Kayıt Ol / Çıkış artık
+/// Profil sekmesinden erişiliyor.
+///
+/// İletişim bilgileri de Profil > İletişim'e
+/// taşınacak.
 class AnaSayfaEkrani extends StatelessWidget {
-  const AnaSayfaEkrani({super.key});
+  const AnaSayfaEkrani({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -33,17 +45,33 @@ class AnaSayfaEkrani extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const BannerCarousel(),
+
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 14, 16, 24),
+                padding: const EdgeInsets.fromLTRB(
+                  16,
+                  14,
+                  16,
+                  24,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const _BolumBasligi('Hızlı Erişim'),
+                    const _BolumBasligi(
+                      'Hızlı Erişim',
+                    ),
+
                     const HizliErisimIzgarasi(),
+
                     const SizedBox(height: 8),
-                    const _BolumBasligi('Öne Çıkanlar'),
+
+                    const _BolumBasligi(
+                      'Öne Çıkanlar',
+                    ),
+
                     const OneCikanlarBolumu(),
+
                     const SizedBox(height: 12),
+
                     const IsOrtaklariBolumu(),
                   ],
                 ),
@@ -57,14 +85,19 @@ class AnaSayfaEkrani extends StatelessWidget {
 }
 
 class _BolumBasligi extends StatelessWidget {
-  const _BolumBasligi(this.yazi);
+  const _BolumBasligi(
+    this.yazi,
+  );
 
   final String yazi;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 12, bottom: 8),
+      padding: const EdgeInsets.only(
+        top: 12,
+        bottom: 8,
+      ),
       child: Text(
         yazi,
         style: const TextStyle(

@@ -5,8 +5,7 @@
 // fazlara yayılıyor: Faz 1'de sadece auth + banner + firma bitti, geri kalanı
 // henüz backend'de bile yazılmadı. Bu yüzden ikonun görünmesi ile o modüle
 // GERÇEKTEN gidilebilmesi ayrı şeyler — `rota` null ise widget "Yakında"
-// gösterir, sahte bir sayfaya götürmez (bkz. CLAUDE.md — "iş mantığı yok"
-// yazan placeholder'lar dışında modül uydurulmaz).
+// gösterir, sahte bir sayfaya götürmez.
 
 enum HizliErisimModulu {
   firmalar,
@@ -32,18 +31,21 @@ extension HizliErisimDurumu on HizliErisimModulu {
       };
 
   /// null ise bu modül henüz yazılmadı — dokunulunca sadece "Yakında" gösterilir.
+  ///
   /// `/firmalar` ve `/duyurular` gerçek API'ye bağlı, girişsiz de erişilebilir.
   /// `/harita` şimdilik backend'i olmayan bir placeholder ama rota gerçek.
-  /// `/ikinci-el` şu an örnek ilan verileriyle çalışan frontend ekranıdır.
+  /// `/ikinci-el` çalışan ikinci el pazar ekranıdır.
+  /// `/acil-durum` Faz 3 Acil Durum modülüdür.
   String? get rota => switch (this) {
         HizliErisimModulu.firmalar => '/firmalar',
         HizliErisimModulu.harita => '/harita',
         HizliErisimModulu.duyurular => '/duyurular',
         HizliErisimModulu.ikinciElPazar => '/ikinci-el',
+        HizliErisimModulu.acilDurum => '/acil-durum',
+
         HizliErisimModulu.isIlanlari => null,
         HizliErisimModulu.cookzone => null,
         HizliErisimModulu.paletTesisi => null,
-        HizliErisimModulu.acilDurum => null,
       };
 
   bool get aktif => rota != null;
