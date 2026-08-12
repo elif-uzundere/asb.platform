@@ -705,48 +705,48 @@ class _IkinciElIlanlariEkraniDurumu
               top: Radius.circular(26),
             ),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 42,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFD0D5DD),
-                    borderRadius:
-                        BorderRadius.circular(10),
+          child: RadioGroup<String>(
+            groupValue: _siralama,
+            onChanged: (deger) {
+              Navigator.of(bottomSheetContext).pop(deger);
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 42,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD0D5DD),
+                      borderRadius:
+                          BorderRadius.circular(10),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Sırala',
-                style: TextStyle(
-                  color: Color(0xFF0B315E),
-                  fontSize: 21,
-                  fontWeight: FontWeight.w700,
+                const SizedBox(height: 20),
+                const Text(
+                  'Sırala',
+                  style: TextStyle(
+                    color: Color(0xFF0B315E),
+                    fontSize: 21,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              ...secenekler.map((secenek) {
-                return RadioListTile<String>(
-                  contentPadding: EdgeInsets.zero,
-                  value: secenek,
-                  groupValue: _siralama,
-                  activeColor:
-                      const Color(0xFF0B5EA8),
-                  title: Text(secenek),
-                  onChanged: (deger) {
-                    Navigator.of(
-                      bottomSheetContext,
-                    ).pop(deger);
-                  },
-                );
-              }),
-            ],
+                const SizedBox(height: 12),
+                ...secenekler.map((secenek) {
+                  return RadioListTile<String>(
+                    contentPadding: EdgeInsets.zero,
+                    value: secenek,
+                    activeColor:
+                        const Color(0xFF0B5EA8),
+                    title: Text(secenek),
+                  );
+                }),
+              ],
+            ),
           ),
         );
       },
@@ -1076,12 +1076,10 @@ class _IkinciElIlanlariEkraniDurumu
                 child: ilanlar.isEmpty
                     ? const _BosIlanGorunumu()
                     : RefreshIndicator(
-                        onRefresh: () async {
-                          await ref.refresh(
-                            ikinciElIlanlariProvider
-                                .future,
-                          );
-                        },
+                        onRefresh: () => ref.refresh(
+                          ikinciElIlanlariProvider
+                              .future,
+                        ),
                         child:
                             ListView.separated(
                           padding:

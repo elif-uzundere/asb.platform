@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../domain/palet.dart';
 import '../providers/palet_tesisi_provider.dart';
@@ -31,7 +32,11 @@ class PaletTesisiEkrani extends ConsumerWidget {
 
         leading: IconButton(
           onPressed: () {
-            Navigator.of(context).pop();
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/');
+            }
           },
           icon: const Icon(
             Icons.arrow_back_ios_new_rounded,

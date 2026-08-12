@@ -98,11 +98,9 @@ class ToplanmaAlanlariEkrani extends ConsumerWidget {
 
         data: (alanlar) {
           return RefreshIndicator(
-            onRefresh: () async {
-              await ref.refresh(
-                toplanmaAlanlariProvider.future,
-              );
-            },
+            onRefresh: () => ref.refresh(
+              toplanmaAlanlariProvider.future,
+            ),
 
             child: ListView(
               physics:

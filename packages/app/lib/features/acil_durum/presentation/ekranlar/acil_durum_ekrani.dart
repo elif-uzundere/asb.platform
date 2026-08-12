@@ -121,12 +121,9 @@ final digerBirimler = birimler
     .toList();
 
           return RefreshIndicator(
-            onRefresh: () async {
-              await ref.refresh(
-                acilDurumBirimleriProvider
-                    .future,
-              );
-            },
+            onRefresh: () => ref.refresh(
+              acilDurumBirimleriProvider.future,
+            ),
             child: ListView(
               padding:
                   const EdgeInsets.fromLTRB(
