@@ -45,7 +45,7 @@ extension HizliErisimDurumu on HizliErisimModulu {
 
         HizliErisimModulu.isIlanlari => null,
         HizliErisimModulu.cookzone => null,
-        HizliErisimModulu.paletTesisi => null,
+        HizliErisimModulu.paletTesisi => '/palet-tesisi',
       };
 
   bool get aktif => rota != null;

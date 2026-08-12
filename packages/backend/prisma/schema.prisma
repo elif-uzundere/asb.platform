@@ -387,3 +387,25 @@ model ToplanmaAlani {
 
   @@map("toplanma_alani")
 }
+model PaletTesisiBilgisi {
+  id              String  @id @default(uuid())
+  telefon         String? @db.VarChar(30)
+  eposta          String? @db.VarChar(150)
+  adres           String?
+  aciklama        String?
+  calismaSaatleri String? @map("calisma_saatleri")
+
+  @@map("palet_tesisi_bilgisi")
+}
+
+model Palet {
+  id        String  @id @default(uuid())
+  ad        String  @db.VarChar(120)
+  aciklama  String?
+  olcu      String? @db.VarChar(80)
+  gorselUrl String? @map("gorsel_url")
+  aktif     Boolean @default(true)
+  sira      Int     @default(0)
+
+  @@map("palet")
+}

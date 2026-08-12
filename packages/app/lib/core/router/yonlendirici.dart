@@ -15,6 +15,7 @@ import '../../features/auth/presentation/ekranlar/profil_bilgilerim_ekrani.dart'
 import '../../features/auth/presentation/ekranlar/profil_duzenle_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/profil_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/sifre_degistir_ekrani.dart';
+import '../../features/palet_tesisi/presentation/ekranlar/palet_tesisi_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/sifre_sifirla_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/sifremi_unuttum_ekrani.dart';
 import '../../features/destek/presentation/ekranlar/destek_icerik_ekrani.dart';
@@ -69,6 +70,12 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
               return const AnaSayfaEkrani();
             },
           ),
+          GoRoute(
+  path: '/palet-tesisi',
+  builder: (context, state) {
+    return const PaletTesisiEkrani();
+  },
+),
           GoRoute(
             path: '/firmalar',
             builder: (context, state) {

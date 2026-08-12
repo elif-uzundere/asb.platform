@@ -12,6 +12,7 @@ import { AcilDurumModule } from './modules/acil-durum/acil-durum.module';
 import { DestekTalebiModule } from './modules/destek-talebi/destek-talebi.module';
 import { DuyuruModule } from './modules/duyuru/duyuru.module';
 import { BannerModule } from './modules/banner/banner.module';
+
 import { IsOrtaklariModule } from './modules/is-ortaklari/is-ortaklari.module';
 import { PaletTesisiModule } from './modules/palet-tesisi/palet-tesisi.module';
 import { HaritaModule } from './modules/harita/harita.module';

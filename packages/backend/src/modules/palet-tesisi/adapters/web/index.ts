@@ -1,1 +1,1 @@
-export {};
+export * from './palet-tesisi.controller';

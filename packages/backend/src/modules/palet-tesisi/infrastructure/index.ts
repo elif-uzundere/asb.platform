@@ -1,0 +1,1 @@
+export * from './prisma-palet-tesisi.repository';
