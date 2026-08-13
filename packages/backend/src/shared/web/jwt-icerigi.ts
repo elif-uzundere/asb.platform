@@ -18,6 +18,17 @@ export interface JwtIcerigi {
   sub: string;
   email: string;
   rol: KullaniciRolu;
+  /**
+   * Kullanıcının bağlı olduğu firma (firma_yetkilisi/firma_calisani için
+   * dolu, ziyaretci/admin için null). `is-ilanlari` modülü BR-2'yi ("sadece
+   * onaylı firma ilan yayınlayabilir") ve sahiplik kontrolünü ("bu ilan
+   * gerçekten senin firmana mı ait") bu alan üzerinden, ekstra bir DB
+   * sorgusuna gerek kalmadan yapabiliyor.
+   */
+  firmaId: string | null;
+  /** Sadece rol = cookzone_yetkilisi olan hesaplarda dolu — `firmaId` ile
+   * aynı gerekçe, Cookzone modülü sahiplik kontrolünü buradan yapar. */
+  cookzoneIsletmeId: string | null;
 }
 
 /**
@@ -31,4 +42,6 @@ export interface AktifKullanici {
   id: string;
   email: string;
   rol: KullaniciRolu;
+  firmaId: string | null;
+  cookzoneIsletmeId: string | null;
 }

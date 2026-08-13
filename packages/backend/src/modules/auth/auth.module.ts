@@ -14,6 +14,7 @@ import { JwtTokenUreticiAdapter } from './adapters/security/jwt-token-uretici.ad
 import { NodemailerEmailAdapter } from './adapters/email/nodemailer-email.adapter';
 import { GoogleTokenDogrulayiciAdapter } from './adapters/security/google-token-dogrulayici.adapter';
 import { AuthController } from './adapters/web/auth.controller';
+import { KullaniciSorgulamaAdapter } from './adapters/public';
 import {
   AUTH_SERVICE,
   KULLANICI_REPOSITORY,
@@ -21,6 +22,7 @@ import {
   TOKEN_URETICI_PORT,
   EMAIL_GONDER_PORT,
   GOOGLE_TOKEN_DOGRULAYICI_PORT,
+  KULLANICI_SORGULAMA_PORT,
 } from './auth.tokens';
 
 @Module({
@@ -37,6 +39,7 @@ import {
     { provide: TOKEN_URETICI_PORT, useClass: JwtTokenUreticiAdapter },
     { provide: EMAIL_GONDER_PORT, useClass: NodemailerEmailAdapter },
     { provide: GOOGLE_TOKEN_DOGRULAYICI_PORT, useClass: GoogleTokenDogrulayiciAdapter },
+    { provide: KULLANICI_SORGULAMA_PORT, useClass: KullaniciSorgulamaAdapter },
     {
       provide: AUTH_SERVICE,
       useFactory: (
@@ -63,5 +66,8 @@ import {
       ],
     },
   ],
+  // `is-ilanlari` başvuru listesinde "kim başvurdu" görebilmek için bunu
+  // görür — firma modülünün `FIRMA_SORGULAMA_PORT`'u dışa açmasıyla aynı desen.
+  exports: [KULLANICI_SORGULAMA_PORT],
 })
 export class AuthModule {}

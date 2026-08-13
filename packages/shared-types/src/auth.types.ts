@@ -1,4 +1,10 @@
-export type KullaniciRolu = 'ziyaretci' | 'firma_calisani' | 'firma_yetkilisi' | 'admin';
+export type KullaniciRolu =
+  | 'ziyaretci'
+  | 'firma_calisani'
+  | 'firma_yetkilisi'
+  | 'admin'
+  | 'cookzone_yetkilisi'
+  | 'palet_tesisi_yetkilisi';
 
 export interface RegisterRequest {
   ad: string;
@@ -22,6 +28,8 @@ export interface KullaniciOzet {
   telefon: string | null;
   rol: KullaniciRolu;
   firmaId: string | null;
+  /** Sadece rol = cookzone_yetkilisi olan hesaplarda dolu. */
+  cookzoneIsletmeId: string | null;
   epostaDogrulandi: boolean;
 }
 

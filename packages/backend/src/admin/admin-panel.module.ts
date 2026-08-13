@@ -59,6 +59,12 @@ async function adminModuluAsync(): Promise<DynamicModule> {
     'GostergePaneli',
     join(__dirname, '..', '..', 'admin-components', 'gosterge-paneli.jsx'),
   );
+  // `.override('Login', ...)` — AdminJS'in kendi Login bileşenini (bkz.
+  // allowOverride(Login, 'Login') içindeki isim) değiştiriyor. `.add()`'den
+  // farkı: `.add()` yeni bir isimlendirilmiş bileşen tanımlar (dashboard
+  // gibi), `.override()` ise AdminJS'in ÇEKİRDEK bileşenlerinden birinin
+  // yerine geçer — burada şifre alanına göz simgesi eklemek için.
+  componentLoader.override('Login', join(__dirname, '..', '..', 'admin-components', 'giris-sayfasi.jsx'));
 
   return AdminModule.createAdminAsync({
     customLoader: AdminExpressYukleyici,

@@ -32,20 +32,21 @@ extension HizliErisimDurumu on HizliErisimModulu {
 
   /// null ise bu modül henüz yazılmadı — dokunulunca sadece "Yakında" gösterilir.
   ///
-  /// `/firmalar` ve `/duyurular` gerçek API'ye bağlı, girişsiz de erişilebilir.
-  /// `/harita` şimdilik backend'i olmayan bir placeholder ama rota gerçek.
-  /// `/ikinci-el` çalışan ikinci el pazar ekranıdır.
-  /// `/acil-durum` Faz 3 Acil Durum modülüdür.
+  /// `/firmalar`, `/duyurular` ve `/is-ilanlari` gerçek API'ye bağlı, girişsiz
+  /// de erişilebilir (katalog modeli, bkz. docs/YENI-MODUL-REHBERI.md — yazma
+  /// uçları `is-ilanlari`'nda ayrıca korumalı). `/harita` şimdilik backend'i
+  /// olmayan bir placeholder ama rota gerçek. `/ikinci-el` şu an örnek ilan
+  /// verileriyle çalışan frontend ekranıdır. `/acil-durum` ve `/palet-tesisi`
+  /// Faz 3 modülleridir.
   String? get rota => switch (this) {
         HizliErisimModulu.firmalar => '/firmalar',
         HizliErisimModulu.harita => '/harita',
         HizliErisimModulu.duyurular => '/duyurular',
+        HizliErisimModulu.isIlanlari => '/is-ilanlari',
         HizliErisimModulu.ikinciElPazar => '/ikinci-el',
-        HizliErisimModulu.acilDurum => '/acil-durum',
-
-        HizliErisimModulu.isIlanlari => null,
-        HizliErisimModulu.cookzone => null,
+        HizliErisimModulu.cookzone => '/cookzone',
         HizliErisimModulu.paletTesisi => '/palet-tesisi',
+        HizliErisimModulu.acilDurum => '/acil-durum',
       };
 
   bool get aktif => rota != null;

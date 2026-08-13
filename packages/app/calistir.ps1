@@ -11,11 +11,18 @@
 # BAŞINA yetmiyor (denendi, sorunu çözmedi), bu yüzden bu script gerekli.
 #
 # KULLANIM: packages/app içinden  ->  .\calistir.ps1
-#           farklı bir hedef için ->  .\calistir.ps1 -Device chrome -Port 5000
+#           farklı bir port için  ->  .\calistir.ps1 -Device chrome -Port 5001
+#
+# Port VARSAYILAN OLARAK 5000 — rastgele porta düşülmesin diye bilerek sabit.
+# Google Cloud Console'daki Web OAuth Client'ın "Authorized JavaScript
+# origins" listesi sadece http://localhost:5000'i tanıyor; farklı bir portta
+# açılırsa Google Sign-In "origin_mismatch" hatası verir (06.08.2026'da
+# yaşandı). Gerçekten farklı bir port gerekiyorsa Google Cloud Console'a o
+# origin de eklenmeli.
 
 param(
     [string]$Device = "chrome",
-    [int]$Port = 0
+    [int]$Port = 5000
 )
 
 $kilitliKlasorler = @(

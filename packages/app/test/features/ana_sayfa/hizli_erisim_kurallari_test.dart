@@ -10,18 +10,17 @@ void main() {
     expect(HizliErisimModulu.firmalar.rota, '/firmalar');
     expect(HizliErisimModulu.harita.rota, '/harita');
     expect(HizliErisimModulu.duyurular.rota, '/duyurular');
+    expect(HizliErisimModulu.isIlanlari.rota, '/is-ilanlari');
     expect(HizliErisimModulu.ikinciElPazar.rota, '/ikinci-el');
+    expect(HizliErisimModulu.cookzone.rota, '/cookzone');
     expect(HizliErisimModulu.acilDurum.rota, '/acil-durum');
     expect(HizliErisimModulu.paletTesisi.rota, '/palet-tesisi');
   });
 
-  test('henuz yazilmayan moduller rotasiz (Yakinda gosterir)', () {
-    for (final modul in [
-      HizliErisimModulu.isIlanlari,
-      HizliErisimModulu.cookzone,
-    ]) {
-      expect(modul.rota, isNull, reason: '${modul.name} henuz aktif olmamali');
-      expect(modul.aktif, isFalse);
+  test('henuz yazilmayan modul kalmadi (tumu aktif)', () {
+    for (final modul in HizliErisimModulu.values) {
+      expect(modul.rota, isNotNull, reason: '${modul.name} rotasi olmali');
+      expect(modul.aktif, isTrue);
     }
   });
 

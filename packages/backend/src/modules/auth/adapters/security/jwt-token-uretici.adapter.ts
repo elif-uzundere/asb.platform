@@ -20,6 +20,8 @@ export class JwtTokenUreticiAdapter implements TokenUreticiPort {
       sub: kullanici.id,
       email: kullanici.email.toString(),
       rol: kullanici.rol,
+      firmaId: kullanici.firmaId,
+      cookzoneIsletmeId: kullanici.cookzoneIsletmeId,
     };
     return this.jwtService.signAsync(payload, {
       expiresIn: uzunSureli ? UZUN_SURE : KISA_SURE,

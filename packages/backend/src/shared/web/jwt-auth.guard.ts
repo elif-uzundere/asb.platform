@@ -49,6 +49,8 @@ export class JwtAuthGuard implements CanActivate {
         id: icerik.sub,
         email: icerik.email,
         rol: icerik.rol,
+        firmaId: icerik.firmaId,
+        cookzoneIsletmeId: icerik.cookzoneIsletmeId,
       };
       return true;
     } catch {

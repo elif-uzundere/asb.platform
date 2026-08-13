@@ -40,6 +40,7 @@ void main() {
       telefon: null,
       rol: KullaniciRolu.admin,
       firmaId: null,
+      cookzoneIsletmeId: null,
       epostaDogrulandi: false,
     );
 

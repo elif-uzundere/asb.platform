@@ -11,4 +11,9 @@ export class FirmaSorgulamaAdapter implements FirmaSorgulamaPort {
     const firma = await this.firmaRepo.idIleBul(firmaId);
     return firma?.goruntulenebilir() ?? false;
   }
+
+  async adiGetir(firmaId: string): Promise<string | null> {
+    const firma = await this.firmaRepo.idIleBul(firmaId);
+    return firma?.ad ?? null;
+  }
 }

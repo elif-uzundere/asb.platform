@@ -2,15 +2,24 @@
 // Client'ın kendi iç dotenv yüklemesine dayanıyordu (belgelenmemiş bir yan
 // etki). Bu satır aynı sonucu güvenilir/görünür şekilde garanti eder.
 import 'dotenv/config';
+import { join } from 'path';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './shared/web/global-exception.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableCors({ origin: true });
+
+  // `LocalFileStorageAdapter` dosyaları `uploads/` altına yazıp `/uploads/...`
+  // URL'i dönüyordu ama bunu HTTP üzerinden servis eden bir şey yoktu — CV
+  // yükleme özelliğiyle (12.08.2026) ilk gerçek tüketici geldi, bu yüzden
+  // eklendi. `setGlobalPrefix('api')` bunu etkilemiyor çünkü statik dosyalar
+  // controller route'u değil, ayrı bir express middleware.
+  app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads/' });
 
 app.setGlobalPrefix('api');
 

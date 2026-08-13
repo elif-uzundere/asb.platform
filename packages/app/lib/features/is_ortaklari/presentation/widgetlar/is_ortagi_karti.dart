@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/network/api_client.dart';
 import '../../domain/is_ortagi_modeli.dart';
 
 class IsOrtagiKarti extends StatelessWidget {
@@ -39,7 +40,7 @@ class IsOrtagiKarti extends StatelessWidget {
               children: [
                 Expanded(
                   child: Image.network(
-                    isOrtagi.logoUrl,
+                    medyaAdresiCozumle(isOrtagi.logoUrl),
                     width: double.infinity,
                     fit: BoxFit.contain,
                     errorBuilder: (

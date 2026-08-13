@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from './shared/infrastructure/prisma.module';
 import { FileStorageModule } from './shared/infrastructure/file-storage/file-storage.module';
+import { BildirimModule } from './shared/infrastructure/bildirim/bildirim.module';
 import { HealthModule } from './shared/web/health.module';
 import { GuvenlikModule } from './shared/web/guvenlik.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -23,6 +24,7 @@ import { IsOrtagiModule } from './modules/is-ortagi/is-ortagi.module';
   imports: [
     PrismaModule,
     FileStorageModule,
+    BildirimModule,
     GuvenlikModule, // @Global — guard'ları tüm modüllere açar
     HealthModule,
     AdminPanelModule,

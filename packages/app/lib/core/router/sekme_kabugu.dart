@@ -14,12 +14,22 @@ class SekmeTanimi {
     required this.baslik,
     required this.ikon,
     required this.aktifIkon,
+    this.kendiBasligiVar = false,
   });
 
   final String yol;
   final String baslik;
   final IconData ikon;
   final IconData aktifIkon;
+
+  /// true ise bu sekmenin ekranı KENDİ başlığını/geri okunu zaten çiziyor
+  /// (firmalar_ekrani.dart'taki AppBar, duyurular_ekrani.dart'taki gradyan
+  /// _UstBaslik, profil_ekrani.dart'taki geri oku + "Profil" satırı gibi) —
+  /// bu durumda SekmeKabugu KENDİ genel AppBar'ını göstermez, yoksa ekranda
+  /// aynı başlık iki kez üst üste görünür (06.08.2026'da canlı test edilip
+  /// bulundu). `false` olan sekmeler (Harita gibi) hâlâ bu genel AppBar'a
+  /// muhtaç, o yüzden bu bayrak olmadan hepsi için kaldırılamaz.
+  final bool kendiBasligiVar;
 }
 
 const List<SekmeTanimi> sekmeler = [
@@ -34,6 +44,7 @@ const List<SekmeTanimi> sekmeler = [
     baslik: 'Firmalar',
     ikon: Icons.business_center_outlined,
     aktifIkon: Icons.business_center,
+    kendiBasligiVar: true,
   ),
   SekmeTanimi(
     yol: '/harita',
@@ -46,12 +57,14 @@ const List<SekmeTanimi> sekmeler = [
     baslik: 'Duyurular',
     ikon: Icons.campaign_outlined,
     aktifIkon: Icons.campaign,
+    kendiBasligiVar: true,
   ),
   SekmeTanimi(
     yol: '/profil',
     baslik: 'Profil',
     ikon: Icons.person_outline,
     aktifIkon: Icons.person,
+    kendiBasligiVar: true,
   ),
 ];
 
@@ -83,10 +96,11 @@ class SekmeKabugu extends ConsumerWidget {
     // Alt sekme çubuğu HER ZAMAN görünür — girişsiz kullanıcı sadece '/'
     // (Ana Sayfa) rotasına erişebilir (bkz. yonlendirici.dart _acikRotalar),
     // diğer sekmelere basınca zaten /giris'e yönlendiriliyor. Ana Sayfa'nın
-    // (aktif == 0) kendi hero banner'ı en üstte olduğu için burada genel
-    // AppBar'ı GÖSTERMİYORUZ, ama alt sekme çubuğu her rotada aynı.
+    // (aktif == 0) kendi hero banner'ı, `kendiBasligiVar: true` olan
+    // sekmelerin de kendi başlığı olduğu için burada genel AppBar'ı
+    // GÖSTERMİYORUZ — aksi halde iki başlık üst üste biner.
     return Scaffold(
-      appBar: aktif == 0
+      appBar: (aktif == 0 || sekmeler[aktif].kendiBasligiVar)
           ? null
           : AppBar(
               title: Text(sekmeler[aktif].baslik),

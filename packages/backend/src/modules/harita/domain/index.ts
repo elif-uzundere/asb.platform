@@ -1,1 +1,1 @@
-export {};
+export * from './bolge-noktasi.repository';

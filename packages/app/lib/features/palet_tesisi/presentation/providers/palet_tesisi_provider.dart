@@ -23,3 +23,14 @@ final paletlerProvider =
     return api.paletleriGetir();
   },
 );
+
+/// Palet Tesisi yönetim ekranı — pasif olanlar dahil hepsi.
+final tumPaletlerProvider =
+    FutureProvider<List<Palet>>(
+  (ref) async {
+    final api =
+        ref.watch(paletTesisiApiProvider);
+
+    return api.tumPaletleriGetir();
+  },
+);

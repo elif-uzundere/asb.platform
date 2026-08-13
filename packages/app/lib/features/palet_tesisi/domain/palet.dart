@@ -5,6 +5,7 @@ class Palet {
     required this.aciklama,
     required this.olcu,
     required this.gorselUrl,
+    required this.aktif,
     required this.sira,
   });
 
@@ -13,6 +14,7 @@ class Palet {
   final String? aciklama;
   final String? olcu;
   final String? gorselUrl;
+  final bool aktif;
   final int sira;
 
   factory Palet.jsondan(
@@ -24,6 +26,7 @@ class Palet {
       aciklama: json['aciklama'] as String?,
       olcu: json['olcu'] as String?,
       gorselUrl: json['gorselUrl'] as String?,
+      aktif: json['aktif'] as bool? ?? true,
       sira: json['sira'] as int? ?? 0,
     );
   }

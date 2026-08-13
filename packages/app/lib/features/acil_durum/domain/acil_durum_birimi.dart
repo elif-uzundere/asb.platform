@@ -5,6 +5,7 @@ class AcilDurumBirimi {
     required this.ad,
     required this.altBaslik,
     required this.telefon,
+    required this.telefon2,
     required this.eposta,
     required this.adres,
     required this.aciklama,
@@ -22,6 +23,7 @@ class AcilDurumBirimi {
 
   // Backend / veritabanından gelen bilgiler.
   final String? telefon;
+  final String? telefon2;
   final String? eposta;
   final String? adres;
   final String? aciklama;
@@ -48,6 +50,7 @@ class AcilDurumBirimi {
       ad: _adBul(tur),
       altBaslik: _altBaslikBul(tur),
       telefon: json['telefon'] as String?,
+      telefon2: json['telefon2'] as String?,
       eposta: json['eposta'] as String?,
       adres: json['adres'] as String?,
       aciklama: json['aciklama'] as String?,
@@ -69,6 +72,7 @@ class AcilDurumBirimi {
       ad: _adBul(temizTur),
       altBaslik: _altBaslikBul(temizTur),
       telefon: null,
+      telefon2: null,
       eposta: null,
       adres: null,
       aciklama: null,

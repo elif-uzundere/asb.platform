@@ -74,6 +74,7 @@ export class PrismaKullaniciRepository implements KullaniciRepository {
     rol: string;
     firmaId: string | null;
     epostaDogrulandi: boolean;
+    cookzoneIsletmeId?: string | null;
   }): Kullanici {
     return new Kullanici(
       kayit.id,
@@ -85,6 +86,7 @@ export class PrismaKullaniciRepository implements KullaniciRepository {
       kayit.firmaId,
       kayit.epostaDogrulandi,
       kayit.telefon,
+      kayit.cookzoneIsletmeId ?? null,
     );
   }
 }

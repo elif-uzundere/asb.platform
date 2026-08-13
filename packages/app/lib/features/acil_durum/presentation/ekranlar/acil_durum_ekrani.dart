@@ -101,10 +101,18 @@ class AcilDurumEkrani extends ConsumerWidget {
           );
         },
 
-        data: (birimler) {
+        data: (birimlerHam) {
+          // Backend `sira` diye bir kolon tutmuyor (bkz. AcilDurumBirimi.jsondan
+          // — `sira` sadece Flutter tarafında `tur`'a göre türetilen sabit bir
+          // değer), bu yüzden DB'nin dönüş sırasına güvenmek yerine burada
+          // açıkça sıralanıyor (13.08.2026, mockup'taki sıra korunsun diye).
+          final birimler = [...birimlerHam]
+            ..sort((a, b) => a.sira.compareTo(b.sira));
+
           final acilBirimler = birimler
     .where(
       (birim) =>
+          birim.tur == 'isg' ||
           birim.tur == 'itfaiye' ||
           birim.tur == 'guvenlik' ||
           birim.tur == 'musteri_hizmetleri',
@@ -114,7 +122,6 @@ class AcilDurumEkrani extends ConsumerWidget {
 final digerBirimler = birimler
     .where(
       (birim) =>
-          birim.tur == 'isg' ||
           birim.tur == 'kantar' ||
           birim.tur == 'gumruk',
     )

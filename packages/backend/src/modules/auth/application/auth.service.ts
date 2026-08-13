@@ -201,6 +201,7 @@ export class AuthService {
       telefon: kullanici.telefon,
       rol: kullanici.rol,
       firmaId: kullanici.firmaId,
+      cookzoneIsletmeId: kullanici.cookzoneIsletmeId,
       epostaDogrulandi: kullanici.epostaDogrulandi,
     };
   }

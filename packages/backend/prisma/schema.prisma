@@ -18,6 +18,8 @@ enum KullaniciRolu {
   firma_calisani
   firma_yetkilisi
   admin
+  cookzone_yetkilisi
+  palet_tesisi_yetkilisi
 }
 
 // Rol bazlı ince taneli yetkiler (bkz. shared/web/yetki.guard.ts). KullaniciRolu
@@ -51,6 +53,13 @@ model Kullanici {
   olusturmaTarihi  DateTime      @default(now()) @map("olusturma_tarihi")
   guncellemeTarihi DateTime      @updatedAt @map("guncelleme_tarihi")
 
+  // `firmaId` ile AYNI ilişki değil, bilerek ayrı bir alan — Cookzone bir
+  // firma tarafından değil doğrudan ASB tarafından işletiliyor (çalışan
+  // maaşları ASB'den), sahte bir Firma kaydı açmak yerine kendi FK'sı var.
+  // Sadece rol = cookzone_yetkilisi olan hesaplarda dolu olması beklenir.
+  cookzoneIsletmeId String?          @map("cookzone_isletme_id")
+  cookzoneIsletme   CookzoneIsletme? @relation(fields: [cookzoneIsletmeId], references: [id])
+
   olusturduguDuyurular  Duyuru[]             @relation("DuyuruOlusturanKullanici")
   isIlanlariOlusturan   IsIlani[]            @relation("IsIlaniOlusturanKullanici")
   isBasvurulari         IsBasvurusu[]
@@ -59,6 +68,7 @@ model Kullanici {
   acilDurumBildirimleri AcilDurumBildirimi[]
   paletTesisleri        PaletTesisi[]
   destekTalepleri       DestekTalebi[]
+  cihazTokenleri        CihazTokeni[]
 
   @@map("kullanici")
 }
@@ -188,6 +198,7 @@ model IsBasvurusu {
   kullanici     Kullanici         @relation(fields: [kullaniciId], references: [id])
   basvuruTarihi DateTime          @default(now()) @map("basvuru_tarihi")
   durum         IsBasvurusuDurumu @default(beklemede)
+  cvUrl         String?           @map("cv_url")
 
   @@map("is_basvurusu")
 }
@@ -256,6 +267,7 @@ model CookzoneIsletme {
 
   menuOgeleri CookzoneMenuOgesi[]
   siparisler  CookzoneSiparis[]
+  yetkilileri Kullanici[]
 
   @@map("cookzone_isletme")
 }
@@ -275,7 +287,12 @@ model CookzoneMenuOgesi {
   @@map("cookzone_menu_ogesi")
 }
 
+// `beklemede`, işletmenin henüz "kabul etmediği" yeni siparişi temsil eder —
+// eskiden yeni sipariş direkt `alindi` (kabul edilmiş) başlıyordu, ama
+// randevulu-hazır-olma akışında işletmenin siparişi ELLE kabul etmesi
+// gerekiyor (07.08.2026 — Berzan'ın netleştirdiği iş akışı).
 enum CookzoneSiparisDurumu {
+  beklemede
   alindi
   hazirlaniyor
   hazir
@@ -288,8 +305,12 @@ model CookzoneSiparis {
   kullanici       Kullanici             @relation(fields: [kullaniciId], references: [id])
   isletmeId       String                @map("isletme_id")
   isletme         CookzoneIsletme       @relation(fields: [isletmeId], references: [id])
-  durum           CookzoneSiparisDurumu @default(alindi)
+  durum           CookzoneSiparisDurumu @default(beklemede)
   toplamTutar     Decimal               @map("toplam_tutar") @db.Decimal(10, 2)
+  // Müşterinin "şu saatte gelip alacağım" dediği zaman — teslimat YOK,
+  // randevulu hazır-olma modeli. `olusturmaTarihi`'nden (sipariş NE ZAMAN
+  // verildi) kasıtlı olarak ayrı bir alan.
+  alinmaSaati     DateTime              @map("alinma_saati")
   olusturmaTarihi DateTime              @default(now()) @map("olusturma_tarihi")
 
   kalemler CookzoneSiparisKalemi[]
@@ -368,6 +389,10 @@ model AcilDurumBilgisi {
   id              String   @id @default(uuid())
   tur             String   @unique @db.VarChar(50)
   telefon         String?  @db.VarChar(30)
+  // Güvenlik/İtfaiye gibi birimlerde tek numara yetmiyor (13.08.2026,
+  // mockup'ta iki ayrı hat gösteriliyor) — opsiyonel ikinci hat, ilk numaranın
+  // yerini almaz, sadece ekstra bilgi satırı olarak gösterilir.
+  telefon2        String?  @map("telefon_2") @db.VarChar(30)
   eposta          String?  @db.VarChar(150)
   adres           String?
   aciklama        String?
@@ -408,4 +433,30 @@ model Palet {
   sira      Int     @default(0)
 
   @@map("palet")
+}
+
+// ── 4.9 Bildirimler ─────────────────────────────────────────────────────
+// Faz 1'de "ileride eklenebilir" diye ertelenmişti (bkz. docs/isterler.md
+// Kapsam dışı), Cookzone'un "sipariş hazır" bildirimi ihtiyacıyla 07.08.2026'da
+// devreye alındı. Sadece Cookzone'a özel DEĞİL — Acil Durum/Duyurular da
+// ileride bu tabloyu kullanacak, bu yüzden kendi Cookzone bölümünde değil
+// ayrı bir bölümde.
+
+enum CihazPlatformu {
+  android
+  ios
+  web
+}
+
+model CihazTokeni {
+  id              String         @id @default(uuid())
+  kullaniciId     String         @map("kullanici_id")
+  kullanici       Kullanici      @relation(fields: [kullaniciId], references: [id])
+  // Bir kullanıcının aynı cihazda birden fazla token kaydı birikmemesi için
+  // unique — FCM token'ı yenilendiğinde upsert edilir, çoğaltılmaz.
+  token           String         @unique @db.VarChar(255)
+  platform        CihazPlatformu
+  olusturmaTarihi DateTime       @default(now()) @map("olusturma_tarihi")
+
+  @@map("cihaz_tokeni")
 }

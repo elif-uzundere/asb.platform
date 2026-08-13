@@ -60,6 +60,8 @@ describe('JwtAuthGuard', () => {
         sub: 'k1',
         email: 'elif@example.com',
         rol: 'admin',
+        firmaId: null,
+        cookzoneIsletmeId: null,
       }),
     } as unknown as JwtService;
     const guard = new JwtAuthGuard(jwtService);
@@ -72,6 +74,8 @@ describe('JwtAuthGuard', () => {
       id: 'k1',
       email: 'elif@example.com',
       rol: 'admin',
+      firmaId: null,
+      cookzoneIsletmeId: null,
     });
   });
 

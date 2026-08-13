@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/network/api_client.dart';
 import '../../domain/palet.dart';
 import '../providers/palet_tesisi_provider.dart';
 
@@ -640,7 +641,7 @@ class _PaletGorseli
     }
 
     return Image.network(
-      gorselUrl!,
+      medyaAdresiCozumle(gorselUrl!),
       width: double.infinity,
       fit: BoxFit.cover,
 

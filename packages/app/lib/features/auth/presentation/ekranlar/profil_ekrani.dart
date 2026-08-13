@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/models/auth_modelleri.dart';
 import '../../../../core/theme/renkler.dart';
 import '../durum/auth_durumu.dart';
 
@@ -29,13 +30,26 @@ class ProfilEkrani extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Profil',
-                style: TextStyle(
-                  fontSize: 27,
-                  fontWeight: FontWeight.w700,
-                  color: Renkler.lacivert,
-                ),
+              // firmalar_ekrani.dart/duyurular_ekrani.dart'taki geri okuyla
+              // aynı gerekçe: Ana Sayfa'nın Hızlı Erişim ızgarasından bu
+              // sekmeye "girmiş" hissi veren bir çıkış yolu — alt sekme
+              // çubuğundan Ana Sayfa'ya dokunmak yerine tek dokunuşla dönüş.
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Renkler.lacivert),
+                    onPressed: () => context.go('/'),
+                  ),
+                  const SizedBox(width: 4),
+                  const Text(
+                    'Profil',
+                    style: TextStyle(
+                      fontSize: 27,
+                      fontWeight: FontWeight.w700,
+                      color: Renkler.lacivert,
+                    ),
+                  ),
+                ],
               ),
 
               const SizedBox(height: 14),
@@ -184,33 +198,95 @@ class ProfilEkrani extends ConsumerWidget {
 
                     const _MenuAyirici(),
 
-                    _ProfilMenuSatiri(
-                      ikon: Icons.work_outline_rounded,
-                      baslik: 'İş İlanlarım',
-                      aciklama:
-                          'Yayınladığınız ilanları görüntüleyin',
-                      onTap: () {
-                        _yakindaMesaji(
-                          context,
-                          'İş ilanlarım',
-                        );
-                      },
-                    ),
+                    // firma_yetkilisi için "İş İlanlarım" + "Başvurularım"
+                    // yerine "Başvurular" gösterilir — bir firma yetkilisi
+                    // kendi ilanına başvurmaz, o yüzden "Başvurularım" onun
+                    // için anlamsız; ikisi de aynı ekrana (kendi ilanları →
+                    // başvuru inceleme) götürür (12.08.2026).
+                    if (kullanici?.rol == KullaniciRolu.firmaYetkilisi) ...[
+                      _ProfilMenuSatiri(
+                        ikon: Icons.work_outline_rounded,
+                        baslik: 'İş İlanlarım',
+                        aciklama:
+                            'Yayınladığınız ilanları görüntüleyin',
+                        onTap: () {
+                          context.push('/profil/is-ilanlarim');
+                        },
+                      ),
 
-                    const _MenuAyirici(),
+                      const _MenuAyirici(),
 
-                    _ProfilMenuSatiri(
-                      ikon: Icons.bookmark_border_rounded,
-                      baslik: 'Başvurularım',
-                      aciklama:
-                          'Yaptığınız başvuruları görüntüleyin',
-                      onTap: () {
-                        _yakindaMesaji(
-                          context,
-                          'Başvurularım',
-                        );
-                      },
-                    ),
+                      _ProfilMenuSatiri(
+                        ikon: Icons.bookmark_border_rounded,
+                        baslik: 'Başvurular',
+                        aciklama:
+                            'İlanlarınıza gelen başvuruları inceleyin',
+                        onTap: () {
+                          context.push('/profil/is-ilanlarim');
+                        },
+                      ),
+                    ] else ...[
+                      _ProfilMenuSatiri(
+                        ikon: Icons.work_outline_rounded,
+                        baslik: 'İş İlanlarım',
+                        aciklama:
+                            'Yayınladığınız ilanları görüntüleyin',
+                        onTap: () {
+                          _yakindaMesaji(
+                            context,
+                            'İş ilanlarım',
+                          );
+                        },
+                      ),
+
+                      const _MenuAyirici(),
+
+                      _ProfilMenuSatiri(
+                        ikon: Icons.bookmark_border_rounded,
+                        baslik: 'Başvurularım',
+                        aciklama:
+                            'Yaptığınız başvuruları görüntüleyin',
+                        onTap: () {
+                          if (kullanici == null) {
+                            context.push('/giris');
+                            return;
+                          }
+                          context.push('/profil/basvurularim');
+                        },
+                      ),
+                    ],
+
+                    // cookzone_yetkilisi için "Siparişlerim" (müşteri
+                    // görünümü) yerine "Sipariş Yönetimi" gösterilir — ikisi
+                    // birbirini dışlar, aynı hesap için ikisi de anlamlı değil
+                    // (11.08.2026, Berzan'ın düzeltmesi).
+                    if (kullanici?.rol == KullaniciRolu.cookzoneYetkilisi) ...[
+                      const _MenuAyirici(),
+                      _ProfilMenuSatiri(
+                        ikon: Icons.receipt_long_outlined,
+                        baslik: 'Sipariş Yönetimi',
+                        aciklama:
+                            'Cookzone sipariş kuyruğunuzu yönetin',
+                        onTap: () {
+                          context.push('/cookzone/yonetim');
+                        },
+                      ),
+                    ] else ...[
+                      const _MenuAyirici(),
+                      _ProfilMenuSatiri(
+                        ikon: Icons.restaurant_outlined,
+                        baslik: 'Cookzone Siparişlerim',
+                        aciklama:
+                            'Yemek siparişlerinizi görüntüleyin',
+                        onTap: () {
+                          if (kullanici == null) {
+                            context.push('/giris');
+                            return;
+                          }
+                          context.push('/profil/cookzone-siparislerim');
+                        },
+                      ),
+                    ],
 
                     const _MenuAyirici(),
 

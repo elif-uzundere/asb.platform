@@ -10,6 +10,23 @@ import 'yetkisiz_istek_akisi.dart';
 /// Backend geliştirme adresi. Tüm endpoint'ler /api/v1 altında (setGlobalPrefix + versioning).
 const String apiTabanAdresi = 'http://localhost:3000/api/v1';
 
+/// `/uploads/...` gibi backend'in döndürdüğü GÖRECELİ dosya yolları
+/// (`LocalFileStorageAdapter`, `/api/v1` prefix'inin DIŞINDA statik olarak
+/// servis ediliyor — main.ts'teki `useStaticAssets`) için mutlak adrese
+/// çevirir. `apiTabanAdresi`'nin sonundaki `/api/v1`'i atarak host'u bulur.
+String medyaAdresi(String goreceliYol) {
+  final kok = apiTabanAdresi.replaceFirst('/api/v1', '');
+  return '$kok$goreceliYol';
+}
+
+/// Bazı alanlar (ör. `Palet.gorselUrl`) hem eski tip mutlak URL'leri (harici
+/// bir kaynaktan) hem de bizim backend'imizin döndürdüğü göreceli
+/// `/uploads/...` yollarını tutabiliyor — bu ikisini ayırt edip sadece
+/// göreceli olanı [medyaAdresi] ile mutlaklaştırır.
+String medyaAdresiCozumle(String url) {
+  return url.startsWith('http') ? url : medyaAdresi(url);
+}
+
 Dio apiClientOlustur(AuthDepo authDepo) {
   final dio = Dio(
     BaseOptions(

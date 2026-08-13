@@ -10,7 +10,7 @@
     // hayalet hatalar üretebiliyor. Açık liste bu belirsizliği ortadan kaldırır.
     // (Sadece GLOBAL tipler için geçerli — express/bcrypt gibi paketler zaten
     // `import` ile geldiği için bu listede olmalarına gerek yok.)
-    "types": ["node", "jest"],
+    "types": ["node", "jest", "multer"],
     "rootDir": "src",
     "declaration": true,
     "outDir": "./dist",

@@ -5,6 +5,8 @@ import '../../features/acil_durum/domain/acil_durum_birimi.dart';
 import '../../features/acil_durum/presentation/ekranlar/acil_durum_ekrani.dart';
 import '../../features/acil_durum/presentation/ekranlar/birim_detay_ekrani.dart';
 import '../../features/acil_durum/presentation/ekranlar/toplanma_alanlari_ekrani.dart';
+
+import '../models/auth_modelleri.dart';
 import '../../features/ana_sayfa/presentation/ekranlar/ana_sayfa_ekrani.dart';
 import '../../features/auth/presentation/durum/auth_durumu.dart';
 import '../../features/auth/presentation/ekranlar/ayarlar_ekrani.dart';
@@ -16,8 +18,13 @@ import '../../features/auth/presentation/ekranlar/profil_duzenle_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/profil_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/sifre_degistir_ekrani.dart';
 import '../../features/palet_tesisi/presentation/ekranlar/palet_tesisi_ekrani.dart';
+import '../../features/palet_tesisi/presentation/ekranlar/palet_tesisi_yonetim_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/sifre_sifirla_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/sifremi_unuttum_ekrani.dart';
+import '../../features/cookzone/presentation/ekranlar/cookzone_ekrani.dart';
+import '../../features/cookzone/presentation/ekranlar/cookzone_isletme_siparisleri_ekrani.dart';
+import '../../features/cookzone/presentation/ekranlar/cookzone_sepet_ekrani.dart';
+import '../../features/cookzone/presentation/ekranlar/cookzone_siparislerim_ekrani.dart';
 import '../../features/destek/presentation/ekranlar/destek_icerik_ekrani.dart';
 import '../../features/destek/presentation/ekranlar/taleplerim_ekrani.dart';
 import '../../features/destek/presentation/ekranlar/yardim_destek_ekrani.dart';
@@ -28,6 +35,11 @@ import '../../features/firmalar/presentation/ekranlar/firmalar_ekrani.dart';
 import '../../features/harita/presentation/ekranlar/harita_ekrani.dart';
 import '../../features/ikinci_el/presentation/ekranlar/ikinci_el_ilan_ekle_ekrani.dart';
 import '../../features/ikinci_el/presentation/ekranlar/ikinci_el_ilanlari_ekrani.dart';
+import '../../features/is_ilanlari/presentation/ekranlar/basvurularim_ekrani.dart';
+import '../../features/is_ilanlari/presentation/ekranlar/is_ilani_basvurulari_ekrani.dart';
+import '../../features/is_ilanlari/presentation/ekranlar/is_ilani_detay_ekrani.dart';
+import '../../features/is_ilanlari/presentation/ekranlar/is_ilanlari_ekrani.dart';
+import '../../features/is_ilanlari/presentation/ekranlar/is_ilanlarim_ekrani.dart';
 import '../../features/is_ortaklari/presentation/ekranlar/is_ortaklari_ekrani.dart';
 import 'route_gozlemci.dart';
 import 'sekme_kabugu.dart';
@@ -53,6 +65,20 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
     observers: [routeGozlemci],
 
     redirect: (context, state) {
+      // cookzone_yetkilisi sipariş VEREN ekranı hiç görmemeli — ayrı bir
+      // yönetim akışı düşünülmüştü (11.08.2026, Berzan'ın düzeltmesi).
+      // Yönlendirme kararı tek yerde (router) toplanıyor, ekranlar kendi
+      // içinde tekrar rol kontrolü yapmıyor.
+      final kullanici = ref.read(authProvider).kullanici;
+      if (state.matchedLocation == '/cookzone' && kullanici?.rol == KullaniciRolu.cookzoneYetkilisi) {
+        return '/cookzone/yonetim';
+      }
+      // palet_tesisi_yetkilisi de aynı gerekçeyle (cookzone_yetkilisi'nin
+      // yukarıdaki yönlendirmesiyle aynı, 12.08.2026) müşteri ekranını değil
+      // doğrudan yönetim ekranını görmeli.
+      if (state.matchedLocation == '/palet-tesisi' && kullanici?.rol == KullaniciRolu.paletTesisiYetkilisi) {
+        return '/palet-tesisi/yonetim';
+      }
       return null;
     },
 
@@ -101,6 +127,34 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
             },
           ),
         ],
+      ),
+
+      GoRoute(
+        path: '/cookzone',
+        builder: (context, state) {
+          return const CookzoneEkrani();
+        },
+      ),
+
+      GoRoute(
+        path: '/cookzone/yonetim',
+        builder: (context, state) {
+          return const CookzoneIsletmeSiparisleriEkrani();
+        },
+      ),
+
+      GoRoute(
+        path: '/palet-tesisi/yonetim',
+        builder: (context, state) {
+          return const PaletTesisiYonetimEkrani();
+        },
+      ),
+
+      GoRoute(
+        path: '/cookzone/sepet/:id',
+        builder: (context, state) {
+          return CookzoneSepetEkrani(isletmeId: state.pathParameters['id']!);
+        },
       ),
 
       GoRoute(
@@ -173,6 +227,27 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
       ),
 
       GoRoute(
+        path: '/is-ilanlari',
+        builder: (context, state) {
+          return const IsIlanlariEkrani();
+        },
+      ),
+
+      GoRoute(
+        path: '/is-ilanlari/:id',
+        builder: (context, state) {
+          return IsIlaniDetayEkrani(ilanId: state.pathParameters['id']!);
+        },
+      ),
+
+      GoRoute(
+        path: '/is-ilanlari/:id/basvurular',
+        builder: (context, state) {
+          return IsIlaniBasvurulariEkrani(ilanId: state.pathParameters['id']!);
+        },
+      ),
+
+      GoRoute(
         path: '/profil/bilgilerim',
         builder: (context, state) {
           return const ProfilBilgilerimEkrani();
@@ -197,6 +272,27 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
         path: '/profil/eposta-degistir',
         builder: (context, state) {
           return const EpostaDegistirEkrani();
+        },
+      ),
+
+      GoRoute(
+        path: '/profil/basvurularim',
+        builder: (context, state) {
+          return const BasvurularimEkrani();
+        },
+      ),
+
+      GoRoute(
+        path: '/profil/is-ilanlarim',
+        builder: (context, state) {
+          return const IsIlanlarimEkrani();
+        },
+      ),
+
+      GoRoute(
+        path: '/profil/cookzone-siparislerim',
+        builder: (context, state) {
+          return const CookzoneSiparislerimEkrani();
         },
       ),
 

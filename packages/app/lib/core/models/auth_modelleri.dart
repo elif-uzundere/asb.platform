@@ -10,7 +10,9 @@ enum KullaniciRolu {
   ziyaretci('ziyaretci'),
   firmaCalisani('firma_calisani'),
   firmaYetkilisi('firma_yetkilisi'),
-  admin('admin');
+  admin('admin'),
+  cookzoneYetkilisi('cookzone_yetkilisi'),
+  paletTesisiYetkilisi('palet_tesisi_yetkilisi');
 
   const KullaniciRolu(this.deger);
 
@@ -83,6 +85,7 @@ class KullaniciOzet {
     required this.telefon,
     required this.rol,
     required this.firmaId,
+    required this.cookzoneIsletmeId,
     required this.epostaDogrulandi,
   });
 
@@ -93,6 +96,8 @@ class KullaniciOzet {
   final String? telefon;
   final KullaniciRolu rol;
   final String? firmaId;
+  /// Sadece rol = cookzoneYetkilisi olan hesaplarda dolu.
+  final String? cookzoneIsletmeId;
   final bool epostaDogrulandi;
 
   String get tamAd => '$ad $soyad';
@@ -105,6 +110,7 @@ class KullaniciOzet {
         telefon: telefon,
         rol: rol,
         firmaId: firmaId,
+        cookzoneIsletmeId: cookzoneIsletmeId,
         epostaDogrulandi: email != null ? false : epostaDogrulandi,
       );
 
@@ -116,6 +122,7 @@ class KullaniciOzet {
         telefon: json['telefon'] as String?,
         rol: KullaniciRolu.cozumle(json['rol'] as String?),
         firmaId: json['firmaId'] as String?,
+        cookzoneIsletmeId: json['cookzoneIsletmeId'] as String?,
         epostaDogrulandi: json['epostaDogrulandi'] as bool? ?? false,
       );
 
@@ -127,6 +134,7 @@ class KullaniciOzet {
         'telefon': telefon,
         'rol': rol.deger,
         'firmaId': firmaId,
+        'cookzoneIsletmeId': cookzoneIsletmeId,
         'epostaDogrulandi': epostaDogrulandi,
       };
 }

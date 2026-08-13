@@ -24,6 +24,7 @@ export class PrismaAcilDurumRepository extends AcilDurumRepository {
       id: bilgi.id,
       tur: bilgi.tur,
       telefon: bilgi.telefon,
+      telefon2: bilgi.telefon2,
       eposta: bilgi.eposta,
       adres: bilgi.adres,
       aciklama: bilgi.aciklama,

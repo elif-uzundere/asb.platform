@@ -151,9 +151,17 @@ class _DetayIcerigi
     final ikon =
         _birimIkonu(birim.tur);
 
+    final itfaiyeMi = birim.tur == 'itfaiye';
+
     final telefonVar =
         birim.telefon != null &&
         birim.telefon!
+            .trim()
+            .isNotEmpty;
+
+    final telefon2Var =
+        birim.telefon2 != null &&
+        birim.telefon2!
             .trim()
             .isNotEmpty;
 
@@ -349,17 +357,55 @@ class _DetayIcerigi
                   height: 16,
                 ),
 
-                if (telefonVar)
+                // İtfaiye'de 112 EVRENSEL/sabit bir numara — veritabanından
+                // gelmiyor, uygulamada sabit (bkz. dosya sonundaki not).
+                // Birimin kendi doğrudan hattı (varsa) 112'nin altında,
+                // nötr renkte ikinci bir bilgi satırı olarak gösterilir.
+                if (itfaiyeMi) ...[
                   _BilgiSatiri(
-                    ikon:
-                        Icons.phone_outlined,
+                    ikon: Icons.phone_outlined,
                     ikonRengi: renk,
-                    yazi:
-                        birim.telefon!,
+                    yazi: '112',
                     yaziRengi: renk,
                   ),
+                  if (telefonVar) ...[
+                    const SizedBox(height: 16),
+                    _BilgiSatiri(
+                      ikon: Icons.phone_outlined,
+                      ikonRengi: const Color(0xFF172B4D),
+                      yazi: birim.telefon!,
+                      yaziRengi: const Color(0xFF172B4D),
+                    ),
+                  ],
+                ] else ...[
+                  if (telefonVar)
+                    _BilgiSatiri(
+                      ikon:
+                          Icons.phone_outlined,
+                      ikonRengi: renk,
+                      yazi:
+                          birim.telefon!,
+                      yaziRengi: renk,
+                    ),
 
-                if (telefonVar &&
+                  if (telefonVar &&
+                      telefon2Var)
+                    const SizedBox(
+                      height: 16,
+                    ),
+
+                  if (telefon2Var)
+                    _BilgiSatiri(
+                      ikon:
+                          Icons.phone_outlined,
+                      ikonRengi: renk,
+                      yazi:
+                          birim.telefon2!,
+                      yaziRengi: renk,
+                    ),
+                ],
+
+                if ((telefonVar || itfaiyeMi) &&
                     epostaVar)
                   const SizedBox(
                     height: 16,
@@ -381,7 +427,8 @@ class _DetayIcerigi
                     ),
                   ),
 
-                if (!telefonVar &&
+                if (!itfaiyeMi &&
+                    !telefonVar &&
                     !epostaVar)
                   const Text(
                     'İletişim bilgisi henüz eklenmedi.',
@@ -505,7 +552,34 @@ class _DetayIcerigi
                   ),
                 ],
 
-                if (telefonVar ||
+                // Mockup'ta İtfaiye için tek, vurgulu bir "Acil Ara (112)"
+                // butonu var — birimin kendi hattını arayan ayrı bir "Ara"
+                // butonu yok, kafa karıştırmasın diye (13.08.2026).
+                if (itfaiyeMi) ...[
+                  const SizedBox(
+                    height: 26,
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: FilledButton.icon(
+                      onPressed: () => _telefonAra(context, '112'),
+                      icon: const Icon(Icons.phone_rounded, size: 18),
+                      label: const Text(
+                        'Acil Ara (112)',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: renk,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(7),
+                        ),
+                      ),
+                    ),
+                  ),
+                ] else if (telefonVar ||
                     epostaVar) ...[
                   const SizedBox(
                     height: 26,
