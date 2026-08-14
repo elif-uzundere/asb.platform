@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/acil_durum/domain/acil_durum_birimi.dart';
+import '../../features/acil_durum/presentation/ekranlar/acil_durum_bildir_ekrani.dart';
 import '../../features/acil_durum/presentation/ekranlar/acil_durum_ekrani.dart';
+import '../../features/acil_durum/presentation/ekranlar/bildirimlerim_ekrani.dart';
 import '../../features/acil_durum/presentation/ekranlar/birim_detay_ekrani.dart';
 import '../../features/acil_durum/presentation/ekranlar/toplanma_alanlari_ekrani.dart';
 
@@ -322,6 +324,18 @@ GoRoute(
   path: '/acil-durum/toplanma-alanlari',
   builder: (context, state) {
     return const ToplanmaAlanlariEkrani();
+  },
+),
+GoRoute(
+  path: '/acil-durum/bildir',
+  builder: (context, state) {
+    return const AcilDurumBildirEkrani();
+  },
+),
+GoRoute(
+  path: '/acil-durum/bildirimlerim',
+  builder: (context, state) {
+    return const BildirimlerimEkrani();
   },
 ),
       GoRoute(

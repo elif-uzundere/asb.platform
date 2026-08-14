@@ -49,7 +49,23 @@ class AcilDurumEkrani extends ConsumerWidget {
       fontWeight: FontWeight.w700,
     ),
   ),
+
+  actions: [
+    IconButton(
+      onPressed: () => context.push('/acil-durum/bildirimlerim'),
+      icon: const Icon(Icons.history_rounded, color: Colors.white, size: 22),
+      tooltip: 'Bildirimlerim',
+    ),
+  ],
 ),
+
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => context.push('/acil-durum/bildir'),
+        backgroundColor: const Color(0xFFF04444),
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.campaign_rounded),
+        label: const Text('Acil Durum Bildir', style: TextStyle(fontWeight: FontWeight.w700)),
+      ),
 
       body: birimlerAsync.when(
         loading: () {

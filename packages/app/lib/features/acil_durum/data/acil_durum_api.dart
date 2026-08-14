@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/api_client.dart';
 import '../../../core/network/api_istegi.dart';
+import '../domain/acil_durum_bildirimi.dart';
 import '../domain/acil_durum_birimi.dart';
 import '../domain/toplanma_alani.dart';
 
@@ -50,6 +51,24 @@ class AcilDurumApi {
           'Toplanma alanları yüklenemedi.',
     );
   }
+
+  Future<void> bildirimOlustur(AcilDurumTuru tur, String aciklama) => apiIstegi(
+        () => _dio.post<Map<String, dynamic>>(
+          '/acil-durum/bildirimler',
+          data: {'tur': tur.deger, 'aciklama': aciklama},
+        ),
+        cozumle: (_) {},
+        yedekMesaj: 'Bildirim gönderilemedi.',
+      );
+
+  Future<List<AcilDurumBildirimiResponse>> bildirimlerimGetir() => apiIstegi(
+        () => _dio.get<Map<String, dynamic>>('/acil-durum/bildirimlerim'),
+        cozumle: (veri) => (veri as List? ?? const [])
+            .whereType<Map<String, dynamic>>()
+            .map(AcilDurumBildirimiResponse.jsondan)
+            .toList(),
+        yedekMesaj: 'Bildirimleriniz yüklenemedi.',
+      );
 }
 
 final acilDurumApiProvider =

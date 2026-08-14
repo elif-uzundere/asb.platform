@@ -11,10 +11,12 @@ type GetModelByName = (name: string) => unknown;
 /**
  * AdminJS'in yönetebileceği kaynaklar. Kapsam bilerek sınırlı tutuldu (bkz.
  * kullanıcıyla konuşulan admin paneli kapsamı): Firma onay/CRUD, Duyuru CRUD,
- * Banner CRUD, Kullanıcı/rol yönetimi. Diğer 11 tablo (iş ilanı, ikinci el,
- * cookzone, acil durum, palet tesisi, bölge noktası...) bilerek burada YOK —
- * bu modüller henüz yazılmadı ya da kendi API'leri üzerinden yönetiliyor.
- * Yeni bir kaynak eklemek istenirse buraya bir öğe daha eklemek yeterli.
+ * Banner CRUD, Kullanıcı/rol yönetimi, Acil Durum Bildirimleri (13.08.2026 —
+ * ayrı bir "acil_durum_yetkilisi" rolü/Flutter ekranı yerine bilinçli olarak
+ * burada, izlencede böyle bir rol hiç planlanmamıştı). Diğer tablolar
+ * (iş ilanı, ikinci el, cookzone, palet tesisi, bölge noktası...) bilerek
+ * burada YOK — kendi API'leri üzerinden yönetiliyor. Yeni bir kaynak
+ * eklemek istenirse buraya bir öğe daha eklemek yeterli.
  */
 export function adminKaynaklariniOlustur(
   prisma: PrismaService,
@@ -25,6 +27,7 @@ export function adminKaynaklariniOlustur(
     firmaKaynagi(prisma, getModelByName),
     duyuruKaynagi(prisma, getModelByName),
     bannerKaynagi(prisma, getModelByName),
+    acilDurumBildirimiKaynagi(prisma, getModelByName),
   ];
 }
 
@@ -212,6 +215,70 @@ function bannerKaynagi(prisma: PrismaService, getModelByName: GetModelByName): R
       editProperties: ['gorselUrl', 'linkUrl', 'sira', 'aktif'],
       showProperties: ['id', 'gorselUrl', 'linkUrl', 'sira', 'aktif'],
       filterProperties: ['aktif'],
+    },
+  };
+}
+
+function acilDurumBildirimiKaynagi(prisma: PrismaService, getModelByName: GetModelByName): ResourceWithOptions {
+  return {
+    resource: { model: getModelByName('AcilDurumBildirimi'), client: prisma },
+    options: {
+      id: 'AcilDurumBildirimi',
+      navigation: { name: 'Acil Durum Bildirimleri', icon: 'AlertTriangle' },
+      titleProperty: 'aciklama',
+      sort: { sortBy: 'olusturmaTarihi', direction: 'desc' },
+      // `kullaniciId` DEĞİL `kullanici` (ilişki adı) — kullaniciKaynagi'ndaki
+      // notla aynı sebep.
+      listProperties: ['tur', 'aciklama', 'durum', 'kullanici', 'olusturmaTarihi'],
+      editProperties: ['durum'],
+      showProperties: ['id', 'tur', 'aciklama', 'durum', 'kullanici', 'olusturmaTarihi'],
+      filterProperties: ['tur', 'durum'],
+      actions: {
+        // Sadece durum güncellenebilir — admin bir bildirimi ELLE "yangin"dan
+        // "kaza"ya çeviremez, bu anlamsız olurdu (bkz. edit/new'i kapatma).
+        new: { isAccessible: false },
+        edit: { isAccessible: false },
+        incelemeyeAl: {
+          actionType: 'record',
+          icon: 'Eye',
+          variant: 'primary',
+          component: false,
+          isVisible: (context) => context.record?.params.durum === 'yeni',
+          handler: async (request, response, context) => {
+            const { record, resource, currentAdmin } = context;
+            if (!record) throw new Error('Kayıt bulunamadı');
+            await prisma.acilDurumBildirimi.update({
+              where: { id: record.params.id },
+              data: { durum: 'inceleniyor' },
+            });
+            const guncelKayit = await resource.findOne(record.params.id);
+            return {
+              record: guncelKayit!.toJSON(currentAdmin),
+              notice: { message: 'Bildirim inceleniyor olarak işaretlendi.', type: 'success' },
+            };
+          },
+        },
+        kapat: {
+          actionType: 'record',
+          icon: 'CheckCircle',
+          variant: 'success',
+          component: false,
+          isVisible: (context) => context.record?.params.durum !== 'kapatildi',
+          handler: async (request, response, context) => {
+            const { record, resource, currentAdmin } = context;
+            if (!record) throw new Error('Kayıt bulunamadı');
+            await prisma.acilDurumBildirimi.update({
+              where: { id: record.params.id },
+              data: { durum: 'kapatildi' },
+            });
+            const guncelKayit = await resource.findOne(record.params.id);
+            return {
+              record: guncelKayit!.toJSON(currentAdmin),
+              notice: { message: 'Bildirim kapatıldı.', type: 'success' },
+            };
+          },
+        },
+      },
     },
   };
 }

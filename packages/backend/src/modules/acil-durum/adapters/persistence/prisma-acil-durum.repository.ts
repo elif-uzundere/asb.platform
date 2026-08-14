@@ -1,8 +1,11 @@
+import { randomUUID } from 'crypto';
 import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../../../shared/infrastructure/prisma.service';
 
 import {
+  AcilDurumBildirimi,
+  AcilDurumBildirimiOlusturVerisi,
   AcilDurumBilgisi,
   AcilDurumRepository,
   ToplanmaAlani,
@@ -51,5 +54,43 @@ export class PrismaAcilDurumRepository extends AcilDurumRepository {
       boylam: Number(alan.boylam),
       sira: alan.sira,
     }));
+  }
+
+  async bildirimOlustur(veri: AcilDurumBildirimiOlusturVerisi): Promise<AcilDurumBildirimi> {
+    const bildirim = await this.prismaService.acilDurumBildirimi.create({
+      data: {
+        id: randomUUID(),
+        kullaniciId: veri.kullaniciId,
+        tur: veri.tur,
+        aciklama: veri.aciklama,
+      },
+    });
+    return this.bildirimeCevir(bildirim);
+  }
+
+  async bildirimlerimGetir(kullaniciId: string): Promise<AcilDurumBildirimi[]> {
+    const bildirimler = await this.prismaService.acilDurumBildirimi.findMany({
+      where: { kullaniciId },
+      orderBy: { olusturmaTarihi: 'desc' },
+    });
+    return bildirimler.map((bildirim) => this.bildirimeCevir(bildirim));
+  }
+
+  private bildirimeCevir(bildirim: {
+    id: string;
+    kullaniciId: string;
+    tur: string;
+    aciklama: string | null;
+    durum: string;
+    olusturmaTarihi: Date;
+  }): AcilDurumBildirimi {
+    return {
+      id: bildirim.id,
+      kullaniciId: bildirim.kullaniciId,
+      tur: bildirim.tur as AcilDurumBildirimi['tur'],
+      aciklama: bildirim.aciklama,
+      durum: bildirim.durum as AcilDurumBildirimi['durum'],
+      olusturmaTarihi: bildirim.olusturmaTarihi,
+    };
   }
 }
