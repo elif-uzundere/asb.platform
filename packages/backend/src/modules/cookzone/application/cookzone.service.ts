@@ -5,16 +5,20 @@ import {
   CookzoneIsletmeRepository,
   CookzoneMenuOgesi,
   CookzoneMenuOgesiBulunamadiException,
+  CookzoneMenuOgesiGuncellemeVerisi,
+  CookzoneMenuOgesiOlusturmaVerisi,
   CookzoneSiparis,
   CookzoneSiparisBulunamadiException,
   CookzoneSiparisKalemi,
   CookzoneSiparisRepository,
+  BaskaIsletmeninMenuOgesiException,
   BaskaIsletmeyeAitException,
   BosSepetIleSiparisVerilemezException,
   GecmisSaateSiparisVerilemezException,
   SiparisIlerletilemezException,
 } from '../domain';
 import type { BildirimGonderPort } from '../../../shared/infrastructure/bildirim/bildirim-gonder.port';
+import type { KullaniciSorgulamaPort } from '../../auth/adapters/public/kullanici-sorgulama.port';
 import type { CookzoneSiparisKalemiRequest } from '@asb/shared-types';
 
 /**
@@ -28,6 +32,7 @@ export class CookzoneService {
     private readonly isletmeRepo: CookzoneIsletmeRepository,
     private readonly siparisRepo: CookzoneSiparisRepository,
     private readonly bildirimGonder: BildirimGonderPort,
+    private readonly kullaniciSorgulama: KullaniciSorgulamaPort,
   ) {}
 
   // ── Katalog (herkese açık) ───────────────────────────────────────────────
@@ -46,6 +51,41 @@ export class CookzoneService {
 
   async menuGetir(isletmeId: string): Promise<CookzoneMenuOgesi[]> {
     return this.isletmeRepo.menuOgeleriGetir(isletmeId);
+  }
+
+  // ── Menü yönetimi — cookzone_yetkilisi tarafı ───────────────────────────
+
+  async menuOgeleriTumunuGetir(isletmeId: string): Promise<CookzoneMenuOgesi[]> {
+    return this.isletmeRepo.menuOgeleriTumunuGetir(isletmeId);
+  }
+
+  async menuOgesiOlustur(veri: CookzoneMenuOgesiOlusturmaVerisi): Promise<CookzoneMenuOgesi> {
+    return this.isletmeRepo.menuOgesiOlustur(veri);
+  }
+
+  async menuOgesiGuncelle(
+    id: string,
+    istekYapanIsletmeId: string,
+    veri: CookzoneMenuOgesiGuncellemeVerisi,
+  ): Promise<CookzoneMenuOgesi> {
+    await this.menuOgesiSahiplikDogrula(id, istekYapanIsletmeId);
+    return this.isletmeRepo.menuOgesiGuncelle(id, veri);
+  }
+
+  async menuOgesiSil(id: string, istekYapanIsletmeId: string): Promise<void> {
+    await this.menuOgesiSahiplikDogrula(id, istekYapanIsletmeId);
+    await this.isletmeRepo.menuOgesiSil(id);
+  }
+
+  private async menuOgesiSahiplikDogrula(id: string, istekYapanIsletmeId: string): Promise<CookzoneMenuOgesi> {
+    const menuOgesi = await this.isletmeRepo.menuOgesiIdIleBul(id);
+    if (!menuOgesi) {
+      throw new CookzoneMenuOgesiBulunamadiException();
+    }
+    if (menuOgesi.isletmeId !== istekYapanIsletmeId) {
+      throw new BaskaIsletmeninMenuOgesiException();
+    }
+    return menuOgesi;
   }
 
   // ── Sipariş — müşteri tarafı ─────────────────────────────────────────────
@@ -82,7 +122,22 @@ export class CookzoneService {
       toplamTutar,
       alinmaSaati,
     );
-    return this.siparisRepo.olustur(yeniSiparis, kalemler);
+    const olusturulanSiparis = await this.siparisRepo.olustur(yeniSiparis, kalemler);
+
+    // Yeni sipariş gelince işletmeye bağlı TÜM cookzone_yetkilisi
+    // hesaplarına bildirim gider (18.08.2026, Berzan'ın kararı) — "hazır"
+    // bildiriminin tersi yönü: burada müşteriden işletmeye gidiyor.
+    const yetkililer = await this.kullaniciSorgulama.cookzoneIsletmesineGoreKullanicilariGetir(isletmeId);
+    for (const yetkili of yetkililer) {
+      await this.bildirimGonder.gonder(
+        yetkili.id,
+        'Yeni Sipariş Geldi',
+        `Yeni bir sipariş alındı, toplam ${toplamTutar} ₺.`,
+        { tur: 'cookzone_siparis', siparisId: olusturulanSiparis.id },
+      );
+    }
+
+    return olusturulanSiparis;
   }
 
   async siparislerim(kullaniciId: string): Promise<CookzoneSiparis[]> {

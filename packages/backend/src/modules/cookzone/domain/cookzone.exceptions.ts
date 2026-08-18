@@ -43,3 +43,10 @@ export class SiparisIlerletilemezException extends Error {
     super('Bu sipariş artık ilerletilemez');
   }
 }
+
+/** Bir cookzone_yetkilisi başka işletmenin menü öğesini düzenlemeye/silmeye çalışırsa. */
+export class BaskaIsletmeninMenuOgesiException extends Error {
+  constructor() {
+    super('Bu menü öğesi sizin işletmenize ait değil');
+  }
+}

@@ -56,11 +56,13 @@ export class PrismaIkinciElRepository
       fiyat: Number(ilan.fiyat),
       kategori: ilan.kategori,
       urunDurumu: ilan.urunDurumu,
+      iletisimTelefonu: ilan.iletisimTelefonu,
       fotografUrls: ilan.fotografUrls,
+      oneCikan: ilan.oneCikan,
       durum: ilan.durum,
       firmaAdi:
           ilan.kullanici.firma?.ad ??
-          '${ilan.kullanici.ad} ${ilan.kullanici.soyad}',
+          `${ilan.kullanici.ad} ${ilan.kullanici.soyad}`,
       olusturmaTarihi: ilan.olusturmaTarihi,
     }));
   }
@@ -100,6 +102,7 @@ export class PrismaIkinciElRepository
         fiyat: new Prisma.Decimal(veri.fiyat),
         kategori: veri.kategori,
         urunDurumu: veri.urunDurumu,
+        iletisimTelefonu: veri.iletisimTelefonu,
         fotografUrls: veri.fotografUrls,
         durum: IkinciElIlaniDurumu.aktif,
       },
@@ -113,11 +116,13 @@ export class PrismaIkinciElRepository
       fiyat: Number(ilan.fiyat),
       kategori: ilan.kategori,
       urunDurumu: ilan.urunDurumu,
+      iletisimTelefonu: ilan.iletisimTelefonu,
       fotografUrls: ilan.fotografUrls,
+      oneCikan: ilan.oneCikan,
       durum: ilan.durum,
       firmaAdi:
           kullanici.firma?.ad ??
-          '${kullanici.ad} ${kullanici.soyad}',
+          `${kullanici.ad} ${kullanici.soyad}`,
       olusturmaTarihi: ilan.olusturmaTarihi,
     };
   }

@@ -46,6 +46,8 @@ function servisiOlustur(overrides?: {
     sifreGuncelle: jest.fn().mockResolvedValue(undefined),
     epostaGuncelle: jest.fn().mockResolvedValue(undefined),
     profilGuncelle: jest.fn(),
+    rolIleListele: jest.fn().mockResolvedValue([]),
+    cookzoneIsletmesineGoreListele: jest.fn().mockResolvedValue([]),
     ...overrides?.kullaniciRepo,
   };
   const sifreHash: SifreHashPort = {

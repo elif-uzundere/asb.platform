@@ -69,6 +69,25 @@ class AcilDurumApi {
             .toList(),
         yedekMesaj: 'Bildirimleriniz yüklenemedi.',
       );
+
+  /// Ekip görünümü — girişteki hesabın rolüne düşen bildirimler.
+  Future<List<EkibeGelenBildirimResponse>> ekibeGelenBildirimleriGetir() => apiIstegi(
+        () => _dio.get<Map<String, dynamic>>('/acil-durum/ekip/bildirimler'),
+        cozumle: (veri) => (veri as List? ?? const [])
+            .whereType<Map<String, dynamic>>()
+            .map(EkibeGelenBildirimResponse.jsondan)
+            .toList(),
+        yedekMesaj: 'Bildirimler yüklenemedi.',
+      );
+
+  Future<void> bildirimDurumGuncelle(String id, AcilDurumKarari karar) => apiIstegi(
+        () => _dio.put<Map<String, dynamic>>(
+          '/acil-durum/ekip/bildirimler/$id/durum',
+          data: {'durum': karar.deger},
+        ),
+        cozumle: (_) {},
+        yedekMesaj: 'Bildirim güncellenemedi.',
+      );
 }
 
 final acilDurumApiProvider =

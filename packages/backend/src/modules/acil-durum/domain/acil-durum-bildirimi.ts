@@ -1,4 +1,4 @@
-export type AcilDurumTuru = 'yangin' | 'kaza' | 'saglik' | 'diger';
+export type AcilDurumTuru = 'yangin' | 'kaza' | 'saglik' | 'kantar' | 'gumruk' | 'diger';
 
 export type AcilDurumBildirimDurumu = 'yeni' | 'inceleniyor' | 'kapatildi';
 

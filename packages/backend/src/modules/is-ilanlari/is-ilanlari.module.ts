@@ -9,12 +9,14 @@ import { FirmaModule } from '../firma/firma.module';
 import { AuthModule } from '../auth/auth.module';
 import { FIRMA_SORGULAMA_PORT } from '../firma/firma.tokens';
 import type { FirmaSorgulamaPort } from '../firma/adapters/public/firma-sorgulama.port';
+import { BILDIRIM_GONDER_PORT, BildirimGonderPort } from '../../shared/infrastructure/bildirim/bildirim-gonder.port';
 
 // `FirmaModule` ve `AuthModule` import ediliyor — sadece bu iki modülün
 // `exports` ettiği public port'lara (FIRMA_SORGULAMA_PORT,
 // KULLANICI_SORGULAMA_PORT) erişmek için. Bu modüllerin domain/persistence
 // katmanına hâlâ erişimimiz yok (mimari kural 3) — Nest'in DI container'ı
-// sadece exports edilen provider'ları görünür kılıyor.
+// sadece exports edilen provider'ları görünür kılıyor. `BILDIRIM_GONDER_PORT`
+// ise `BildirimModule` @Global olduğu için burada ayrıca import edilmiyor.
 @Module({
   imports: [FirmaModule, AuthModule],
   controllers: [IsIlaniController],
@@ -28,8 +30,9 @@ import type { FirmaSorgulamaPort } from '../firma/adapters/public/firma-sorgulam
         isIlaniRepo: IsIlaniRepository,
         basvuruRepo: IsBasvurusuRepository,
         firmaSorgulama: FirmaSorgulamaPort,
-      ) => new IsIlaniService(isIlaniRepo, basvuruRepo, firmaSorgulama),
-      inject: [IS_ILANI_REPOSITORY, IS_BASVURUSU_REPOSITORY, FIRMA_SORGULAMA_PORT],
+        bildirimGonder: BildirimGonderPort,
+      ) => new IsIlaniService(isIlaniRepo, basvuruRepo, firmaSorgulama, bildirimGonder),
+      inject: [IS_ILANI_REPOSITORY, IS_BASVURUSU_REPOSITORY, FIRMA_SORGULAMA_PORT, BILDIRIM_GONDER_PORT],
     },
   ],
 })

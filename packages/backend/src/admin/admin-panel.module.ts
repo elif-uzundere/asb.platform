@@ -4,6 +4,7 @@ import { DynamicModule, Module } from '@nestjs/common';
 import type { CurrentAdmin } from 'adminjs';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../shared/infrastructure/prisma.service';
+import { FILE_STORAGE_PORT, FileStoragePort } from '../shared/infrastructure/file-storage/file-storage.port';
 import { adminKaynaklariniOlustur } from './admin-kaynaklari';
 import { adminYerellestirme } from './admin-yerellestirme';
 import { AdminExpressYukleyici } from './admin-express-yukleyici';
@@ -65,11 +66,15 @@ async function adminModuluAsync(): Promise<DynamicModule> {
   // gibi), `.override()` ise AdminJS'in ÇEKİRDEK bileşenlerinden birinin
   // yerine geçer — burada şifre alanına göz simgesi eklemek için.
   componentLoader.override('Login', join(__dirname, '..', '..', 'admin-components', 'giris-sayfasi.jsx'));
+  const gorselYuklemeBileseni = componentLoader.add(
+    'GorselYuklemeFormu',
+    join(__dirname, '..', '..', 'admin-components', 'gorsel-yukleme-formu.jsx'),
+  );
 
   return AdminModule.createAdminAsync({
     customLoader: AdminExpressYukleyici,
-    inject: [PrismaService],
-    useFactory: (prisma: PrismaService) => ({
+    inject: [PrismaService, FILE_STORAGE_PORT],
+    useFactory: (prisma: PrismaService, fileStorage: FileStoragePort) => ({
       adminJsOptions: {
         rootPath: '/admin',
         componentLoader,
@@ -78,7 +83,7 @@ async function adminModuluAsync(): Promise<DynamicModule> {
           withMadeWithLove: false,
         },
         locale: adminYerellestirme,
-        resources: adminKaynaklariniOlustur(prisma, getModelByName),
+        resources: adminKaynaklariniOlustur(prisma, getModelByName, fileStorage, gorselYuklemeBileseni),
         // Varsayılan AdminJS ana sayfası "AdminJS nasıl kurulur/özelleştirilir"
         // türünden geliştirici tanıtım kartları gösteriyor — gerçek bir
         // yönetim panelinde anlamsız. Yerine gerçek verilerle (bekleyen firma

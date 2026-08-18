@@ -1,3 +1,4 @@
+import type { KullaniciRolu } from '@asb/shared-types';
 import { Kullanici } from './kullanici.entity';
 
 export interface KullaniciRepository {
@@ -10,6 +11,16 @@ export interface KullaniciRepository {
     id: string,
     veri: { ad: string; soyad: string; telefon: string | null },
   ): Promise<Kullanici>;
+
+  /** Bir role sahip tüm kullanıcılar — Acil Durum bildirimlerini ilgili ekibe yönlendirmek için. */
+  rolIleListele(rol: KullaniciRolu): Promise<Kullanici[]>;
+
+  /**
+   * Bir Cookzone işletmesine bağlı tüm cookzone_yetkilisi kullanıcıları —
+   * `rolIleListele('cookzone_yetkilisi')`'den FARKLI: birden fazla işletme
+   * olduğunda sadece o işletmeye bağlı olanlara bildirim gitmesi için.
+   */
+  cookzoneIsletmesineGoreListele(isletmeId: string): Promise<Kullanici[]>;
 }
 
 export interface SifreHashPort {

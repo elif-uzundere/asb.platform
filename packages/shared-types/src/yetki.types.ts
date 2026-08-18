@@ -6,12 +6,10 @@
  */
 export const YETKILER = {
   DUYURU_YONET: 'duyuru_yonet',
+  IKINCI_EL_YONET: 'ikinci_el_yonet',
 } as const;
 
 /**
  * YETKILER içinde bulunan değerlerden oluşan tip.
- *
- * Şu anda geçerli tek değer:
- * 'duyuru_yonet'
  */
 export type YetkiKodu = (typeof YETKILER)[keyof typeof YETKILER];

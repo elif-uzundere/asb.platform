@@ -13,18 +13,32 @@ import {
 } from '../domain';
 import type { FirmaSorgulamaPort } from '../../firma/adapters/public/firma-sorgulama.port';
 import type { IsIlaniListeRequest, IsIlaniOlusturRequest, IsBasvurusuDurumGuncelleRequest } from '@asb/shared-types';
+import type { BildirimGonderPort } from '../../../shared/infrastructure/bildirim/bildirim-gonder.port';
+
+const DURUM_ETIKETI: Record<IsBasvurusuDurumGuncelleRequest['durum'], string> = {
+  incelendi: 'incelendi olarak işaretlendi',
+  reddedildi: 'reddedildi',
+  kabul: 'kabul edildi',
+};
 
 /**
  * Saf TypeScript — NestJS decorator'ı YOK (mimari kural 2), firma.service.ts
  * ile aynı desen. `firmaSorgulama` firma modülünün public port'u: bu servis
  * firma'nın domain/persistence katmanını hiç görmüyor, sadece bu dar
  * arayüzü (isOnayli/adiGetir) biliyor — mimari kural 3.
+ *
+ * `bildirimGonder`: her modülün bildirim mantığı kendi service'inde kalır
+ * (14.08.2026, Berzan'ın kararı — acil-durum.service.ts'teki aynı gerekçe).
+ * Sadece transport (BildirimGonderPort) paylaşılıyor, "kime/ne zaman" kararı
+ * burada: başvuru gelince ilanı açan kişiye, durum değişince başvuru
+ * sahibine.
  */
 export class IsIlaniService {
   constructor(
     private readonly isIlaniRepo: IsIlaniRepository,
     private readonly basvuruRepo: IsBasvurusuRepository,
     private readonly firmaSorgulama: FirmaSorgulamaPort,
+    private readonly bildirimGonder: BildirimGonderPort,
   ) {}
 
   async listele(filtre: IsIlaniListeRequest): Promise<IsIlani[]> {
@@ -78,12 +92,21 @@ export class IsIlaniService {
     istekyapanFirmaId: string,
     dto: IsBasvurusuDurumGuncelleRequest,
   ): Promise<IsBasvurusu> {
-    await this.sahiplikDogrula(ilanId, istekyapanFirmaId);
+    const ilan = await this.sahiplikDogrula(ilanId, istekyapanFirmaId);
     const basvuru = await this.basvuruRepo.idIleBul(basvuruId);
     if (!basvuru || basvuru.isIlaniId !== ilanId) {
       throw new BasvuruBulunamadiException();
     }
-    return this.basvuruRepo.durumGuncelle(basvuruId, dto.durum);
+    const guncellenenBasvuru = await this.basvuruRepo.durumGuncelle(basvuruId, dto.durum);
+
+    await this.bildirimGonder.gonder(
+      basvuru.kullaniciId,
+      'Başvuru Durumunuz Güncellendi',
+      `"${ilan.baslik}" ilanına yaptığınız başvuru ${DURUM_ETIKETI[dto.durum]}.`,
+      { isIlaniId: ilanId, basvuruId, durum: dto.durum },
+    );
+
+    return guncellenenBasvuru;
   }
 
   // ── Başvuru ──────────────────────────────────────────────────────────────
@@ -101,7 +124,16 @@ export class IsIlaniService {
       throw new ZatenBasvurulduException();
     }
     const yeniBasvuru = IsBasvurusu.yeniBasvuru(randomUUID(), isIlaniId, kullaniciId, cvUrl);
-    return this.basvuruRepo.olustur(yeniBasvuru);
+    const olusturulanBasvuru = await this.basvuruRepo.olustur(yeniBasvuru);
+
+    await this.bildirimGonder.gonder(
+      ilan.olusturanKullaniciId,
+      'Yeni Başvuru Aldınız',
+      `"${ilan.baslik}" ilanınıza yeni bir başvuru geldi.`,
+      { isIlaniId, basvuruId: olusturulanBasvuru.id },
+    );
+
+    return olusturulanBasvuru;
   }
 
   /** Profil → Başvurularım: kullanıcının kendi yaptığı tüm başvurular. */

@@ -14,8 +14,18 @@
     "**/build": true,
     "**/.dart_tool": true
   },
-  // node_modules içindeki paketlerin KENDİ tsconfig.json'larını (ör. adminjs)
-  // TS sunucusunun ayrı bir "proje" gibi tarayıp Problems panelinde
-  // ilgisiz hatalar (eksik @types/mocha vb.) göstermesini engeller.
-  "typescript.tsserver.exclude": ["**/node_modules/**"]
+  // `typescript.tsserver.exclude` diye bir VSCode ayarı YOK (18.08.2026'da
+  // fark edildi — burada duruyordu ama hiçbir şeyi engellemiyordu). Asıl
+  // sorun: node_modules içindeki bir pakete (ör. @adminjs/express) "Go to
+  // Definition" ile gidip o dosya bir sekmede açık kaldığında, TS sunucusu o
+  // paketin KENDİ tsconfig.json'ını ayrı bir proje sayıp (paketin kendi
+  // geliştirici bağımlılıklarını — jest, express-formidable tip tanımları
+  // vb. — bizde kurulu olmadığı için) Problems panelinde ilgisiz hatalar
+  // gösteriyor. `files.exclude` bu dosyaların Gezgin'den/hızlı açma ile
+  // kazayla açılmasını engelliyor; zaten açık bir sekme varsa onu kapatıp
+  // "Developer: Reload Window" çalıştırmak gerekiyor — bu ayar onu otomatik
+  // yapamaz.
+  "files.exclude": {
+    "**/node_modules/@adminjs": true
+  }
 }

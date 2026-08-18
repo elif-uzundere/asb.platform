@@ -64,6 +64,18 @@ export class PrismaKullaniciRepository implements KullaniciRepository {
     return this.entiteyeCevir(kayit);
   }
 
+  async rolIleListele(rol: KullaniciRolu): Promise<Kullanici[]> {
+    const kayitlar = await this.prisma.kullanici.findMany({ where: { rol } });
+    return kayitlar.map((kayit) => this.entiteyeCevir(kayit));
+  }
+
+  async cookzoneIsletmesineGoreListele(isletmeId: string): Promise<Kullanici[]> {
+    const kayitlar = await this.prisma.kullanici.findMany({
+      where: { cookzoneIsletmeId: isletmeId, rol: 'cookzone_yetkilisi' },
+    });
+    return kayitlar.map((kayit) => this.entiteyeCevir(kayit));
+  }
+
   private entiteyeCevir(kayit: {
     id: string;
     email: string;

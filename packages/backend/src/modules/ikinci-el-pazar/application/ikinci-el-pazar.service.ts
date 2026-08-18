@@ -34,22 +34,17 @@ export class IkinciElPazarService {
   async ilanOlustur(
     kullaniciId: string,
     dto: IkinciElIlaniOlusturDto,
+    fotografUrls: string[],
   ): Promise<IkinciElIlani> {
     return this.ikinciElRepository.ilanOlustur({
       kullaniciId,
-
       baslik: dto.baslik.trim(),
-
       aciklama: dto.aciklama.trim(),
-
       fiyat: dto.fiyat,
-
       kategori: dto.kategori.trim(),
-
       urunDurumu: dto.urunDurumu.trim(),
-
-     
-      fotografUrls: dto.fotografUrls,
+      iletisimTelefonu: dto.iletisimTelefonu.trim(),
+      fotografUrls,
     });
   }
 }

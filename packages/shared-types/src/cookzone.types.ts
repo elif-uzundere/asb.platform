@@ -8,6 +8,8 @@ export interface CookzoneMenuOgesiResponse {
   aciklama: string | null;
   fiyat: number;
   kategori: string;
+  gorselUrl: string | null;
+  aktif: boolean;
 }
 
 /** Menü ekranı — bir işletmenin bilgisi + aktif menü öğeleri (kategori bazlı gruplama Flutter tarafında). */

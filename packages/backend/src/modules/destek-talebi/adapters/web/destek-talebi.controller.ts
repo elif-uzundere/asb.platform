@@ -5,7 +5,7 @@ import { ApiResponseDto } from '../../../../shared/web/api-response.dto';
 import { AktifKullaniciBilgisi } from '../../../../shared/web/aktif-kullanici.decorator';
 import { AktifKullanici } from '../../../../shared/web/jwt-icerigi';
 import { JwtAuthGuard } from '../../../../shared/web/jwt-auth.guard';
-import { DestekTalebiRepository } from '../../domain';
+import { DestekTalebiService } from '../../application';
 import { DestekTalebiOlusturDto } from './destek-talebi-olustur.dto';
 
 // Talep oluşturmak ve listelemek KİM olduğunu bilmeyi gerektirir (talep bir
@@ -16,14 +16,14 @@ import { DestekTalebiOlusturDto } from './destek-talebi-olustur.dto';
 @UseGuards(JwtAuthGuard)
 @Controller('destek-talepleri')
 export class DestekTalebiController {
-  constructor(private readonly destekTalebiRepository: DestekTalebiRepository) {}
+  constructor(private readonly destekTalebiService: DestekTalebiService) {}
 
   @Post()
   async olustur(
     @Body() dto: DestekTalebiOlusturDto,
     @AktifKullaniciBilgisi() kullanici: AktifKullanici,
   ): Promise<ApiResponseDto<DestekTalebiResponse>> {
-    const talep = await this.destekTalebiRepository.olustur({
+    const talep = await this.destekTalebiService.olustur({
       baslik: dto.baslik,
       aciklama: dto.aciklama,
       kullaniciId: kullanici.id,
@@ -35,7 +35,7 @@ export class DestekTalebiController {
   async listele(
     @AktifKullaniciBilgisi() kullanici: AktifKullanici,
   ): Promise<ApiResponseDto<DestekTalebiResponse[]>> {
-    const talepler = await this.destekTalebiRepository.kullaniciyaGoreListele(kullanici.id);
+    const talepler = await this.destekTalebiService.kullaniciyaGoreListele(kullanici.id);
     return ApiResponseDto.ok(talepler.map((talep) => this.yanitaCevir(talep)));
   }
 

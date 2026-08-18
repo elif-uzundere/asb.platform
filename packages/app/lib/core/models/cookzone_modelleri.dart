@@ -30,6 +30,8 @@ class CookzoneMenuOgesiResponse {
     required this.aciklama,
     required this.fiyat,
     required this.kategori,
+    required this.gorselUrl,
+    this.aktif = true,
   });
 
   final String id;
@@ -37,6 +39,8 @@ class CookzoneMenuOgesiResponse {
   final String? aciklama;
   final num fiyat;
   final String kategori;
+  final String? gorselUrl;
+  final bool aktif;
 
   factory CookzoneMenuOgesiResponse.jsondan(Map<String, dynamic> json) => CookzoneMenuOgesiResponse(
         id: json['id'] as String,
@@ -44,6 +48,8 @@ class CookzoneMenuOgesiResponse {
         aciklama: json['aciklama'] as String?,
         fiyat: json['fiyat'] as num,
         kategori: json['kategori'] as String,
+        gorselUrl: json['gorselUrl'] as String?,
+        aktif: json['aktif'] as bool? ?? true,
       );
 }
 

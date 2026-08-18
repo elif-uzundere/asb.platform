@@ -4,10 +4,12 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../shared/infrastructure/prisma.service';
 
 import {
+  AcilDurumBildirimDurumu,
   AcilDurumBildirimi,
   AcilDurumBildirimiOlusturVerisi,
   AcilDurumBilgisi,
   AcilDurumRepository,
+  AcilDurumTuru,
   ToplanmaAlani,
 } from '../../domain';
 
@@ -74,6 +76,27 @@ export class PrismaAcilDurumRepository extends AcilDurumRepository {
       orderBy: { olusturmaTarihi: 'desc' },
     });
     return bildirimler.map((bildirim) => this.bildirimeCevir(bildirim));
+  }
+
+  async turIleListele(tur: AcilDurumTuru): Promise<AcilDurumBildirimi[]> {
+    const bildirimler = await this.prismaService.acilDurumBildirimi.findMany({
+      where: { tur },
+      orderBy: { olusturmaTarihi: 'desc' },
+    });
+    return bildirimler.map((bildirim) => this.bildirimeCevir(bildirim));
+  }
+
+  async bildirimIdIleBul(id: string): Promise<AcilDurumBildirimi | null> {
+    const bildirim = await this.prismaService.acilDurumBildirimi.findUnique({ where: { id } });
+    return bildirim ? this.bildirimeCevir(bildirim) : null;
+  }
+
+  async bildirimDurumGuncelle(id: string, durum: AcilDurumBildirimDurumu): Promise<AcilDurumBildirimi> {
+    const bildirim = await this.prismaService.acilDurumBildirimi.update({
+      where: { id },
+      data: { durum },
+    });
+    return this.bildirimeCevir(bildirim);
   }
 
   private bildirimeCevir(bildirim: {

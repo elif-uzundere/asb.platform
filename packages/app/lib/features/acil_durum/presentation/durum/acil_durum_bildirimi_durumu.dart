@@ -25,3 +25,26 @@ final acilDurumBildirimiNotifierProvider =
     StateNotifierProvider.autoDispose<AcilDurumBildirimiNotifier, IslemDurumu>(
   AcilDurumBildirimiNotifier.new,
 );
+
+/// Ekip görünümü — girişteki hesabın rolüne düşen bildirimler.
+final ekibeGelenBildirimlerProvider = FutureProvider.autoDispose<List<EkibeGelenBildirimResponse>>(
+  (ref) => ref.watch(acilDurumApiProvider).ekibeGelenBildirimleriGetir(),
+);
+
+class AcilDurumBildirimDurumGuncelleNotifier extends FormNotifier {
+  AcilDurumBildirimDurumGuncelleNotifier(this._ref);
+
+  final Ref _ref;
+
+  Future<void> guncelle(String id, AcilDurumKarari karar) {
+    return calistir(() async {
+      await _ref.read(acilDurumApiProvider).bildirimDurumGuncelle(id, karar);
+      _ref.invalidate(ekibeGelenBildirimlerProvider);
+    });
+  }
+}
+
+final acilDurumBildirimDurumGuncelleNotifierProvider =
+    StateNotifierProvider.autoDispose<AcilDurumBildirimDurumGuncelleNotifier, IslemDurumu>(
+  AcilDurumBildirimDurumGuncelleNotifier.new,
+);

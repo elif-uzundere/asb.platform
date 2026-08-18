@@ -12,7 +12,9 @@ export interface IkinciElIlani {
   fiyat: number;
   kategori: string;
   urunDurumu: string;
+  iletisimTelefonu: string;
   fotografUrls: string[];
+  oneCikan: boolean;
   durum: 'aktif' | 'satildi' | 'pasif';
   firmaAdi: string;
   olusturmaTarihi: Date;
@@ -31,5 +33,6 @@ export interface IkinciElIlaniOlusturmaVerisi {
   fiyat: number;
   kategori: string;
   urunDurumu: string;
+  iletisimTelefonu: string;
   fotografUrls: string[];
 }

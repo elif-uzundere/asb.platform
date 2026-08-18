@@ -11,7 +11,7 @@
 import 'dotenv/config';
 import { copyFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
-import { PrismaClient } from '@prisma/client';
+import { KullaniciRolu, PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
@@ -37,6 +37,7 @@ async function main() {
   await isOrtaklariniYaz();
   await acilDurumBilgileriniYaz();
   await toplanmaAlanlariniYaz();
+  await acilDurumEkipleriniYaz();
 }
 
 /** admin rolüne duyuru_yonet yetkisini tanımlar — `upsert` olduğu için
@@ -47,7 +48,17 @@ async function rolYetkileriniYaz() {
     update: {},
     create: { rol: 'admin', yetki: 'duyuru_yonet' },
   });
-  console.log('Rol-yetki eşleşmesi yazıldı: admin → duyuru_yonet.');
+  // İkinci El Pazar ilan girme izni — eskiden @Roller('admin','firma_yetkilisi')
+  // ile sabitti, artık RolYetki üzerinden (admin panelinden değiştirilebilir).
+  // Davranış aynı kalsın diye aynı iki rolle başlatılıyor.
+  for (const rol of ['admin', 'firma_yetkilisi'] as const) {
+    await prisma.rolYetki.upsert({
+      where: { rol_yetki: { rol, yetki: 'ikinci_el_yonet' } },
+      update: {},
+      create: { rol, yetki: 'ikinci_el_yonet' },
+    });
+  }
+  console.log('Rol-yetki eşleşmesi yazıldı: admin → duyuru_yonet, admin/firma_yetkilisi → ikinci_el_yonet.');
 }
 
 async function firmalariYaz() {
@@ -655,6 +666,41 @@ async function toplanmaAlanlariniYaz() {
   await prisma.toplanmaAlani.deleteMany({ where: { ad: { in: adlar } } });
   await prisma.toplanmaAlani.createMany({ data: alanlar });
   console.log(`${alanlar.length} toplanma alanı yazıldı.`);
+}
+
+/**
+ * Acil Durum bildirimlerinin yönlendirildiği 6 ekip hesabı (14.08.2026).
+ * `tekin_isg_ekibi` (dış/anlaşmalı sağlık-güvenlik firması) ile
+ * `sirket_isg_ekibi` (ASB'nin kendi iç İSG ekibi) BİLEREK ayrı hesaplar.
+ */
+async function acilDurumEkipleriniYaz() {
+  const sifreHash = await bcrypt.hash(SEED_SIFRE, 10);
+  const ekipler: { email: string; ad: string; rol: KullaniciRolu }[] = [
+    { email: 'ekip.itfaiye@example.com', ad: 'İtfaiye', rol: KullaniciRolu.itfaiye_ekibi },
+    { email: 'ekip.guvenlik@example.com', ad: 'Güvenlik', rol: KullaniciRolu.guvenlik_ekibi },
+    { email: 'ekip.tekinisg@example.com', ad: 'Tekin İSG', rol: KullaniciRolu.tekin_isg_ekibi },
+    { email: 'ekip.kantar@example.com', ad: 'Kantar', rol: KullaniciRolu.kantar_ekibi },
+    { email: 'ekip.gumruk@example.com', ad: 'Gümrük', rol: KullaniciRolu.gumruk_ekibi },
+    { email: 'ekip.sirketisg@example.com', ad: 'Şirket İSG', rol: KullaniciRolu.sirket_isg_ekibi },
+  ];
+
+  for (const ekip of ekipler) {
+    await prisma.kullanici.upsert({
+      where: { email: ekip.email },
+      update: { rol: ekip.rol },
+      create: {
+        email: ekip.email,
+        sifreHash,
+        ad: ekip.ad,
+        soyad: 'Ekibi',
+        rol: ekip.rol,
+        epostaDogrulandi: true,
+      },
+    });
+  }
+  console.log(
+    `Test hesapları (şifre: ${SEED_SIFRE}): ${ekipler.map((e) => e.email).join(', ')} (acil durum ekipleri).`,
+  );
 }
 
 main()

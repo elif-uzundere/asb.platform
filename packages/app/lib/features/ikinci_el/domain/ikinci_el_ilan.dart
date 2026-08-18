@@ -8,6 +8,8 @@ class IkinciElIlan {
     required this.durum,
     required this.firmaAdi,
     required this.gorselUrl,
+    required this.iletisimTelefonu,
+    required this.oneCikan,
     required this.olusturulmaTarihi,
   });
 
@@ -23,6 +25,8 @@ class IkinciElIlan {
 
   final String firmaAdi;
   final String gorselUrl;
+  final String iletisimTelefonu;
+  final bool oneCikan;
   final DateTime olusturulmaTarihi;
 
   factory IkinciElIlan.jsondan(
@@ -45,6 +49,9 @@ class IkinciElIlan {
           (fotografUrls.isNotEmpty
               ? fotografUrls.first
               : ''),
+      iletisimTelefonu:
+          json['iletisimTelefonu'] as String? ?? '',
+      oneCikan: json['oneCikan'] as bool? ?? false,
       olusturulmaTarihi: DateTime.tryParse(
             json['olusturmaTarihi'] as String? ?? '',
           ) ??

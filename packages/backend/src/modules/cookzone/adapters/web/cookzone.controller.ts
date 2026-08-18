@@ -1,7 +1,27 @@
-import { BadRequestException, Body, Controller, ForbiddenException, Get, Inject, NotFoundException, Param, Post, Put, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  FileTypeValidator,
+  ForbiddenException,
+  Get,
+  Inject,
+  MaxFileSizeValidator,
+  NotFoundException,
+  Param,
+  ParseFilePipe,
+  Post,
+  Put,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import type {
   CookzoneIsletmeResponse,
+  CookzoneMenuOgesiResponse,
   CookzoneSiparisResponse,
   CookzoneSiparisYonetimResponse,
 } from '@asb/shared-types';
@@ -11,11 +31,14 @@ import { Roller } from '../../../../shared/web/roller.decorator';
 import { RollerGuard } from '../../../../shared/web/roller.guard';
 import { AktifKullaniciBilgisi } from '../../../../shared/web/aktif-kullanici.decorator';
 import type { AktifKullanici } from '../../../../shared/web/jwt-icerigi';
+import { FILE_STORAGE_PORT, FileStoragePort } from '../../../../shared/infrastructure/file-storage/file-storage.port';
 import type { CookzoneService } from '../../application';
 import {
   CookzoneIsletme,
+  CookzoneMenuOgesi,
   CookzoneSiparis,
   CookzoneSiparisKalemi,
+  BaskaIsletmeninMenuOgesiException,
   CookzoneIsletmeBulunamadiException,
   CookzoneMenuOgesiBulunamadiException,
   CookzoneSiparisBulunamadiException,
@@ -30,6 +53,16 @@ import { COOKZONE_SERVICE } from '../../cookzone.tokens';
 import { BOLGE_NOKTASI_SORGULAMA_PORT } from '../../../harita/harita.tokens';
 import { KULLANICI_SORGULAMA_PORT } from '../../../auth/auth.tokens';
 import { CookzoneSiparisOlusturDto } from './cookzone-siparis-olustur.dto';
+import { CookzoneMenuOgesiOlusturDto } from './cookzone-menu-ogesi-olustur.dto';
+import { CookzoneMenuOgesiGuncelleDto } from './cookzone-menu-ogesi-guncelle.dto';
+
+const GORSEL_DOGRULAMA = new ParseFilePipe({
+  validators: [
+    new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024, message: 'Görsel en fazla 5 MB olabilir' }),
+    new FileTypeValidator({ fileType: /^image\/(jpeg|png|webp)$/ }),
+  ],
+  fileIsRequired: false,
+});
 
 @ApiTags('cookzone')
 @ApiBearerAuth()
@@ -42,6 +75,7 @@ export class CookzoneController {
     @Inject(COOKZONE_SERVICE) private readonly cookzoneService: CookzoneService,
     @Inject(BOLGE_NOKTASI_SORGULAMA_PORT) private readonly bolgeNoktasiSorgulama: BolgeNoktasiSorgulamaPort,
     @Inject(KULLANICI_SORGULAMA_PORT) private readonly kullaniciSorgulama: KullaniciSorgulamaPort,
+    @Inject(FILE_STORAGE_PORT) private readonly fileStorage: FileStoragePort,
   ) {}
 
   @Get('isletmeler')
@@ -118,6 +152,88 @@ export class CookzoneController {
     }
   }
 
+  // ── Menü yönetimi — cookzone_yetkilisi tarafı ───────────────────────────
+
+  /**
+   * `/menu/:id`'den ÖNCE değil, bilerek `/menu` altında farklı bir literal
+   * segment — is-ilanlari.controller.ts'teki aynı sıra kuralına uyuluyor.
+   */
+  @Get('menu/tumu')
+  @UseGuards(JwtAuthGuard, RollerGuard)
+  @Roller('cookzone_yetkilisi')
+  async menuOgeleriTumunuGetir(
+    @AktifKullaniciBilgisi() kullanici: AktifKullanici,
+  ): Promise<ApiResponseDto<CookzoneMenuOgesiResponse[]>> {
+    const isletmeId = this.isletmeIdZorunluGetir(kullanici);
+    const menuOgeleri = await this.cookzoneService.menuOgeleriTumunuGetir(isletmeId);
+    return ApiResponseDto.ok(menuOgeleri.map((oge) => this.menuOgesiYanitinaCevir(oge)));
+  }
+
+  @Post('menu')
+  @UseGuards(JwtAuthGuard, RollerGuard)
+  @Roller('cookzone_yetkilisi')
+  @UseInterceptors(FileInterceptor('gorsel'))
+  async menuOgesiOlustur(
+    @Body() dto: CookzoneMenuOgesiOlusturDto,
+    @AktifKullaniciBilgisi() kullanici: AktifKullanici,
+    @UploadedFile(GORSEL_DOGRULAMA) gorsel?: Express.Multer.File,
+  ): Promise<ApiResponseDto<CookzoneMenuOgesiResponse>> {
+    const isletmeId = this.isletmeIdZorunluGetir(kullanici);
+    const gorselUrl = gorsel ? await this.fileStorage.upload(gorsel.originalname, gorsel.buffer) : null;
+    const menuOgesi = await this.cookzoneService.menuOgesiOlustur({
+      isletmeId,
+      ad: dto.ad,
+      aciklama: dto.aciklama ?? null,
+      fiyat: dto.fiyat,
+      kategori: dto.kategori,
+      gorselUrl,
+    });
+    return ApiResponseDto.ok(this.menuOgesiYanitinaCevir(menuOgesi));
+  }
+
+  @Put('menu/:id')
+  @UseGuards(JwtAuthGuard, RollerGuard)
+  @Roller('cookzone_yetkilisi')
+  @UseInterceptors(FileInterceptor('gorsel'))
+  async menuOgesiGuncelle(
+    @Param('id') id: string,
+    @Body() dto: CookzoneMenuOgesiGuncelleDto,
+    @AktifKullaniciBilgisi() kullanici: AktifKullanici,
+    @UploadedFile(GORSEL_DOGRULAMA) gorsel?: Express.Multer.File,
+  ): Promise<ApiResponseDto<CookzoneMenuOgesiResponse>> {
+    const isletmeId = this.isletmeIdZorunluGetir(kullanici);
+    try {
+      const gorselUrl = gorsel ? await this.fileStorage.upload(gorsel.originalname, gorsel.buffer) : undefined;
+      const menuOgesi = await this.cookzoneService.menuOgesiGuncelle(id, isletmeId, {
+        ad: dto.ad,
+        aciklama: dto.aciklama,
+        fiyat: dto.fiyat,
+        kategori: dto.kategori,
+        aktif: dto.aktif,
+        ...(gorselUrl !== undefined ? { gorselUrl } : {}),
+      });
+      return ApiResponseDto.ok(this.menuOgesiYanitinaCevir(menuOgesi));
+    } catch (hata) {
+      throw this.httpHatasinaCevir(hata);
+    }
+  }
+
+  @Delete('menu/:id')
+  @UseGuards(JwtAuthGuard, RollerGuard)
+  @Roller('cookzone_yetkilisi')
+  async menuOgesiSil(
+    @Param('id') id: string,
+    @AktifKullaniciBilgisi() kullanici: AktifKullanici,
+  ): Promise<ApiResponseDto<null>> {
+    const isletmeId = this.isletmeIdZorunluGetir(kullanici);
+    try {
+      await this.cookzoneService.menuOgesiSil(id, isletmeId);
+      return ApiResponseDto.ok(null);
+    } catch (hata) {
+      throw this.httpHatasinaCevir(hata);
+    }
+  }
+
   /**
    * `cookzone_yetkilisi` rolündeki bir hesabın `cookzoneIsletmeId`si olmaması
    * veri tutarsızlığı demektir — is-ilanlari'ndaki `firmaIdZorunluGetir` ile
@@ -138,7 +254,7 @@ export class CookzoneController {
     ) {
       return new NotFoundException(hata.message);
     }
-    if (hata instanceof BaskaIsletmeyeAitException) {
+    if (hata instanceof BaskaIsletmeyeAitException || hata instanceof BaskaIsletmeninMenuOgesiException) {
       return new ForbiddenException(hata.message);
     }
     if (
@@ -160,13 +276,19 @@ export class CookzoneController {
       id: isletme.id,
       ad: isletme.ad,
       bolgeNoktasiAdi: bolgeNoktasiAdi ?? 'Konum belirtilmemiş',
-      menuOgeleri: menuOgeleri.map((oge) => ({
-        id: oge.id,
-        ad: oge.ad,
-        aciklama: oge.aciklama,
-        fiyat: oge.fiyat,
-        kategori: oge.kategori,
-      })),
+      menuOgeleri: menuOgeleri.map((oge) => this.menuOgesiYanitinaCevir(oge)),
+    };
+  }
+
+  private menuOgesiYanitinaCevir(oge: CookzoneMenuOgesi): CookzoneMenuOgesiResponse {
+    return {
+      id: oge.id,
+      ad: oge.ad,
+      aciklama: oge.aciklama,
+      fiyat: oge.fiyat,
+      kategori: oge.kategori,
+      gorselUrl: oge.gorselUrl,
+      aktif: oge.aktif,
     };
   }
 

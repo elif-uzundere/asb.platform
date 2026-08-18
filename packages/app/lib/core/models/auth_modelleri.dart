@@ -12,7 +12,13 @@ enum KullaniciRolu {
   firmaYetkilisi('firma_yetkilisi'),
   admin('admin'),
   cookzoneYetkilisi('cookzone_yetkilisi'),
-  paletTesisiYetkilisi('palet_tesisi_yetkilisi');
+  paletTesisiYetkilisi('palet_tesisi_yetkilisi'),
+  itfaiyeEkibi('itfaiye_ekibi'),
+  guvenlikEkibi('guvenlik_ekibi'),
+  tekinIsgEkibi('tekin_isg_ekibi'),
+  kantarEkibi('kantar_ekibi'),
+  gumrukEkibi('gumruk_ekibi'),
+  sirketIsgEkibi('sirket_isg_ekibi');
 
   const KullaniciRolu(this.deger);
 

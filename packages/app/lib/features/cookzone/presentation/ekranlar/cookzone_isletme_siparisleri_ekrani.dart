@@ -41,6 +41,13 @@ class CookzoneIsletmeSiparisleriEkrani extends ConsumerWidget {
         backgroundColor: Renkler.beyaz,
         foregroundColor: Renkler.lacivert,
         elevation: 0,
+        actions: [
+          IconButton(
+            tooltip: 'Menü Yönetimi',
+            icon: const Icon(Icons.restaurant_menu_outlined),
+            onPressed: () => context.push('/cookzone/yonetim/menu'),
+          ),
+        ],
       ),
       body: durum.when(
         loading: () => const Center(child: CircularProgressIndicator()),

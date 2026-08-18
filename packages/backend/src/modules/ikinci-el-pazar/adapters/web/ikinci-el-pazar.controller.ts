@@ -1,11 +1,19 @@
 import {
+  BadRequestException,
   Body,
   Controller,
+  FileTypeValidator,
   Get,
+  Inject,
+  MaxFileSizeValidator,
+  ParseFilePipe,
   Post,
   Req,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 import {
   ApiBearerAuth,
@@ -15,14 +23,29 @@ import {
 import { IkinciElPazarService } from '../../application';
 import { IkinciElIlaniOlusturDto } from '../../dto';
 
-import {
-  JwtAuthGuard,
-  KullaniciliRequest,
-} from '../../../../shared/web/jwt-auth.guard';
-
-import { Roller } from '../../../../shared/web/roller.decorator';
-import { RollerGuard } from '../../../../shared/web/roller.guard';
+import { Yetki } from '../../../../shared/web/yetki.decorator';
+import { YetkiGuard } from '../../../../shared/web/yetki.guard';
+import { YETKILER } from '@asb/shared-types';
 import { ApiResponseDto } from '../../../../shared/web/api-response.dto';
+import { FILE_STORAGE_PORT, FileStoragePort } from '../../../../shared/infrastructure/file-storage/file-storage.port';
+
+interface YetkiliIstek {
+  user: {
+    sub: string;
+    email: string;
+    rol: string;
+  };
+}
+
+// En az 1, en fazla 10 fotoğraf ("sahibinden gibi" — 18.08.2026, Berzan'ın
+// isteği). Palet Tesisi'ndeki tek-dosya doğrulamasıyla aynı boyut/tip kuralı.
+const FOTOGRAF_DOGRULAMA = new ParseFilePipe({
+  validators: [
+    new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024, message: 'Her fotoğraf en fazla 5 MB olabilir' }),
+    new FileTypeValidator({ fileType: /^image\/(jpeg|png|webp)$/ }),
+  ],
+  fileIsRequired: false,
+});
 
 @ApiTags('İkinci El Pazar')
 @Controller('ikinci-el-pazar')
@@ -30,6 +53,7 @@ export class IkinciElPazarController {
   constructor(
     private readonly ikinciElPazarService:
       IkinciElPazarService,
+    @Inject(FILE_STORAGE_PORT) private readonly fileStorage: FileStoragePort,
   ) {}
 
   /**
@@ -44,23 +68,33 @@ export class IkinciElPazarController {
   }
 
   /**
-   * Sadece admin ve firma_yetkilisi
-   * yeni ilan oluşturabilir.
+   * İlan girme izni artık role sabit DEĞİL — RolYetki üzerinden
+   * `ikinci_el_yonet` yetkisine sahip herhangi bir rol ilan girebilir
+   * (admin panelinden atanır, bkz. seed.ts'te varsayılan admin/firma_yetkilisi).
    */
   @Post()
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RollerGuard)
-  @Roller('admin', 'firma_yetkilisi')
+  @UseGuards(YetkiGuard)
+  @Yetki(YETKILER.IKINCI_EL_YONET)
+  @UseInterceptors(FilesInterceptor('fotograflar', 10))
   async ilanOlustur(
-    @Req() request: KullaniciliRequest,
+    @Req() istek: YetkiliIstek,
     @Body() dto: IkinciElIlaniOlusturDto,
+    @UploadedFiles(FOTOGRAF_DOGRULAMA) fotograflar?: Express.Multer.File[],
   ) {
-    const kullanici = request.kullanici!;
+    if (!fotograflar || fotograflar.length === 0) {
+      throw new BadRequestException('En az bir fotoğraf eklenmelidir');
+    }
+
+    const fotografUrls = await Promise.all(
+      fotograflar.map((dosya) => this.fileStorage.upload(dosya.originalname, dosya.buffer)),
+    );
 
     const ilan =
       await this.ikinciElPazarService.ilanOlustur(
-        kullanici.id,
+        istek.user.sub,
         dto,
+        fotografUrls,
       );
 
     return ApiResponseDto.ok(ilan);

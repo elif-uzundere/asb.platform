@@ -20,6 +20,16 @@ enum KullaniciRolu {
   admin
   cookzone_yetkilisi
   palet_tesisi_yetkilisi
+  // Acil Durum bildirim yönlendirmesi (14.08.2026) — her tür kendi ekibine
+  // düşer. `tekin_isg_ekibi` (dış/anlaşmalı sağlık-güvenlik firması, sağlık
+  // türü buraya gider) ile `sirket_isg_ekibi` (ASB'nin kendi iç İSG ekibi,
+  // "diğer" türü buraya gider) BİLEREK ayrı roller — birbirine karıştırılmaz.
+  itfaiye_ekibi
+  guvenlik_ekibi
+  tekin_isg_ekibi
+  kantar_ekibi
+  gumruk_ekibi
+  sirket_isg_ekibi
 }
 
 // Rol bazlı ince taneli yetkiler (bkz. shared/web/yetki.guard.ts). KullaniciRolu
@@ -28,6 +38,11 @@ enum KullaniciRolu {
 // sadece yeni bir RolYetki satırı yeterli olur.
 enum Yetki {
   duyuru_yonet
+  // İkinci El Pazar'a ilan girme izni — bilerek yeni bir "departman" rolü
+  // DEĞİL, mevcut RolYetki mekanizmasıyla admin panelinden herhangi bir role
+  // atanabilen bir izin (18.08.2026, Berzan: "departman yok, sadece
+  // yetkinlik vericez").
+  ikinci_el_yonet
 }
 
 model RolYetki {
@@ -222,9 +237,16 @@ model IkinciElIlani {
   kategori        String              @db.VarChar(80)
 
   urunDurumu      String              @map("urun_durumu") @db.VarChar(50)
-  
+
+  // Zorunlu — ilan sahibiyle iletişim için (18.08.2026, Berzan'ın isteği).
+  iletisimTelefonu String             @map("iletisim_telefonu") @db.VarChar(20)
 
   fotografUrls    String[]            @map("fotograf_urls")
+
+  // Ana sayfa "Öne Çıkanlar" bölümünde gösterilecek ilanları işaretlemek için
+  // — sadece admin panelinden değiştirilir, ilan sahibi kendi ilanını öne
+  // çıkaramaz.
+  oneCikan        Boolean             @default(false) @map("one_cikan")
 
   durum           IkinciElIlaniDurumu @default(aktif)
   olusturmaTarihi DateTime            @default(now()) @map("olusturma_tarihi")
@@ -280,6 +302,7 @@ model CookzoneMenuOgesi {
   aciklama  String?
   fiyat     Decimal         @db.Decimal(8, 2)
   kategori  String          @db.VarChar(60)
+  gorselUrl String?         @map("gorsel_url") @db.VarChar(255)
   aktif     Boolean         @default(true)
 
   siparisKalemleri CookzoneSiparisKalemi[]
@@ -335,6 +358,8 @@ enum AcilDurumTuru {
   yangin
   kaza
   saglik
+  kantar
+  gumruk
   diger
 }
 

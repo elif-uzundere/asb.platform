@@ -6,6 +6,7 @@ import '../../features/acil_durum/presentation/ekranlar/acil_durum_bildir_ekrani
 import '../../features/acil_durum/presentation/ekranlar/acil_durum_ekrani.dart';
 import '../../features/acil_durum/presentation/ekranlar/bildirimlerim_ekrani.dart';
 import '../../features/acil_durum/presentation/ekranlar/birim_detay_ekrani.dart';
+import '../../features/acil_durum/presentation/ekranlar/ekibe_gelen_bildirimler_ekrani.dart';
 import '../../features/acil_durum/presentation/ekranlar/toplanma_alanlari_ekrani.dart';
 
 import '../models/auth_modelleri.dart';
@@ -25,6 +26,7 @@ import '../../features/auth/presentation/ekranlar/sifre_sifirla_ekrani.dart';
 import '../../features/auth/presentation/ekranlar/sifremi_unuttum_ekrani.dart';
 import '../../features/cookzone/presentation/ekranlar/cookzone_ekrani.dart';
 import '../../features/cookzone/presentation/ekranlar/cookzone_isletme_siparisleri_ekrani.dart';
+import '../../features/cookzone/presentation/ekranlar/cookzone_menu_yonetim_ekrani.dart';
 import '../../features/cookzone/presentation/ekranlar/cookzone_sepet_ekrani.dart';
 import '../../features/cookzone/presentation/ekranlar/cookzone_siparislerim_ekrani.dart';
 import '../../features/destek/presentation/ekranlar/destek_icerik_ekrani.dart';
@@ -80,6 +82,20 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
       // doğrudan yönetim ekranını görmeli.
       if (state.matchedLocation == '/palet-tesisi' && kullanici?.rol == KullaniciRolu.paletTesisiYetkilisi) {
         return '/palet-tesisi/yonetim';
+      }
+      // 6 acil durum ekip rolünden biri (itfaiye/güvenlik/tekin İSG/kantar/
+      // gümrük/şirket İSG) Acil Durum'a girince bildirme ekranını değil,
+      // kendi ekibine gelen bildirimleri görmeli (14.08.2026, aynı gerekçe).
+      const acilDurumEkipRolleri = {
+        KullaniciRolu.itfaiyeEkibi,
+        KullaniciRolu.guvenlikEkibi,
+        KullaniciRolu.tekinIsgEkibi,
+        KullaniciRolu.kantarEkibi,
+        KullaniciRolu.gumrukEkibi,
+        KullaniciRolu.sirketIsgEkibi,
+      };
+      if (state.matchedLocation == '/acil-durum' && acilDurumEkipRolleri.contains(kullanici?.rol)) {
+        return '/acil-durum/ekip';
       }
       return null;
     },
@@ -142,6 +158,13 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
         path: '/cookzone/yonetim',
         builder: (context, state) {
           return const CookzoneIsletmeSiparisleriEkrani();
+        },
+      ),
+
+      GoRoute(
+        path: '/cookzone/yonetim/menu',
+        builder: (context, state) {
+          return const CookzoneMenuYonetimEkrani();
         },
       ),
 
@@ -336,6 +359,12 @@ GoRoute(
   path: '/acil-durum/bildirimlerim',
   builder: (context, state) {
     return const BildirimlerimEkrani();
+  },
+),
+GoRoute(
+  path: '/acil-durum/ekip',
+  builder: (context, state) {
+    return const EkibeGelenBildirimlerEkrani();
   },
 ),
       GoRoute(

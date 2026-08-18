@@ -2,8 +2,14 @@ import 'package:asb_app/core/models/cookzone_modelleri.dart';
 import 'package:asb_app/features/cookzone/domain/cookzone_kurallari.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-CookzoneMenuOgesiResponse _oge(String id, num fiyat) =>
-    CookzoneMenuOgesiResponse(id: id, ad: 'Ürün $id', aciklama: null, fiyat: fiyat, kategori: 'Ana Yemek');
+CookzoneMenuOgesiResponse _oge(String id, num fiyat) => CookzoneMenuOgesiResponse(
+      id: id,
+      ad: 'Ürün $id',
+      aciklama: null,
+      fiyat: fiyat,
+      kategori: 'Ana Yemek',
+      gorselUrl: null,
+    );
 
 void main() {
   group('sonrakiDurum', () {

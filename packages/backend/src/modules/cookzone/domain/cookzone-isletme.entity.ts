@@ -15,5 +15,24 @@ export class CookzoneMenuOgesi {
     readonly fiyat: number,
     readonly kategori: string,
     readonly aktif: boolean,
+    readonly gorselUrl: string | null = null,
   ) {}
+}
+
+export interface CookzoneMenuOgesiOlusturmaVerisi {
+  isletmeId: string;
+  ad: string;
+  aciklama: string | null;
+  fiyat: number;
+  kategori: string;
+  gorselUrl: string | null;
+}
+
+export interface CookzoneMenuOgesiGuncellemeVerisi {
+  ad?: string;
+  aciklama?: string | null;
+  fiyat?: number;
+  kategori?: string;
+  gorselUrl?: string | null;
+  aktif?: boolean;
 }

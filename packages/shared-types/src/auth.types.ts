@@ -4,7 +4,13 @@ export type KullaniciRolu =
   | 'firma_yetkilisi'
   | 'admin'
   | 'cookzone_yetkilisi'
-  | 'palet_tesisi_yetkilisi';
+  | 'palet_tesisi_yetkilisi'
+  | 'itfaiye_ekibi'
+  | 'guvenlik_ekibi'
+  | 'tekin_isg_ekibi'
+  | 'kantar_ekibi'
+  | 'gumruk_ekibi'
+  | 'sirket_isg_ekibi';
 
 export interface RegisterRequest {
   ad: string;

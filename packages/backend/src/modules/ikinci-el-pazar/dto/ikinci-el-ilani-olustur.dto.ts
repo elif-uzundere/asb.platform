@@ -1,17 +1,20 @@
+import { Type } from 'class-transformer';
 import {
-  ArrayMaxSize,
-  ArrayMinSize,
-  IsArray,
   IsNotEmpty,
   IsNumber,
   IsString,
-  IsUrl,
+  Matches,
   MaxLength,
   Min,
 } from 'class-validator';
 
 /**
  * POST /ikinci-el-pazar isteğinde Flutter'ın göndereceği alanlar.
+ *
+ * `multipart/form-data` gövdesi — fotoğraflar ayrı dosya alanları
+ * (@UploadedFiles), bu DTO sadece metin alanlarını temsil eder. `fiyat`
+ * multipart'ta string olarak gelir, @Type(() => Number) ile dönüştürülür
+ * (bkz. main.ts'teki ValidationPipe transform:true).
  *
  * kullaniciId burada bulunmaz:
  * giriş yapan kullanıcının JWT bilgisinden alınır.
@@ -39,6 +42,7 @@ export class IkinciElIlaniOlusturDto {
   })
   aciklama!: string;
 
+  @Type(() => Number)
   @IsNumber(
     {},
     {
@@ -72,21 +76,14 @@ export class IkinciElIlaniOlusturDto {
   })
   urunDurumu!: string;
 
-  @IsArray({
-    message: 'Fotoğraflar liste biçiminde gönderilmelidir',
+  @IsString({
+    message: 'İletişim telefonu metin olmalıdır',
   })
-  @ArrayMinSize(1, {
-    message: 'En az bir fotoğraf eklenmelidir',
+  @IsNotEmpty({
+    message: 'İletişim telefonu zorunludur',
   })
-  @ArrayMaxSize(10, {
-    message: 'En fazla 10 fotoğraf eklenebilir',
+  @Matches(/^[0-9+() -]{10,20}$/, {
+    message: 'İletişim telefonu geçerli bir numara olmalıdır',
   })
-  @IsUrl(
-    {},
-    {
-      each: true,
-      message: 'Fotoğraf bağlantıları geçerli olmalıdır',
-    },
-  )
-  fotografUrls!: string[];
+  iletisimTelefonu!: string;
 }

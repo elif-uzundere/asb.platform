@@ -8,6 +8,8 @@ import { CookzoneController } from './adapters/web';
 import { COOKZONE_ISLETME_REPOSITORY, COOKZONE_SIPARIS_REPOSITORY, COOKZONE_SERVICE } from './cookzone.tokens';
 import { HaritaModule } from '../harita/harita.module';
 import { AuthModule } from '../auth/auth.module';
+import { KULLANICI_SORGULAMA_PORT } from '../auth/auth.tokens';
+import type { KullaniciSorgulamaPort } from '../auth/adapters/public/kullanici-sorgulama.port';
 
 // `HaritaModule`/`AuthModule` sadece public port'larına (BOLGE_NOKTASI_
 // SORGULAMA_PORT, KULLANICI_SORGULAMA_PORT) erişmek için import ediliyor —
@@ -27,8 +29,9 @@ import { AuthModule } from '../auth/auth.module';
         isletmeRepo: CookzoneIsletmeRepository,
         siparisRepo: CookzoneSiparisRepository,
         bildirimGonder: BildirimGonderPort,
-      ) => new CookzoneService(isletmeRepo, siparisRepo, bildirimGonder),
-      inject: [COOKZONE_ISLETME_REPOSITORY, COOKZONE_SIPARIS_REPOSITORY, BILDIRIM_GONDER_PORT],
+        kullaniciSorgulama: KullaniciSorgulamaPort,
+      ) => new CookzoneService(isletmeRepo, siparisRepo, bildirimGonder, kullaniciSorgulama),
+      inject: [COOKZONE_ISLETME_REPOSITORY, COOKZONE_SIPARIS_REPOSITORY, BILDIRIM_GONDER_PORT, KULLANICI_SORGULAMA_PORT],
     },
   ],
 })
