@@ -11,12 +11,8 @@ import { Reflector } from '@nestjs/core';
 import { PrismaService } from '../infrastructure/prisma.service';
 import { YETKI_METADATA_ANAHTARI } from './yetki.decorator';
 import type { YetkiKodu } from '@asb/shared-types';
-
-interface JwtPayload {
-  sub: string;
-  email: string;
-  rol: string;
-}
+import { JwtIcerigi } from './jwt-icerigi';
+import { KullaniciliRequest } from './jwt-auth.guard';
 
 @Injectable()
 export class YetkiGuard implements CanActivate {
@@ -36,7 +32,7 @@ export class YetkiGuard implements CanActivate {
       return true;
     }
 
-    const istek = context.switchToHttp().getRequest();
+    const istek = context.switchToHttp().getRequest<KullaniciliRequest>();
     const authorization = istek.headers.authorization;
 
     if (!authorization || !authorization.startsWith('Bearer ')) {
@@ -45,9 +41,9 @@ export class YetkiGuard implements CanActivate {
 
     const token = authorization.replace('Bearer ', '');
 
-    let payload: JwtPayload;
+    let payload: JwtIcerigi;
     try {
-      payload = await this.jwtService.verifyAsync<JwtPayload>(token);
+      payload = await this.jwtService.verifyAsync<JwtIcerigi>(token);
     } catch {
       throw new UnauthorizedException('Geçersiz veya süresi dolmuş token.');
     }
@@ -63,7 +59,18 @@ export class YetkiGuard implements CanActivate {
       throw new ForbiddenException('Bu işlem için yetkiniz bulunmuyor.');
     }
 
-    istek.user = payload;
+    // `JwtAuthGuard`ın doldurduğu ile AYNI şekil (`request.kullanici`) —
+    // böylece `@AktifKullaniciBilgisi()` hangi guard'ın çalıştığını
+    // bilmeden çalışır, controller kodu değişmeden yeni bir modül
+    // `YetkiGuard`a geçebilir (18.08.2026, Berzan'ın isteği: gelecekteki
+    // modüller için tek/tutarlı bir tarif).
+    istek.kullanici = {
+      id: payload.sub,
+      email: payload.email,
+      rol: payload.rol,
+      firmaId: payload.firmaId,
+      cookzoneIsletmeId: payload.cookzoneIsletmeId,
+    };
 
     return true;
   }

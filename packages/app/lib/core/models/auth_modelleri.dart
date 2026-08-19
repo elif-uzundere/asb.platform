@@ -93,6 +93,7 @@ class KullaniciOzet {
     required this.firmaId,
     required this.cookzoneIsletmeId,
     required this.epostaDogrulandi,
+    this.yetkiler = const [],
   });
 
   final String id;
@@ -106,7 +107,15 @@ class KullaniciOzet {
   final String? cookzoneIsletmeId;
   final bool epostaDogrulandi;
 
+  /// `rol`e admin panelinden (RolYetki) tanımlı yetki kodları — 18.08.2026,
+  /// Berzan'ın isteği: "kim yapabilir" kararı sabit rol kontrolü yerine bu
+  /// listeye bakılarak verilmeli (ör. İkinci El ilan girme). Sadece bir
+  /// sonraki girişte tazelenir — `rol` değişikliğiyle aynı staleness kuralı.
+  final List<String> yetkiler;
+
   String get tamAd => '$ad $soyad';
+
+  bool yetkisiVar(String yetkiKodu) => yetkiler.contains(yetkiKodu);
 
   KullaniciOzet kopyala({String? email}) => KullaniciOzet(
         id: id,
@@ -118,6 +127,7 @@ class KullaniciOzet {
         firmaId: firmaId,
         cookzoneIsletmeId: cookzoneIsletmeId,
         epostaDogrulandi: email != null ? false : epostaDogrulandi,
+        yetkiler: yetkiler,
       );
 
   factory KullaniciOzet.jsondan(Map<String, dynamic> json) => KullaniciOzet(
@@ -130,6 +140,7 @@ class KullaniciOzet {
         firmaId: json['firmaId'] as String?,
         cookzoneIsletmeId: json['cookzoneIsletmeId'] as String?,
         epostaDogrulandi: json['epostaDogrulandi'] as bool? ?? false,
+        yetkiler: (json['yetkiler'] as List? ?? const []).whereType<String>().toList(),
       );
 
   Map<String, dynamic> jsonaDonustur() => {
@@ -142,6 +153,7 @@ class KullaniciOzet {
         'firmaId': firmaId,
         'cookzoneIsletmeId': cookzoneIsletmeId,
         'epostaDogrulandi': epostaDogrulandi,
+        'yetkiler': yetkiler,
       };
 }
 

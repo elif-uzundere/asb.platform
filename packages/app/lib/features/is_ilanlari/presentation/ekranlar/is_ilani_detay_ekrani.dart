@@ -11,11 +11,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/durum/islem_durumu.dart';
+import '../../../../core/models/favori_modelleri.dart';
 import '../../../../core/models/is_ilani_modelleri.dart';
 import '../../../../core/theme/renkler.dart';
 import '../../../../core/widgets/form_ogeleri.dart';
 import '../../../../core/widgets/islem_geri_bildirimi.dart';
 import '../../../auth/presentation/durum/auth_durumu.dart';
+import '../../../favoriler/presentation/widgets/favori_kalp_butonu.dart';
 import '../../domain/is_ilani_kurallari.dart';
 import '../durum/is_ilani_basvuru_notifier.dart';
 import '../durum/is_ilani_detay_durumu.dart';
@@ -112,6 +114,10 @@ class _IlanDetaySayfasi extends ConsumerWidget {
             foregroundColor: Renkler.beyaz,
             elevation: 0,
             expandedHeight: 210,
+            actions: [
+              FavoriKalpButonu(tur: FavoriHedefTuru.isIlani, hedefId: ilan.id, bosRenk: Renkler.beyaz),
+              const SizedBox(width: 8),
+            ],
             flexibleSpace: FlexibleSpaceBar(background: _HeroArkaPlani(ilan: ilan)),
           ),
           SliverToBoxAdapter(

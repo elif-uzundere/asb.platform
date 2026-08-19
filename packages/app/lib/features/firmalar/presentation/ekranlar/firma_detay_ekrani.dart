@@ -17,8 +17,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/models/favori_modelleri.dart';
 import '../../../../core/models/firma_modelleri.dart';
 import '../../../../core/theme/renkler.dart';
+import '../../../favoriler/presentation/widgets/favori_kalp_butonu.dart';
 import '../../data/firma_iletisim_servisi.dart';
 import '../durum/firma_detay_durumu.dart';
 import '../widgets/firma_avatari.dart';
@@ -104,6 +106,14 @@ class _FirmaDetaySayfasi extends ConsumerWidget {
             foregroundColor: Renkler.beyaz,
             elevation: 0,
             expandedHeight: 232,
+            actions: [
+              FavoriKalpButonu(
+                tur: FavoriHedefTuru.firma,
+                hedefId: firma.id,
+                bosRenk: Renkler.beyaz,
+              ),
+              const SizedBox(width: 8),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               background: _HeroArkaPlani(firma: firma),
             ),

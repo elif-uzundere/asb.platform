@@ -16,11 +16,12 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { YETKILER } from '@asb/shared-types';
 import type { BasvurumResponse, IsBasvurusuResponse, IsIlaniResponse } from '@asb/shared-types';
 import { ApiResponseDto } from '../../../../shared/web/api-response.dto';
 import { JwtAuthGuard } from '../../../../shared/web/jwt-auth.guard';
-import { Roller } from '../../../../shared/web/roller.decorator';
-import { RollerGuard } from '../../../../shared/web/roller.guard';
+import { Yetki } from '../../../../shared/web/yetki.decorator';
+import { YetkiGuard } from '../../../../shared/web/yetki.guard';
 import { AktifKullaniciBilgisi } from '../../../../shared/web/aktif-kullanici.decorator';
 import type { AktifKullanici } from '../../../../shared/web/jwt-icerigi';
 import { FILE_STORAGE_PORT, FileStoragePort } from '../../../../shared/infrastructure/file-storage/file-storage.port';
@@ -89,8 +90,8 @@ export class IsIlaniController {
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard, RollerGuard)
-  @Roller('firma_yetkilisi')
+  @UseGuards(YetkiGuard)
+  @Yetki(YETKILER.IS_ILANI_YONET)
   async olustur(
     @Body() dto: IsIlaniOlusturDto,
     @AktifKullaniciBilgisi() kullanici: AktifKullanici,
@@ -105,8 +106,8 @@ export class IsIlaniController {
   }
 
   @Put(':id/kapat')
-  @UseGuards(JwtAuthGuard, RollerGuard)
-  @Roller('firma_yetkilisi')
+  @UseGuards(YetkiGuard)
+  @Yetki(YETKILER.IS_ILANI_YONET)
   async kapat(
     @Param('id') id: string,
     @AktifKullaniciBilgisi() kullanici: AktifKullanici,
@@ -121,8 +122,8 @@ export class IsIlaniController {
   }
 
   @Get(':id/basvurular')
-  @UseGuards(JwtAuthGuard, RollerGuard)
-  @Roller('firma_yetkilisi')
+  @UseGuards(YetkiGuard)
+  @Yetki(YETKILER.IS_ILANI_YONET)
   async basvurulariGetir(
     @Param('id') id: string,
     @AktifKullaniciBilgisi() kullanici: AktifKullanici,
@@ -161,8 +162,8 @@ export class IsIlaniController {
   }
 
   @Put(':id/basvurular/:basvuruId/durum')
-  @UseGuards(JwtAuthGuard, RollerGuard)
-  @Roller('firma_yetkilisi')
+  @UseGuards(YetkiGuard)
+  @Yetki(YETKILER.IS_ILANI_YONET)
   async basvuruDurumGuncelle(
     @Param('id') id: string,
     @Param('basvuruId') basvuruId: string,
@@ -213,7 +214,11 @@ export class IsIlaniController {
   }
 
   private async yanitaCevir(ilan: IsIlani): Promise<IsIlaniResponse> {
-    const firmaAdi = await this.isIlaniService.firmaAdi(ilan.firmaId);
+    const [firmaAdi, favoriSayisi, basvuruSayisi] = await Promise.all([
+      this.isIlaniService.firmaAdi(ilan.firmaId),
+      this.isIlaniService.favoriSayisi(ilan.id),
+      this.isIlaniService.basvuruSayisi(ilan.id),
+    ]);
     return {
       id: ilan.id,
       firmaId: ilan.firmaId,
@@ -223,6 +228,8 @@ export class IsIlaniController {
       konum: ilan.konum,
       yayinTarihi: ilan.yayinTarihi.toISOString(),
       durum: ilan.durum,
+      favoriSayisi,
+      basvuruSayisi,
     };
   }
 

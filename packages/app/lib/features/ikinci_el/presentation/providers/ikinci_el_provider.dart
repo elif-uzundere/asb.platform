@@ -13,72 +13,13 @@ final ikinciElIlanlariProvider =
   return api.ilanlariGetir();
 });
 
-/// Favoriye alınan ilanların id'lerini tutar.
-///
-/// Bu kısım şimdilik cihaz belleğinde çalışır.
-/// Backend'e bağlı değildir.
-final favoriIlanlarProvider =
-    StateNotifierProvider<FavoriIlanlarNotifier, Set<String>>(
-  (ref) {
-    return FavoriIlanlarNotifier();
-  },
-);
-
-class FavoriIlanlarNotifier
-    extends StateNotifier<Set<String>> {
-  FavoriIlanlarNotifier()
-      : super(<String>{});
-
-  void favoriDegistir(String ilanId) {
-    final yeniFavoriler =
-        Set<String>.from(state);
-
-    if (yeniFavoriler.contains(ilanId)) {
-      yeniFavoriler.remove(ilanId);
-    } else {
-      yeniFavoriler.add(ilanId);
-    }
-
-    state = yeniFavoriler;
-  }
-
-  bool favorideMi(String ilanId) {
-    return state.contains(ilanId);
-  }
-
-  void favorilerdenKaldir(String ilanId) {
-    final yeniFavoriler =
-        Set<String>.from(state);
-
-    yeniFavoriler.remove(ilanId);
-
-    state = yeniFavoriler;
-  }
-
-  void tumFavorileriTemizle() {
-    state = <String>{};
-  }
-}
-
-/// Sadece favoriye alınmış ilanları döndürür.
-///
-/// Ana ilan listesi artık FutureProvider olduğu için
-/// favori listesi de AsyncValue döndürür.
-final favorilenenIlanlarProvider =
-    Provider<AsyncValue<List<IkinciElIlan>>>((ref) {
-  final ilanlarAsync =
-      ref.watch(ikinciElIlanlariProvider);
-
-  final favoriIlanIdleri =
-      ref.watch(favoriIlanlarProvider);
-
-  return ilanlarAsync.whenData(
-    (ilanlar) {
-      return ilanlar.where((ilan) {
-        return favoriIlanIdleri.contains(
-          ilan.id,
-        );
-      }).toList();
-    },
+/// Tek bir ilanın detayı — ayrı bir `GET /ikinci-el-pazar/:id` ucu yok,
+/// zaten çekilmiş listeden id'ye göre bulunuyor (liste herkese açık ve
+/// ekranlar arası paylaşılıyor, ekstra ağ isteğine gerek yok).
+final ikinciElIlanDetayProvider =
+    Provider.family<IkinciElIlan?, String>((ref, id) {
+  final ilanlarAsync = ref.watch(ikinciElIlanlariProvider);
+  return ilanlarAsync.whenOrNull(
+    data: (ilanlar) => ilanlar.where((ilan) => ilan.id == id).firstOrNull,
   );
 });

@@ -11,6 +11,10 @@ export interface IsIlaniResponse {
   konum: string | null;
   yayinTarihi: string;
   durum: IsIlaniDurumu;
+  /** Kaç kişi favoriledi / kaç başvuru geldi — 18.08.2026, Berzan'ın isteği
+   * ("iş ilanı açan kaç kişi favori yapmış kaç başvuru gelmiş görebilsin"). */
+  favoriSayisi: number;
+  basvuruSayisi: number;
 }
 
 export interface IsIlaniListeRequest {

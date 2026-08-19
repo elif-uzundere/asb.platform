@@ -1,4 +1,4 @@
-import type { KullaniciRolu } from '@asb/shared-types';
+import type { KullaniciRolu, YetkiKodu } from '@asb/shared-types';
 import { Kullanici } from './kullanici.entity';
 
 export interface KullaniciRepository {
@@ -21,6 +21,11 @@ export interface KullaniciRepository {
    * olduğunda sadece o işletmeye bağlı olanlara bildirim gitmesi için.
    */
   cookzoneIsletmesineGoreListele(isletmeId: string): Promise<Kullanici[]>;
+
+  /** Bir role tanımlı yetki kodları — `KullaniciOzet.yetkiler`i doldurmak
+   * için (18.08.2026, Berzan: admin panelinden RolYetki'ye eklenen izinler
+   * uygulama tarafında da anında görünür olmalı, sabit rol kontrolü değil). */
+  rolYetkileriniGetir(rol: KullaniciRolu): Promise<YetkiKodu[]>;
 }
 
 export interface SifreHashPort {

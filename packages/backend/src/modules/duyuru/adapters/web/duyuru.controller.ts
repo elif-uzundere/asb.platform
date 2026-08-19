@@ -1,19 +1,13 @@
-import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { YETKILER } from '@asb/shared-types';
 import { ApiResponseDto } from '../../../../shared/web/api-response.dto';
+import { AktifKullaniciBilgisi } from '../../../../shared/web/aktif-kullanici.decorator';
+import type { AktifKullanici } from '../../../../shared/web/jwt-icerigi';
 import { Yetki } from '../../../../shared/web/yetki.decorator';
 import { YetkiGuard } from '../../../../shared/web/yetki.guard';
 import { DuyuruData, DuyuruRepository } from '../../domain';
 import { DuyuruOlusturDto } from './duyuru-olustur.dto';
-
-interface YetkiliIstek {
-  user: {
-    sub: string;
-    email: string;
-    rol: string;
-  };
-}
 
 @Controller('duyurular')
 export class DuyuruController {
@@ -42,14 +36,14 @@ export class DuyuruController {
   @Yetki(YETKILER.DUYURU_YONET)
   async duyuruOlustur(
     @Body() dto: DuyuruOlusturDto,
-    @Req() istek: YetkiliIstek,
+    @AktifKullaniciBilgisi() kullanici: AktifKullanici,
   ): Promise<ApiResponseDto<DuyuruData>> {
     const duyuru = await this.duyuruRepository.duyuruOlustur({
       baslik: dto.baslik,
       icerik: dto.icerik,
       kategori: dto.kategori,
       ...(dto.yayinTarihi ? { yayinTarihi: new Date(dto.yayinTarihi) } : {}),
-      olusturanKullaniciId: istek.user.sub,
+      olusturanKullaniciId: kullanici.id,
     });
 
     return ApiResponseDto.ok(duyuru);

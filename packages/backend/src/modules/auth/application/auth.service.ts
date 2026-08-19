@@ -176,7 +176,7 @@ export class AuthService {
       soyad: dto.soyad,
       telefon: dto.telefon ?? null,
     });
-    return this.ozeteCevir(guncellenen);
+    return await this.ozeteCevir(guncellenen);
   }
 
   private async kullaniciBul(id: string): Promise<Kullanici> {
@@ -189,10 +189,11 @@ export class AuthService {
 
   private async yanitOlustur(kullanici: Kullanici, uzunSureli = false): Promise<LoginResponse> {
     const accessToken = await this.tokenUretici.uret(kullanici, uzunSureli);
-    return { accessToken, kullanici: this.ozeteCevir(kullanici) };
+    return { accessToken, kullanici: await this.ozeteCevir(kullanici) };
   }
 
-  private ozeteCevir(kullanici: Kullanici): KullaniciOzet {
+  private async ozeteCevir(kullanici: Kullanici): Promise<KullaniciOzet> {
+    const yetkiler = await this.kullaniciRepo.rolYetkileriniGetir(kullanici.rol);
     return {
       id: kullanici.id,
       ad: kullanici.ad,
@@ -203,6 +204,7 @@ export class AuthService {
       firmaId: kullanici.firmaId,
       cookzoneIsletmeId: kullanici.cookzoneIsletmeId,
       epostaDogrulandi: kullanici.epostaDogrulandi,
+      yetkiler,
     };
   }
 }

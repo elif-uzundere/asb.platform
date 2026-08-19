@@ -10,6 +10,9 @@ import { AuthModule } from '../auth/auth.module';
 import { FIRMA_SORGULAMA_PORT } from '../firma/firma.tokens';
 import type { FirmaSorgulamaPort } from '../firma/adapters/public/firma-sorgulama.port';
 import { BILDIRIM_GONDER_PORT, BildirimGonderPort } from '../../shared/infrastructure/bildirim/bildirim-gonder.port';
+import { FavoriModule } from '../favori/favori.module';
+import { FAVORI_SORGULAMA_PORT } from '../favori/favori.tokens';
+import type { FavoriSorgulamaPort } from '../favori/adapters/public/favori-sorgulama.port';
 
 // `FirmaModule` ve `AuthModule` import ediliyor — sadece bu iki modülün
 // `exports` ettiği public port'lara (FIRMA_SORGULAMA_PORT,
@@ -18,7 +21,7 @@ import { BILDIRIM_GONDER_PORT, BildirimGonderPort } from '../../shared/infrastru
 // sadece exports edilen provider'ları görünür kılıyor. `BILDIRIM_GONDER_PORT`
 // ise `BildirimModule` @Global olduğu için burada ayrıca import edilmiyor.
 @Module({
-  imports: [FirmaModule, AuthModule],
+  imports: [FirmaModule, AuthModule, FavoriModule],
   controllers: [IsIlaniController],
   providers: [
     PrismaService,
@@ -31,8 +34,9 @@ import { BILDIRIM_GONDER_PORT, BildirimGonderPort } from '../../shared/infrastru
         basvuruRepo: IsBasvurusuRepository,
         firmaSorgulama: FirmaSorgulamaPort,
         bildirimGonder: BildirimGonderPort,
-      ) => new IsIlaniService(isIlaniRepo, basvuruRepo, firmaSorgulama, bildirimGonder),
-      inject: [IS_ILANI_REPOSITORY, IS_BASVURUSU_REPOSITORY, FIRMA_SORGULAMA_PORT, BILDIRIM_GONDER_PORT],
+        favoriSorgulama: FavoriSorgulamaPort,
+      ) => new IsIlaniService(isIlaniRepo, basvuruRepo, firmaSorgulama, bildirimGonder, favoriSorgulama),
+      inject: [IS_ILANI_REPOSITORY, IS_BASVURUSU_REPOSITORY, FIRMA_SORGULAMA_PORT, BILDIRIM_GONDER_PORT, FAVORI_SORGULAMA_PORT],
     },
   ],
 })

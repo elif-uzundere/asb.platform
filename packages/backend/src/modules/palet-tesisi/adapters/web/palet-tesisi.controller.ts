@@ -16,11 +16,11 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { YETKILER } from '@asb/shared-types';
 
 import { ApiResponseDto } from '../../../../shared/web/api-response.dto';
-import { JwtAuthGuard } from '../../../../shared/web/jwt-auth.guard';
-import { Roller } from '../../../../shared/web/roller.decorator';
-import { RollerGuard } from '../../../../shared/web/roller.guard';
+import { Yetki } from '../../../../shared/web/yetki.decorator';
+import { YetkiGuard } from '../../../../shared/web/yetki.guard';
 import { FILE_STORAGE_PORT, FileStoragePort } from '../../../../shared/infrastructure/file-storage/file-storage.port';
 import { PaletTesisiService } from '../../application';
 import { PaletBulunamadiException } from '../../domain';
@@ -71,16 +71,16 @@ export class PaletTesisiController {
    * çakışmasın diye is-ilanlari.controller.ts'teki aynı sıra kuralına uyuluyor.
    */
   @Get('paletler/tumu')
-  @UseGuards(JwtAuthGuard, RollerGuard)
-  @Roller('palet_tesisi_yetkilisi')
+  @UseGuards(YetkiGuard)
+  @Yetki(YETKILER.PALET_TESISI_YONET)
   async tumPaletleriGetir() {
     const paletler = await this.paletTesisiService.tumPaletleriGetir();
     return ApiResponseDto.ok(paletler);
   }
 
   @Post('paletler')
-  @UseGuards(JwtAuthGuard, RollerGuard)
-  @Roller('palet_tesisi_yetkilisi')
+  @UseGuards(YetkiGuard)
+  @Yetki(YETKILER.PALET_TESISI_YONET)
   @UseInterceptors(FileInterceptor('gorsel'))
   async paletOlustur(
     @Body() dto: PaletOlusturDto,
@@ -100,8 +100,8 @@ export class PaletTesisiController {
    * görsel eklemek de bu uçla yapılır — `gorsel` gönderilmezse sadece
    * metin alanları güncellenir, mevcut görsel korunur. */
   @Put('paletler/:id')
-  @UseGuards(JwtAuthGuard, RollerGuard)
-  @Roller('palet_tesisi_yetkilisi')
+  @UseGuards(YetkiGuard)
+  @Yetki(YETKILER.PALET_TESISI_YONET)
   @UseInterceptors(FileInterceptor('gorsel'))
   async paletGuncelle(
     @Param('id') id: string,

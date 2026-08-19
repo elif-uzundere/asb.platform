@@ -14,19 +14,23 @@ bool basvuruYapilabilirMi(IsIlaniResponse ilan, KullaniciOzet? kullanici) {
   return kullanici.firmaId != ilan.firmaId;
 }
 
-/// "Yeni İlan" formu sadece firma yetkilisine açılır — BR-2'nin (onaylı
-/// firma şartı) UI karşılığı değil, backend zaten bunu reddediyor; bu
-/// sadece anlamsız bir denemeyi baştan engelleyen bir UX kısayolu.
+/// "Yeni İlan" formu, `is_ilani_yonet` yetkisine sahip herkese açılır —
+/// sabit "firma yetkilisi" rol kontrolü DEĞİL, admin panelinden herhangi
+/// bir role bu yetki tanımlanabilir (18.08.2026, Berzan'ın isteği). Bu
+/// sadece BR-2'nin (onaylı firma şartı) UI karşılığı değil, backend zaten
+/// bunu reddediyor; anlamsız bir denemeyi baştan engelleyen bir UX kısayolu.
 bool ilanOlusturulabilirMi(KullaniciOzet? kullanici) {
-  return kullanici?.rol == KullaniciRolu.firmaYetkilisi;
+  return kullanici?.yetkisiVar('is_ilani_yonet') ?? false;
 }
 
 /// Bu ilan, giriş yapmış kullanıcının kendi firmasına mı ait? "Başvurular"ı
 /// görme ve "İlanı Kapat" butonlarının görünürlüğü buna bağlı — backend zaten
 /// sahiplik kontrolü yapıyor (403 döner), bu sadece UI'da yanlış butonu hiç
-/// göstermemek için.
+/// göstermemek için. `is_ilani_yonet` yetkisi VE aynı firma şartı birlikte —
+/// sadece firmaId eşleşmesi yeterli olsaydı o firmanın herhangi bir çalışanı
+/// (firma_calisani) da bu butonları görürdü.
 bool ilanSahibiMi(IsIlaniResponse ilan, KullaniciOzet? kullanici) {
-  return kullanici?.rol == KullaniciRolu.firmaYetkilisi && kullanici?.firmaId == ilan.firmaId;
+  return (kullanici?.yetkisiVar('is_ilani_yonet') ?? false) && kullanici?.firmaId == ilan.firmaId;
 }
 
 String durumEtiketi(IsIlaniDurumu durum) => switch (durum) {

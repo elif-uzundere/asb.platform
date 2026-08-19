@@ -8,7 +8,6 @@ import {
   MaxFileSizeValidator,
   ParseFilePipe,
   Post,
-  Req,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -23,19 +22,13 @@ import {
 import { IkinciElPazarService } from '../../application';
 import { IkinciElIlaniOlusturDto } from '../../dto';
 
+import { AktifKullaniciBilgisi } from '../../../../shared/web/aktif-kullanici.decorator';
+import type { AktifKullanici } from '../../../../shared/web/jwt-icerigi';
 import { Yetki } from '../../../../shared/web/yetki.decorator';
 import { YetkiGuard } from '../../../../shared/web/yetki.guard';
 import { YETKILER } from '@asb/shared-types';
 import { ApiResponseDto } from '../../../../shared/web/api-response.dto';
 import { FILE_STORAGE_PORT, FileStoragePort } from '../../../../shared/infrastructure/file-storage/file-storage.port';
-
-interface YetkiliIstek {
-  user: {
-    sub: string;
-    email: string;
-    rol: string;
-  };
-}
 
 // En az 1, en fazla 10 fotoğraf ("sahibinden gibi" — 18.08.2026, Berzan'ın
 // isteği). Palet Tesisi'ndeki tek-dosya doğrulamasıyla aynı boyut/tip kuralı.
@@ -78,7 +71,7 @@ export class IkinciElPazarController {
   @Yetki(YETKILER.IKINCI_EL_YONET)
   @UseInterceptors(FilesInterceptor('fotograflar', 10))
   async ilanOlustur(
-    @Req() istek: YetkiliIstek,
+    @AktifKullaniciBilgisi() kullanici: AktifKullanici,
     @Body() dto: IkinciElIlaniOlusturDto,
     @UploadedFiles(FOTOGRAF_DOGRULAMA) fotograflar?: Express.Multer.File[],
   ) {
@@ -92,7 +85,7 @@ export class IkinciElPazarController {
 
     const ilan =
       await this.ikinciElPazarService.ilanOlustur(
-        istek.user.sub,
+        kullanici.id,
         dto,
         fotografUrls,
       );

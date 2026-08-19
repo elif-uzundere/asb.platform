@@ -9,3 +9,4 @@ export * from './is-ilanlari.types';
 export * from './cookzone.types';
 export * from './palet-tesisi.types';
 export * from './acil-durum.types';
+export * from './favori.types';

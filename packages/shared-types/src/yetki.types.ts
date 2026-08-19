@@ -7,6 +7,9 @@
 export const YETKILER = {
   DUYURU_YONET: 'duyuru_yonet',
   IKINCI_EL_YONET: 'ikinci_el_yonet',
+  IS_ILANI_YONET: 'is_ilani_yonet',
+  COOKZONE_YONET: 'cookzone_yonet',
+  PALET_TESISI_YONET: 'palet_tesisi_yonet',
 } as const;
 
 /**

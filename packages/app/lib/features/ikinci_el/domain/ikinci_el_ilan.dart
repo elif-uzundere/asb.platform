@@ -8,6 +8,7 @@ class IkinciElIlan {
     required this.durum,
     required this.firmaAdi,
     required this.gorselUrl,
+    required this.fotografUrls,
     required this.iletisimTelefonu,
     required this.oneCikan,
     required this.olusturulmaTarihi,
@@ -25,6 +26,7 @@ class IkinciElIlan {
 
   final String firmaAdi;
   final String gorselUrl;
+  final List<String> fotografUrls;
   final String iletisimTelefonu;
   final bool oneCikan;
   final DateTime olusturulmaTarihi;
@@ -49,6 +51,7 @@ class IkinciElIlan {
           (fotografUrls.isNotEmpty
               ? fotografUrls.first
               : ''),
+      fotografUrls: fotografUrls,
       iletisimTelefonu:
           json['iletisimTelefonu'] as String? ?? '',
       oneCikan: json['oneCikan'] as bool? ?? false,

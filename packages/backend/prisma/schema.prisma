@@ -43,6 +43,14 @@ enum Yetki {
   // atanabilen bir izin (18.08.2026, Berzan: "departman yok, sadece
   // yetkinlik vericez").
   ikinci_el_yonet
+  // Aynı desen İş İlanları/Cookzone/Palet Tesisi'ne de yayıldı (18.08.2026,
+  // Berzan: "günün sonunda gerçek veriler geldiğinde firma yetkilisi diye
+  // bir isim olmayacak, sadece yetkinlik verdikçe yapabilecek"). Firma/
+  // Banner gibi zaten admin-only olan modüllere BİLİNÇLİ olarak
+  // eklenmedi — orada zaten sadece admin işlem yapabiliyor.
+  is_ilani_yonet
+  cookzone_yonet
+  palet_tesisi_yonet
 }
 
 model RolYetki {
@@ -84,8 +92,36 @@ model Kullanici {
   paletTesisleri        PaletTesisi[]
   destekTalepleri       DestekTalebi[]
   cihazTokenleri        CihazTokeni[]
+  favoriler             Favori[]
 
   @@map("kullanici")
+}
+
+// ── Favoriler ─────────────────────────────────────────────────────────────
+// 18.08.2026, Berzan'ın isteği — İkinci El ilanı/Firma/İş İlanı türlerinin
+// ÜÇÜ İÇİN TEK tablo (ayrı ayrı "favoriIkinciEl", "favoriFirma" tabloları
+// yerine): kayıt şekli birebir aynı (kim, neyi, ne zaman), sadece hedefin
+// hangi tabloya ait olduğu değişiyor. `hedefId` bilerek FK DEĞİL — 3 farklı
+// hedef tablosundan biri olabildiği için tek bir foreign key ile
+// bağlanamıyor, doğrulama application katmanında yapılıyor.
+enum FavoriHedefTuru {
+  ikinci_el
+  firma
+  is_ilani
+}
+
+model Favori {
+  id              String          @id @default(uuid())
+  kullaniciId     String          @map("kullanici_id")
+  kullanici       Kullanici       @relation(fields: [kullaniciId], references: [id])
+  hedefTuru       FavoriHedefTuru @map("hedef_turu")
+  hedefId         String          @map("hedef_id")
+  olusturmaTarihi DateTime        @default(now()) @map("olusturma_tarihi")
+
+  // Aynı kullanıcı aynı hedefi iki kez favorileyemez — "kalp" butonu toggle
+  // çalıştığı için bu constraint idempotent davranışı garanti eder.
+  @@unique([kullaniciId, hedefTuru, hedefId])
+  @@map("favori")
 }
 
 enum FirmaOnayDurumu {

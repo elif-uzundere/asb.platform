@@ -13,8 +13,8 @@ class OneCikanOgesi {
     required this.baslik,
     required this.altBaslik,
     required this.tarih,
+    required this.hedefId,
     this.kategori,
-    this.duyuruId,
   });
 
   final OneCikanTuru tur;
@@ -25,10 +25,10 @@ class OneCikanOgesi {
   final String altBaslik;
   final DateTime tarih;
 
+  /// Duyuruda `/duyurular/:id`ye, ikinci elde `/ikinci-el/:id`ye gidilir —
+  /// hangi rotanın kullanılacağına widget `tur`e bakarak karar verir.
+  final String hedefId;
+
   /// Sadece duyuru türünde dolu — ikon/renk eşlemesi için (bkz. duyuru_gorseli.dart).
   final String? kategori;
-
-  /// Sadece duyuru türünde dolu — dokununca `/duyurular/:id`ye gidilir.
-  /// İkinci el ilanının henüz ayrı bir detay ekranı yok, listeye gidilir.
-  final String? duyuruId;
 }

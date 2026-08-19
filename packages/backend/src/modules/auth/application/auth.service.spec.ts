@@ -48,6 +48,7 @@ function servisiOlustur(overrides?: {
     profilGuncelle: jest.fn(),
     rolIleListele: jest.fn().mockResolvedValue([]),
     cookzoneIsletmesineGoreListele: jest.fn().mockResolvedValue([]),
+    rolYetkileriniGetir: jest.fn().mockResolvedValue([]),
     ...overrides?.kullaniciRepo,
   };
   const sifreHash: SifreHashPort = {
@@ -160,6 +161,19 @@ describe('AuthService', () => {
 
       expect(tokenUretici.uret).toHaveBeenCalledWith(expect.anything(), true);
       expect(sonuc.accessToken).toBe('jwt-token');
+    });
+
+    it('kullanıcının rolüne tanımlı RolYetki kodlarını yetkiler alanında döner', async () => {
+      const { servis } = servisiOlustur({
+        kullaniciRepo: {
+          emailIleBul: jest.fn().mockResolvedValue(sahteKullanici()),
+          rolYetkileriniGetir: jest.fn().mockResolvedValue(['ikinci_el_yonet']),
+        },
+      });
+
+      const sonuc = await servis.girisYap({ email: 'elif@example.com', sifre: 'dogru' });
+
+      expect(sonuc.kullanici.yetkiler).toEqual(['ikinci_el_yonet']);
     });
   });
 

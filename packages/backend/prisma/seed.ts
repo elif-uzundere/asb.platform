@@ -58,7 +58,26 @@ async function rolYetkileriniYaz() {
       create: { rol, yetki: 'ikinci_el_yonet' },
     });
   }
-  console.log('Rol-yetki eşleşmesi yazıldı: admin → duyuru_yonet, admin/firma_yetkilisi → ikinci_el_yonet.');
+  // Aynı desen İş İlanları/Cookzone/Palet Tesisi'ne de yayıldı (18.08.2026)
+  // — eskiden @Roller('firma_yetkilisi')/@Roller('cookzone_yetkilisi')/
+  // @Roller('palet_tesisi_yetkilisi') ile sabitti, davranış aynı kalsın diye
+  // aynı roller RolYetki'ye taşındı; admin panelinden değiştirilebilir.
+  const varsayilanEslemeler: { rol: 'firma_yetkilisi' | 'cookzone_yetkilisi' | 'palet_tesisi_yetkilisi'; yetki: 'is_ilani_yonet' | 'cookzone_yonet' | 'palet_tesisi_yonet' }[] = [
+    { rol: 'firma_yetkilisi', yetki: 'is_ilani_yonet' },
+    { rol: 'cookzone_yetkilisi', yetki: 'cookzone_yonet' },
+    { rol: 'palet_tesisi_yetkilisi', yetki: 'palet_tesisi_yonet' },
+  ];
+  for (const { rol, yetki } of varsayilanEslemeler) {
+    await prisma.rolYetki.upsert({
+      where: { rol_yetki: { rol, yetki } },
+      update: {},
+      create: { rol, yetki },
+    });
+  }
+  console.log(
+    'Rol-yetki eşleşmesi yazıldı: admin → duyuru_yonet, admin/firma_yetkilisi → ikinci_el_yonet, ' +
+      'firma_yetkilisi → is_ilani_yonet, cookzone_yetkilisi → cookzone_yonet, palet_tesisi_yetkilisi → palet_tesisi_yonet.',
+  );
 }
 
 async function firmalariYaz() {

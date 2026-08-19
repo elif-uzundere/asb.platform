@@ -1,7 +1,8 @@
 // GET uçları katalog modeli (girişsiz de çalışır), POST/PUT'lar
-// JwtAuthGuard+RollerGuard('firma_yetkilisi') ister — dio interceptor
-// token'ı zaten ekliyor (bkz. core/network/api_client.dart), burada ekstra
-// bir şey yapmaya gerek yok.
+// YetkiGuard + `is_ilani_yonet` yetkisi ister (18.08.2026'da sabit
+// RollerGuard('firma_yetkilisi')'ten yetki tabanlı sisteme geçirildi) — dio
+// interceptor token'ı zaten ekliyor (bkz. core/network/api_client.dart),
+// burada ekstra bir şey yapmaya gerek yok.
 
 import 'dart:typed_data';
 

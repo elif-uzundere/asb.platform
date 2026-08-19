@@ -18,6 +18,7 @@ import { PaletTesisiModule } from './modules/palet-tesisi/palet-tesisi.module';
 import { HaritaModule } from './modules/harita/harita.module';
 import { AdminPanelModule } from './admin/admin-panel.module';
 import { IsOrtagiModule } from './modules/is-ortagi/is-ortagi.module';
+import { FavoriModule } from './modules/favori/favori.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { IsOrtagiModule } from './modules/is-ortagi/is-ortagi.module';
     PaletTesisiModule,
     HaritaModule,
     IsOrtagiModule,
+    FavoriModule,
   ],
 })
 export class AppModule {}

@@ -19,6 +19,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { YETKILER } from '@asb/shared-types';
 import type {
   CookzoneIsletmeResponse,
   CookzoneMenuOgesiResponse,
@@ -27,8 +28,8 @@ import type {
 } from '@asb/shared-types';
 import { ApiResponseDto } from '../../../../shared/web/api-response.dto';
 import { JwtAuthGuard } from '../../../../shared/web/jwt-auth.guard';
-import { Roller } from '../../../../shared/web/roller.decorator';
-import { RollerGuard } from '../../../../shared/web/roller.guard';
+import { Yetki } from '../../../../shared/web/yetki.decorator';
+import { YetkiGuard } from '../../../../shared/web/yetki.guard';
 import { AktifKullaniciBilgisi } from '../../../../shared/web/aktif-kullanici.decorator';
 import type { AktifKullanici } from '../../../../shared/web/jwt-icerigi';
 import { FILE_STORAGE_PORT, FileStoragePort } from '../../../../shared/infrastructure/file-storage/file-storage.port';
@@ -125,8 +126,8 @@ export class CookzoneController {
   }
 
   @Get('siparisler')
-  @UseGuards(JwtAuthGuard, RollerGuard)
-  @Roller('cookzone_yetkilisi')
+  @UseGuards(YetkiGuard)
+  @Yetki(YETKILER.COOKZONE_YONET)
   async isletmeSiparisleri(
     @AktifKullaniciBilgisi() kullanici: AktifKullanici,
   ): Promise<ApiResponseDto<CookzoneSiparisYonetimResponse[]>> {
@@ -137,8 +138,8 @@ export class CookzoneController {
   }
 
   @Put('siparisler/:id/ilerlet')
-  @UseGuards(JwtAuthGuard, RollerGuard)
-  @Roller('cookzone_yetkilisi')
+  @UseGuards(YetkiGuard)
+  @Yetki(YETKILER.COOKZONE_YONET)
   async siparisIlerlet(
     @Param('id') id: string,
     @AktifKullaniciBilgisi() kullanici: AktifKullanici,
@@ -159,8 +160,8 @@ export class CookzoneController {
    * segment — is-ilanlari.controller.ts'teki aynı sıra kuralına uyuluyor.
    */
   @Get('menu/tumu')
-  @UseGuards(JwtAuthGuard, RollerGuard)
-  @Roller('cookzone_yetkilisi')
+  @UseGuards(YetkiGuard)
+  @Yetki(YETKILER.COOKZONE_YONET)
   async menuOgeleriTumunuGetir(
     @AktifKullaniciBilgisi() kullanici: AktifKullanici,
   ): Promise<ApiResponseDto<CookzoneMenuOgesiResponse[]>> {
@@ -170,8 +171,8 @@ export class CookzoneController {
   }
 
   @Post('menu')
-  @UseGuards(JwtAuthGuard, RollerGuard)
-  @Roller('cookzone_yetkilisi')
+  @UseGuards(YetkiGuard)
+  @Yetki(YETKILER.COOKZONE_YONET)
   @UseInterceptors(FileInterceptor('gorsel'))
   async menuOgesiOlustur(
     @Body() dto: CookzoneMenuOgesiOlusturDto,
@@ -192,8 +193,8 @@ export class CookzoneController {
   }
 
   @Put('menu/:id')
-  @UseGuards(JwtAuthGuard, RollerGuard)
-  @Roller('cookzone_yetkilisi')
+  @UseGuards(YetkiGuard)
+  @Yetki(YETKILER.COOKZONE_YONET)
   @UseInterceptors(FileInterceptor('gorsel'))
   async menuOgesiGuncelle(
     @Param('id') id: string,
@@ -219,8 +220,8 @@ export class CookzoneController {
   }
 
   @Delete('menu/:id')
-  @UseGuards(JwtAuthGuard, RollerGuard)
-  @Roller('cookzone_yetkilisi')
+  @UseGuards(YetkiGuard)
+  @Yetki(YETKILER.COOKZONE_YONET)
   async menuOgesiSil(
     @Param('id') id: string,
     @AktifKullaniciBilgisi() kullanici: AktifKullanici,

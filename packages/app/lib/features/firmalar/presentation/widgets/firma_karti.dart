@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/models/favori_modelleri.dart';
 import '../../../../core/models/firma_modelleri.dart';
 import '../../../../core/theme/renkler.dart';
+import '../../../favoriler/presentation/widgets/favori_kalp_butonu.dart';
 import 'firma_avatari.dart';
 
 /// Liste ekranındaki her firma satırı. Sadece görünüm — dokununca ne
@@ -81,6 +83,8 @@ class FirmaKarti extends StatelessWidget {
                   ],
                 ),
               ),
+              FavoriKalpButonu(tur: FavoriHedefTuru.firma, hedefId: firma.id, boyut: 20),
+              const SizedBox(width: 4),
               Container(
                 width: 30,
                 height: 30,

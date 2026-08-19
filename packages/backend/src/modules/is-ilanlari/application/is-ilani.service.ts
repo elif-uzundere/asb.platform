@@ -14,6 +14,7 @@ import {
 import type { FirmaSorgulamaPort } from '../../firma/adapters/public/firma-sorgulama.port';
 import type { IsIlaniListeRequest, IsIlaniOlusturRequest, IsBasvurusuDurumGuncelleRequest } from '@asb/shared-types';
 import type { BildirimGonderPort } from '../../../shared/infrastructure/bildirim/bildirim-gonder.port';
+import type { FavoriSorgulamaPort } from '../../favori/adapters/public/favori-sorgulama.port';
 
 const DURUM_ETIKETI: Record<IsBasvurusuDurumGuncelleRequest['durum'], string> = {
   incelendi: 'incelendi olarak işaretlendi',
@@ -39,6 +40,7 @@ export class IsIlaniService {
     private readonly basvuruRepo: IsBasvurusuRepository,
     private readonly firmaSorgulama: FirmaSorgulamaPort,
     private readonly bildirimGonder: BildirimGonderPort,
+    private readonly favoriSorgulama: FavoriSorgulamaPort,
   ) {}
 
   async listele(filtre: IsIlaniListeRequest): Promise<IsIlani[]> {
@@ -56,6 +58,16 @@ export class IsIlaniService {
   /** Firma adını, listede/detayda göstermek için `IsIlaniController` bunu ayrıca çağırır. */
   async firmaAdi(firmaId: string): Promise<string | null> {
     return this.firmaSorgulama.adiGetir(firmaId);
+  }
+
+  /** "Kaç kişi favoriledi / kaç başvuru geldi" — 18.08.2026, Berzan'ın isteği.
+   * İkisi de sahiplik kontrolü GEREKTİRMEZ (sadece sayı, başvuran kimliği yok). */
+  async favoriSayisi(ilanId: string): Promise<number> {
+    return this.favoriSorgulama.sayiGetir('is_ilani', ilanId);
+  }
+
+  async basvuruSayisi(ilanId: string): Promise<number> {
+    return this.basvuruRepo.ilanaGoreSayiGetir(ilanId);
   }
 
   // ── Firma yetkilisi işlemleri ────────────────────────────────────────────

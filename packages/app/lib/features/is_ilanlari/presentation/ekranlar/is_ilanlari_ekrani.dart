@@ -10,11 +10,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/durum/islem_durumu.dart';
+import '../../../../core/models/favori_modelleri.dart';
 import '../../../../core/models/is_ilani_modelleri.dart';
 import '../../../../core/theme/renkler.dart';
 import '../../../../core/widgets/form_ogeleri.dart';
 import '../../../../core/widgets/islem_geri_bildirimi.dart';
 import '../../../auth/presentation/durum/auth_durumu.dart';
+import '../../../favoriler/presentation/widgets/favori_kalp_butonu.dart';
 import '../../domain/is_ilani_kurallari.dart';
 import '../durum/is_ilani_liste_durumu.dart';
 import '../durum/is_ilani_olustur_notifier.dart';
@@ -398,7 +400,8 @@ class _IsIlaniKarti extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 4),
+              FavoriKalpButonu(tur: FavoriHedefTuru.isIlani, hedefId: ilan.id, boyut: 20),
               Container(
                 width: 30,
                 height: 30,

@@ -1,0 +1,3 @@
+export const FAVORI_REPOSITORY = Symbol('FAVORI_REPOSITORY');
+export const FAVORI_SERVICE = Symbol('FAVORI_SERVICE');
+export const FAVORI_SORGULAMA_PORT = Symbol('FAVORI_SORGULAMA_PORT');

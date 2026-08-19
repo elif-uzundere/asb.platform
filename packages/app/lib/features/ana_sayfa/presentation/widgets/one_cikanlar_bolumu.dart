@@ -69,9 +69,9 @@ class _OneCikanKarti extends StatelessWidget {
     return InkWell(
       onTap: () {
         if (oge.tur == OneCikanTuru.duyuru) {
-          context.push('/duyurular/${oge.duyuruId}');
+          context.push('/duyurular/${oge.hedefId}');
         } else {
-          context.push('/ikinci-el');
+          context.push('/ikinci-el/${oge.hedefId}');
         }
       },
       borderRadius: BorderRadius.circular(14),

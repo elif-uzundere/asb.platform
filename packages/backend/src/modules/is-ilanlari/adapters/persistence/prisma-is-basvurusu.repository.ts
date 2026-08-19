@@ -29,6 +29,10 @@ export class PrismaIsBasvurusuRepository implements IsBasvurusuRepository {
     return kayitlar.map((kayit) => this.entiteyeCevir(kayit));
   }
 
+  async ilanaGoreSayiGetir(isIlaniId: string): Promise<number> {
+    return this.prisma.isBasvurusu.count({ where: { isIlaniId } });
+  }
+
   async kullaniciVeIlanaGoreBul(kullaniciId: string, isIlaniId: string): Promise<IsBasvurusu | null> {
     const kayit = await this.prisma.isBasvurusu.findFirst({
       where: { kullaniciId, isIlaniId },

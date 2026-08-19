@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../core/models/auth_modelleri.dart';
+import '../../../../core/models/favori_modelleri.dart';
+import '../../../../core/network/api_client.dart';
 import '../../../auth/presentation/durum/auth_durumu.dart';
+import '../../../favoriler/presentation/widgets/favori_kalp_butonu.dart';
 import '../../domain/ikinci_el_ilan.dart';
 import '../providers/ikinci_el_provider.dart';
 
@@ -766,15 +768,13 @@ class _IkinciElIlanlariEkraniDurumu
     final authDurumu = ref.watch(authProvider);
     final kullanici = authDurumu.kullanici;
 
-    final ilanEkleyebilir =
-        kullanici?.rol == KullaniciRolu.admin ||
-        kullanici?.rol == KullaniciRolu.firmaYetkilisi;
+    // Sabit rol kontrolü DEĞİL — admin panelinden RolYetki'ye kim
+    // eklenirse (rolü ne olursa olsun) o ilan girebilir (18.08.2026,
+    // Berzan'ın isteği: "firma yetkilisi diye bir isim olmayacak").
+    final ilanEkleyebilir = kullanici?.yetkisiVar('ikinci_el_yonet') ?? false;
 
     final ilanlarAsync =
         ref.watch(ikinciElIlanlariProvider);
-
-    final favoriIdleri =
-        ref.watch(favoriIlanlarProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
@@ -1107,39 +1107,12 @@ class _IkinciElIlanlariEkraniDurumu
 
                             return _IlanKarti(
                               ilan: ilan,
-                              favoride:
-                                  favoriIdleri
-                                      .contains(
-                                ilan.id,
-                              ),
                               paraFormati:
                                   _paraFormati,
-                              onFavoriTiklandi:
-                                  () {
-                                ref
-                                    .read(
-                                      favoriIlanlarProvider
-                                          .notifier,
-                                    )
-                                    .favoriDegistir(
-                                      ilan.id,
-                                    );
-                              },
                               onTap: () {
-                                ScaffoldMessenger
-                                    .of(context)
-                                  ..hideCurrentSnackBar()
-                                  ..showSnackBar(
-                                    SnackBar(
-                                      content:
-                                          Text(
-                                        '${ilan.baslik} detay sayfası daha sonra bağlanacak.',
-                                      ),
-                                      behavior:
-                                          SnackBarBehavior
-                                              .floating,
-                                    ),
-                                  );
+                                context.push(
+                                  '/ikinci-el/${ilan.id}',
+                                );
                               },
                             );
                           },
@@ -1265,16 +1238,12 @@ class _KategoriOkButonu extends StatelessWidget {
 class _IlanKarti extends StatelessWidget {
   const _IlanKarti({
     required this.ilan,
-    required this.favoride,
     required this.paraFormati,
-    required this.onFavoriTiklandi,
     required this.onTap,
   });
 
   final IkinciElIlan ilan;
-  final bool favoride;
   final NumberFormat paraFormati;
-  final VoidCallback onFavoriTiklandi;
   final VoidCallback onTap;
 
   @override
@@ -1308,7 +1277,7 @@ class _IlanKarti extends StatelessWidget {
                 borderRadius:
                     BorderRadius.circular(14),
                 child: Image.network(
-                  ilan.gorselUrl,
+                  medyaAdresiCozumle(ilan.gorselUrl),
                   width: 112,
                   height: 112,
                   fit: BoxFit.cover,
@@ -1357,31 +1326,9 @@ class _IlanKarti extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 5),
-                        IconButton(
-                          onPressed:
-                              onFavoriTiklandi,
-                          visualDensity:
-                              VisualDensity.compact,
-                          padding: EdgeInsets.zero,
-                          constraints:
-                              const BoxConstraints(
-                            minWidth: 36,
-                            minHeight: 36,
-                          ),
-                          icon: Icon(
-                            favoride
-                                ? Icons
-                                    .favorite_rounded
-                                : Icons
-                                    .favorite_border_rounded,
-                            color: favoride
-                                ? const Color(
-                                    0xFFE11D48,
-                                  )
-                                : const Color(
-                                    0xFF667085,
-                                  ),
-                          ),
+                        FavoriKalpButonu(
+                          tur: FavoriHedefTuru.ikinciEl,
+                          hedefId: ilan.id,
                         ),
                       ],
                     ),

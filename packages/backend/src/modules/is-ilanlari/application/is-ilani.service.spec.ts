@@ -13,6 +13,7 @@ import {
 } from '../domain';
 import type { FirmaSorgulamaPort } from '../../firma/adapters/public/firma-sorgulama.port';
 import type { BildirimGonderPort } from '../../../shared/infrastructure/bildirim/bildirim-gonder.port';
+import type { FavoriSorgulamaPort } from '../../favori/adapters/public/favori-sorgulama.port';
 
 function ilanOlustur(durum: 'aktif' | 'kapali' = 'aktif', firmaId = 'f1'): IsIlani {
   return new IsIlani('i1', firmaId, 'k1', 'Depo Sorumlusu', 'Açıklama', null, new Date(), durum);
@@ -36,6 +37,7 @@ function basvuruRepoOlustur(overrides?: Partial<IsBasvurusuRepository>): IsBasvu
     kullaniciyaGoreListele: jest.fn().mockResolvedValue([]),
     idIleBul: jest.fn().mockResolvedValue(null),
     durumGuncelle: jest.fn(),
+    ilanaGoreSayiGetir: jest.fn().mockResolvedValue(0),
     ...overrides,
   };
 }
@@ -55,10 +57,17 @@ function bildirimGonderOlustur(overrides?: Partial<BildirimGonderPort>): Bildiri
   };
 }
 
+function favoriSorgulamaOlustur(overrides?: Partial<FavoriSorgulamaPort>): FavoriSorgulamaPort {
+  return {
+    sayiGetir: jest.fn().mockResolvedValue(0),
+    ...overrides,
+  };
+}
+
 describe('IsIlaniService', () => {
   describe('detay', () => {
     it('ilan yoksa IsIlaniBulunamadiException fırlatır', async () => {
-      const servis = new IsIlaniService(isIlaniRepoOlustur(), basvuruRepoOlustur(), firmaSorgulamaOlustur(), bildirimGonderOlustur());
+      const servis = new IsIlaniService(isIlaniRepoOlustur(), basvuruRepoOlustur(), firmaSorgulamaOlustur(), bildirimGonderOlustur(), favoriSorgulamaOlustur());
 
       await expect(servis.detay('yok')).rejects.toBeInstanceOf(IsIlaniBulunamadiException);
     });
@@ -66,7 +75,7 @@ describe('IsIlaniService', () => {
     it('ilan bulunursa döner', async () => {
       const ilan = ilanOlustur();
       const repo = isIlaniRepoOlustur({ idIleBul: jest.fn().mockResolvedValue(ilan) });
-      const servis = new IsIlaniService(repo, basvuruRepoOlustur(), firmaSorgulamaOlustur(), bildirimGonderOlustur());
+      const servis = new IsIlaniService(repo, basvuruRepoOlustur(), firmaSorgulamaOlustur(), bildirimGonderOlustur(), favoriSorgulamaOlustur());
 
       await expect(servis.detay('i1')).resolves.toBe(ilan);
     });
@@ -75,7 +84,7 @@ describe('IsIlaniService', () => {
   describe('olustur (BR-2)', () => {
     it('firma onaylı değilse FirmaOnayliDegilException fırlatır', async () => {
       const firmaSorgulama = firmaSorgulamaOlustur({ isOnayli: jest.fn().mockResolvedValue(false) });
-      const servis = new IsIlaniService(isIlaniRepoOlustur(), basvuruRepoOlustur(), firmaSorgulama, bildirimGonderOlustur());
+      const servis = new IsIlaniService(isIlaniRepoOlustur(), basvuruRepoOlustur(), firmaSorgulama, bildirimGonderOlustur(), favoriSorgulamaOlustur());
 
       await expect(
         servis.olustur('f1', 'k1', { baslik: 'Başlık', aciklama: 'Açıklama' }),
@@ -84,7 +93,7 @@ describe('IsIlaniService', () => {
 
     it('firma onaylıysa aktif durumda ilan oluşturur', async () => {
       const repo = isIlaniRepoOlustur({ olustur: jest.fn().mockImplementation((i: IsIlani) => i) });
-      const servis = new IsIlaniService(repo, basvuruRepoOlustur(), firmaSorgulamaOlustur(), bildirimGonderOlustur());
+      const servis = new IsIlaniService(repo, basvuruRepoOlustur(), firmaSorgulamaOlustur(), bildirimGonderOlustur(), favoriSorgulamaOlustur());
 
       const sonuc = await servis.olustur('f1', 'k1', { baslik: 'Başlık', aciklama: 'Açıklama' });
 
@@ -95,21 +104,21 @@ describe('IsIlaniService', () => {
 
   describe('kapat (sahiplik kontrolü)', () => {
     it('ilan yoksa IsIlaniBulunamadiException fırlatır', async () => {
-      const servis = new IsIlaniService(isIlaniRepoOlustur(), basvuruRepoOlustur(), firmaSorgulamaOlustur(), bildirimGonderOlustur());
+      const servis = new IsIlaniService(isIlaniRepoOlustur(), basvuruRepoOlustur(), firmaSorgulamaOlustur(), bildirimGonderOlustur(), favoriSorgulamaOlustur());
 
       await expect(servis.kapat('yok', 'f1')).rejects.toBeInstanceOf(IsIlaniBulunamadiException);
     });
 
     it('başka firmaya ait ilanı kapatmaya çalışırsa BaskaFirmayaAitException fırlatır', async () => {
       const repo = isIlaniRepoOlustur({ idIleBul: jest.fn().mockResolvedValue(ilanOlustur('aktif', 'f1')) });
-      const servis = new IsIlaniService(repo, basvuruRepoOlustur(), firmaSorgulamaOlustur(), bildirimGonderOlustur());
+      const servis = new IsIlaniService(repo, basvuruRepoOlustur(), firmaSorgulamaOlustur(), bildirimGonderOlustur(), favoriSorgulamaOlustur());
 
       await expect(servis.kapat('i1', 'baska-firma')).rejects.toBeInstanceOf(BaskaFirmayaAitException);
     });
 
     it('zaten kapalı ilanı tekrar kapatmaya çalışırsa IlanKapaliException fırlatır', async () => {
       const repo = isIlaniRepoOlustur({ idIleBul: jest.fn().mockResolvedValue(ilanOlustur('kapali', 'f1')) });
-      const servis = new IsIlaniService(repo, basvuruRepoOlustur(), firmaSorgulamaOlustur(), bildirimGonderOlustur());
+      const servis = new IsIlaniService(repo, basvuruRepoOlustur(), firmaSorgulamaOlustur(), bildirimGonderOlustur(), favoriSorgulamaOlustur());
 
       await expect(servis.kapat('i1', 'f1')).rejects.toBeInstanceOf(IlanKapaliException);
     });
@@ -119,7 +128,7 @@ describe('IsIlaniService', () => {
         idIleBul: jest.fn().mockResolvedValue(ilanOlustur('aktif', 'f1')),
         durumGuncelle: jest.fn().mockResolvedValue(ilanOlustur('kapali', 'f1')),
       });
-      const servis = new IsIlaniService(repo, basvuruRepoOlustur(), firmaSorgulamaOlustur(), bildirimGonderOlustur());
+      const servis = new IsIlaniService(repo, basvuruRepoOlustur(), firmaSorgulamaOlustur(), bildirimGonderOlustur(), favoriSorgulamaOlustur());
 
       await servis.kapat('i1', 'f1');
 
@@ -130,7 +139,7 @@ describe('IsIlaniService', () => {
   describe('basvurulariGetir (sahiplik kontrolü)', () => {
     it('başka firmaya ait ilanın başvurularını görmeye çalışırsa BaskaFirmayaAitException fırlatır', async () => {
       const repo = isIlaniRepoOlustur({ idIleBul: jest.fn().mockResolvedValue(ilanOlustur('aktif', 'f1')) });
-      const servis = new IsIlaniService(repo, basvuruRepoOlustur(), firmaSorgulamaOlustur(), bildirimGonderOlustur());
+      const servis = new IsIlaniService(repo, basvuruRepoOlustur(), firmaSorgulamaOlustur(), bildirimGonderOlustur(), favoriSorgulamaOlustur());
 
       await expect(servis.basvurulariGetir('i1', 'baska-firma')).rejects.toBeInstanceOf(
         BaskaFirmayaAitException,
@@ -140,14 +149,14 @@ describe('IsIlaniService', () => {
 
   describe('basvur', () => {
     it('ilan yoksa IsIlaniBulunamadiException fırlatır', async () => {
-      const servis = new IsIlaniService(isIlaniRepoOlustur(), basvuruRepoOlustur(), firmaSorgulamaOlustur(), bildirimGonderOlustur());
+      const servis = new IsIlaniService(isIlaniRepoOlustur(), basvuruRepoOlustur(), firmaSorgulamaOlustur(), bildirimGonderOlustur(), favoriSorgulamaOlustur());
 
       await expect(servis.basvur('yok', 'k1')).rejects.toBeInstanceOf(IsIlaniBulunamadiException);
     });
 
     it('kapalı ilana başvurmaya çalışırsa IlanKapaliException fırlatır', async () => {
       const repo = isIlaniRepoOlustur({ idIleBul: jest.fn().mockResolvedValue(ilanOlustur('kapali')) });
-      const servis = new IsIlaniService(repo, basvuruRepoOlustur(), firmaSorgulamaOlustur(), bildirimGonderOlustur());
+      const servis = new IsIlaniService(repo, basvuruRepoOlustur(), firmaSorgulamaOlustur(), bildirimGonderOlustur(), favoriSorgulamaOlustur());
 
       await expect(servis.basvur('i1', 'k1')).rejects.toBeInstanceOf(IlanKapaliException);
     });
@@ -157,7 +166,7 @@ describe('IsIlaniService', () => {
       const basvuruRepo = basvuruRepoOlustur({
         kullaniciVeIlanaGoreBul: jest.fn().mockResolvedValue(IsBasvurusu.yeniBasvuru('b1', 'i1', 'k1')),
       });
-      const servis = new IsIlaniService(repo, basvuruRepo, firmaSorgulamaOlustur(), bildirimGonderOlustur());
+      const servis = new IsIlaniService(repo, basvuruRepo, firmaSorgulamaOlustur(), bildirimGonderOlustur(), favoriSorgulamaOlustur());
 
       await expect(servis.basvur('i1', 'k1')).rejects.toBeInstanceOf(ZatenBasvurulduException);
     });
@@ -167,7 +176,7 @@ describe('IsIlaniService', () => {
       const basvuruRepo = basvuruRepoOlustur({
         olustur: jest.fn().mockImplementation((b: IsBasvurusu) => b),
       });
-      const servis = new IsIlaniService(repo, basvuruRepo, firmaSorgulamaOlustur(), bildirimGonderOlustur());
+      const servis = new IsIlaniService(repo, basvuruRepo, firmaSorgulamaOlustur(), bildirimGonderOlustur(), favoriSorgulamaOlustur());
 
       const sonuc = await servis.basvur('i1', 'k1');
 
@@ -182,7 +191,7 @@ describe('IsIlaniService', () => {
         olustur: jest.fn().mockImplementation((b: IsBasvurusu) => b),
       });
       const bildirimGonder = bildirimGonderOlustur();
-      const servis = new IsIlaniService(repo, basvuruRepo, firmaSorgulamaOlustur(), bildirimGonder);
+      const servis = new IsIlaniService(repo, basvuruRepo, firmaSorgulamaOlustur(), bildirimGonder, favoriSorgulamaOlustur());
 
       await servis.basvur('i1', 'aday1');
 
@@ -198,7 +207,7 @@ describe('IsIlaniService', () => {
   describe('basvuruDurumGuncelle (sahiplik kontrolü)', () => {
     it('başka firmaya ait ilanın başvurusunu güncellemeye çalışırsa BaskaFirmayaAitException fırlatır', async () => {
       const repo = isIlaniRepoOlustur({ idIleBul: jest.fn().mockResolvedValue(ilanOlustur('aktif', 'f1')) });
-      const servis = new IsIlaniService(repo, basvuruRepoOlustur(), firmaSorgulamaOlustur(), bildirimGonderOlustur());
+      const servis = new IsIlaniService(repo, basvuruRepoOlustur(), firmaSorgulamaOlustur(), bildirimGonderOlustur(), favoriSorgulamaOlustur());
 
       await expect(
         servis.basvuruDurumGuncelle('i1', 'b1', 'baska-firma', { durum: 'kabul' }),
@@ -208,7 +217,7 @@ describe('IsIlaniService', () => {
     it('başvuru bulunamazsa BasvuruBulunamadiException fırlatır', async () => {
       const repo = isIlaniRepoOlustur({ idIleBul: jest.fn().mockResolvedValue(ilanOlustur('aktif', 'f1')) });
       const basvuruRepo = basvuruRepoOlustur({ idIleBul: jest.fn().mockResolvedValue(null) });
-      const servis = new IsIlaniService(repo, basvuruRepo, firmaSorgulamaOlustur(), bildirimGonderOlustur());
+      const servis = new IsIlaniService(repo, basvuruRepo, firmaSorgulamaOlustur(), bildirimGonderOlustur(), favoriSorgulamaOlustur());
 
       await expect(
         servis.basvuruDurumGuncelle('i1', 'yok', 'f1', { durum: 'kabul' }),
@@ -220,7 +229,7 @@ describe('IsIlaniService', () => {
       const basvuruRepo = basvuruRepoOlustur({
         idIleBul: jest.fn().mockResolvedValue(IsBasvurusu.yeniBasvuru('b1', 'baska-ilan', 'k1')),
       });
-      const servis = new IsIlaniService(repo, basvuruRepo, firmaSorgulamaOlustur(), bildirimGonderOlustur());
+      const servis = new IsIlaniService(repo, basvuruRepo, firmaSorgulamaOlustur(), bildirimGonderOlustur(), favoriSorgulamaOlustur());
 
       await expect(
         servis.basvuruDurumGuncelle('i1', 'b1', 'f1', { durum: 'kabul' }),
@@ -233,7 +242,7 @@ describe('IsIlaniService', () => {
         idIleBul: jest.fn().mockResolvedValue(IsBasvurusu.yeniBasvuru('b1', 'i1', 'k1')),
         durumGuncelle: jest.fn().mockImplementation((id: string, durum) => new IsBasvurusu(id, 'i1', 'k1', new Date(), durum)),
       });
-      const servis = new IsIlaniService(repo, basvuruRepo, firmaSorgulamaOlustur(), bildirimGonderOlustur());
+      const servis = new IsIlaniService(repo, basvuruRepo, firmaSorgulamaOlustur(), bildirimGonderOlustur(), favoriSorgulamaOlustur());
 
       const sonuc = await servis.basvuruDurumGuncelle('i1', 'b1', 'f1', { durum: 'kabul' });
 
@@ -248,7 +257,7 @@ describe('IsIlaniService', () => {
         durumGuncelle: jest.fn().mockImplementation((id: string, durum) => new IsBasvurusu(id, 'i1', 'aday1', new Date(), durum)),
       });
       const bildirimGonder = bildirimGonderOlustur();
-      const servis = new IsIlaniService(repo, basvuruRepo, firmaSorgulamaOlustur(), bildirimGonder);
+      const servis = new IsIlaniService(repo, basvuruRepo, firmaSorgulamaOlustur(), bildirimGonder, favoriSorgulamaOlustur());
 
       await servis.basvuruDurumGuncelle('i1', 'b1', 'f1', { durum: 'kabul' });
 
@@ -267,7 +276,7 @@ describe('IsIlaniService', () => {
       const basvuruRepo = basvuruRepoOlustur({
         kullaniciyaGoreListele: jest.fn().mockResolvedValue([kendiBasvurusu]),
       });
-      const servis = new IsIlaniService(isIlaniRepoOlustur(), basvuruRepo, firmaSorgulamaOlustur(), bildirimGonderOlustur());
+      const servis = new IsIlaniService(isIlaniRepoOlustur(), basvuruRepo, firmaSorgulamaOlustur(), bildirimGonderOlustur(), favoriSorgulamaOlustur());
 
       const sonuc = await servis.basvurularim('k1');
 

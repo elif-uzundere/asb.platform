@@ -34,9 +34,11 @@ import '../../features/destek/presentation/ekranlar/taleplerim_ekrani.dart';
 import '../../features/destek/presentation/ekranlar/yardim_destek_ekrani.dart';
 import '../../features/duyurular/presentation/ekranlar/duyuru_detay_ekrani.dart';
 import '../../features/duyurular/presentation/ekranlar/duyurular_ekrani.dart';
+import '../../features/favoriler/presentation/ekranlar/favorilerim_ekrani.dart';
 import '../../features/firmalar/presentation/ekranlar/firma_detay_ekrani.dart';
 import '../../features/firmalar/presentation/ekranlar/firmalar_ekrani.dart';
 import '../../features/harita/presentation/ekranlar/harita_ekrani.dart';
+import '../../features/ikinci_el/presentation/ekranlar/ikinci_el_ilan_detay_ekrani.dart';
 import '../../features/ikinci_el/presentation/ekranlar/ikinci_el_ilan_ekle_ekrani.dart';
 import '../../features/ikinci_el/presentation/ekranlar/ikinci_el_ilanlari_ekrani.dart';
 import '../../features/is_ilanlari/presentation/ekranlar/basvurularim_ekrani.dart';
@@ -69,18 +71,21 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
     observers: [routeGozlemci],
 
     redirect: (context, state) {
-      // cookzone_yetkilisi sipariş VEREN ekranı hiç görmemeli — ayrı bir
-      // yönetim akışı düşünülmüştü (11.08.2026, Berzan'ın düzeltmesi).
+      // cookzone_yonet yetkisi olan biri sipariş VEREN ekranı hiç
+      // görmemeli — ayrı bir yönetim akışı düşünülmüştü (11.08.2026,
+      // Berzan'ın düzeltmesi). Sabit rol kontrolü DEĞİL, admin panelinden
+      // atanan yetkiye bakılıyor (18.08.2026, aynı gerekçe: "firma
+      // yetkilisi diye bir isim olmayacak, yetkinlik verdikçe yapabilecek").
       // Yönlendirme kararı tek yerde (router) toplanıyor, ekranlar kendi
-      // içinde tekrar rol kontrolü yapmıyor.
+      // içinde tekrar yetki kontrolü yapmıyor.
       final kullanici = ref.read(authProvider).kullanici;
-      if (state.matchedLocation == '/cookzone' && kullanici?.rol == KullaniciRolu.cookzoneYetkilisi) {
+      if (state.matchedLocation == '/cookzone' && (kullanici?.yetkisiVar('cookzone_yonet') ?? false)) {
         return '/cookzone/yonetim';
       }
-      // palet_tesisi_yetkilisi de aynı gerekçeyle (cookzone_yetkilisi'nin
-      // yukarıdaki yönlendirmesiyle aynı, 12.08.2026) müşteri ekranını değil
-      // doğrudan yönetim ekranını görmeli.
-      if (state.matchedLocation == '/palet-tesisi' && kullanici?.rol == KullaniciRolu.paletTesisiYetkilisi) {
+      // palet_tesisi_yonet de aynı gerekçeyle (cookzone_yonet'in yukarıdaki
+      // yönlendirmesiyle aynı, 12.08.2026) müşteri ekranını değil doğrudan
+      // yönetim ekranını görmeli.
+      if (state.matchedLocation == '/palet-tesisi' && (kullanici?.yetkisiVar('palet_tesisi_yonet') ?? false)) {
         return '/palet-tesisi/yonetim';
       }
       // 6 acil durum ekip rolünden biri (itfaiye/güvenlik/tekin İSG/kantar/
@@ -193,6 +198,13 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
         path: '/ikinci-el/ilan-ekle',
         builder: (context, state) {
           return const IkinciElIlanEkleEkrani();
+        },
+      ),
+
+      GoRoute(
+        path: '/ikinci-el/:id',
+        builder: (context, state) {
+          return IkinciElIlanDetayEkrani(ilanId: state.pathParameters['id']!);
         },
       ),
 
@@ -311,6 +323,13 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
         path: '/profil/is-ilanlarim',
         builder: (context, state) {
           return const IsIlanlarimEkrani();
+        },
+      ),
+
+      GoRoute(
+        path: '/profil/favorilerim',
+        builder: (context, state) {
+          return const FavorilerimEkrani();
         },
       ),
 

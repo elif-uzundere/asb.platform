@@ -6,6 +6,10 @@ export interface IsBasvurusuRepository {
   /** Firma yetkilisinin bir ilana gelen tüm başvuruları görmesi için. */
   ilanaGoreListele(isIlaniId: string): Promise<IsBasvurusu[]>;
 
+  /** Sadece SAYI — kim başvurdu bilgisini taşımaz, sahiplik kontrolü
+   * gerektirmeden (herkese açık ilan listesinde de gösterilebilir). */
+  ilanaGoreSayiGetir(isIlaniId: string): Promise<number>;
+
   /** Mükerrer başvuru kontrolü — aynı kullanıcı aynı ilana ikinci kez başvuramaz. */
   kullaniciVeIlanaGoreBul(kullaniciId: string, isIlaniId: string): Promise<IsBasvurusu | null>;
 

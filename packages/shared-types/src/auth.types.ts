@@ -1,3 +1,5 @@
+import type { YetkiKodu } from './yetki.types';
+
 export type KullaniciRolu =
   | 'ziyaretci'
   | 'firma_calisani'
@@ -37,6 +39,10 @@ export interface KullaniciOzet {
   /** Sadece rol = cookzone_yetkilisi olan hesaplarda dolu. */
   cookzoneIsletmeId: string | null;
   epostaDogrulandi: boolean;
+  /** `rol`e admin panelinden (RolYetki) tanımlı yetki kodları — 18.08.2026,
+   * Berzan'ın isteği: uygulama "kim yapabilir" kararını sabit rol
+   * kontrolüyle değil bu listeyle vermeli (ör. İkinci El ilan girme). */
+  yetkiler: YetkiKodu[];
 }
 
 export interface LoginResponse {

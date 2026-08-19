@@ -44,7 +44,7 @@ final oneCikanlarProvider = FutureProvider.autoDispose<List<OneCikanOgesi>>((ref
         altBaslik: _tarihiFormatla(duyuru.yayinTarihi),
         tarih: duyuru.yayinTarihi,
         kategori: duyuru.kategori,
-        duyuruId: duyuru.id,
+        hedefId: duyuru.id,
       ),
     for (final ilan in ikinciElIlanlar)
       if (ilan.oneCikan)
@@ -53,6 +53,7 @@ final oneCikanlarProvider = FutureProvider.autoDispose<List<OneCikanOgesi>>((ref
           baslik: ilan.baslik,
           altBaslik: _fiyatFormatla(ilan.fiyat),
           tarih: ilan.olusturulmaTarihi,
+          hedefId: ilan.id,
         ),
   ];
 

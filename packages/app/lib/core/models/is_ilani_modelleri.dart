@@ -47,6 +47,8 @@ class IsIlaniResponse {
     required this.konum,
     required this.yayinTarihi,
     required this.durum,
+    this.favoriSayisi = 0,
+    this.basvuruSayisi = 0,
   });
 
   final String id;
@@ -58,6 +60,11 @@ class IsIlaniResponse {
   final DateTime yayinTarihi;
   final IsIlaniDurumu durum;
 
+  /// Kaç kişi favoriledi / kaç başvuru geldi — 18.08.2026, Berzan'ın isteği
+  /// ("iş ilanı açan kaç kişi favori yapmış kaç başvuru gelmiş görebilsin").
+  final int favoriSayisi;
+  final int basvuruSayisi;
+
   factory IsIlaniResponse.jsondan(Map<String, dynamic> json) => IsIlaniResponse(
         id: json['id'] as String,
         firmaId: json['firmaId'] as String,
@@ -67,6 +74,8 @@ class IsIlaniResponse {
         konum: json['konum'] as String?,
         yayinTarihi: DateTime.parse(json['yayinTarihi'] as String),
         durum: IsIlaniDurumu.cozumle(json['durum'] as String?),
+        favoriSayisi: json['favoriSayisi'] as int? ?? 0,
+        basvuruSayisi: json['basvuruSayisi'] as int? ?? 0,
       );
 }
 

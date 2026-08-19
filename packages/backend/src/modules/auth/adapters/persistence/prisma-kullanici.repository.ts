@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import type { YetkiKodu } from '@asb/shared-types';
 import { PrismaService } from '../../../../shared/infrastructure/prisma.service';
 import { Email, Kullanici, KullaniciRepository, KullaniciRolu } from '../../domain';
 
@@ -74,6 +75,11 @@ export class PrismaKullaniciRepository implements KullaniciRepository {
       where: { cookzoneIsletmeId: isletmeId, rol: 'cookzone_yetkilisi' },
     });
     return kayitlar.map((kayit) => this.entiteyeCevir(kayit));
+  }
+
+  async rolYetkileriniGetir(rol: KullaniciRolu): Promise<YetkiKodu[]> {
+    const kayitlar = await this.prisma.rolYetki.findMany({ where: { rol }, select: { yetki: true } });
+    return kayitlar.map((kayit) => kayit.yetki as YetkiKodu);
   }
 
   private entiteyeCevir(kayit: {
