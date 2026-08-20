@@ -16,15 +16,16 @@ export interface KullaniciRepository {
   rolIleListele(rol: KullaniciRolu): Promise<Kullanici[]>;
 
   /**
-   * Bir Cookzone işletmesine bağlı tüm cookzone_yetkilisi kullanıcıları —
-   * `rolIleListele('cookzone_yetkilisi')`'den FARKLI: birden fazla işletme
-   * olduğunda sadece o işletmeye bağlı olanlara bildirim gitmesi için.
+   * Bir Cookzone işletmesine bağlı tüm cookzone_yetkilisi kullanıcıları
+   * listeler. `rolIleListele('cookzone_yetkilisi')`'den farkı şu: birden
+   * fazla işletme olduğunda sadece o işletmeye bağlı olanlara bildirim
+   * gitmesi için kullanılıyor.
    */
   cookzoneIsletmesineGoreListele(isletmeId: string): Promise<Kullanici[]>;
 
   /** Bir role tanımlı yetki kodları — `KullaniciOzet.yetkiler`i doldurmak
-   * için (18.08.2026, Berzan: admin panelinden RolYetki'ye eklenen izinler
-   * uygulama tarafında da anında görünür olmalı, sabit rol kontrolü değil). */
+   * için. Admin panelinden RolYetki'ye eklenen izinler uygulama tarafında
+   * da anında görünür olmalı, sabit rol kontrolü değil. */
   rolYetkileriniGetir(rol: KullaniciRolu): Promise<YetkiKodu[]>;
 }
 

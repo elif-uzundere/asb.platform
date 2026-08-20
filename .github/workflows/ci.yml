@@ -23,6 +23,9 @@ jobs:
       - name: Build shared-types
         run: npm run build --workspace=@asb/shared-types
 
+      - name: Tip senkron kontrolü (shared-types ↔ Dart aynası)
+        run: npm run tip-senkron-kontrolu
+
       - name: Generate Prisma client
         run: npm run prisma:generate --workspace=@asb/backend
 
@@ -34,3 +37,38 @@ jobs:
 
       - name: Test backend
         run: npm run test --workspace=@asb/backend
+
+  flutter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Dockerfile'daki web-build aşamasıyla birebir aynı sabit sürüm, ikisi
+      # de resmi Flutter deposundan aynı 3.44.8 etiketini kullanıyor.
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.8
+          channel: stable
+
+      - name: Get dependencies
+        run: flutter pub get
+        working-directory: packages/app
+
+      - name: Analyze
+        run: flutter analyze
+        working-directory: packages/app
+
+      - name: Test
+        run: flutter test
+        working-directory: packages/app
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: [build-and-lint, flutter]
+    steps:
+      - uses: actions/checkout@v4
+
+      # Sadece imajın gerçekten build edildiğini doğruluyor, push/deploy
+      # yok, bu iş CI'ın kapsamı değil.
+      - name: Prod Docker imajını build et
+        run: docker build -t asb-platform:ci .

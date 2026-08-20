@@ -1,5 +1,5 @@
-// "Favorilerim" — İkinci El/Firma/İş İlanı için 3 sekme (18.08.2026,
-// Berzan'ın isteği: "kullanıcı favorilerse favorilerinde gözüksün").
+// "Favorilerim" — İkinci El/Firma/İş İlanı için 3 sekme. Kullanıcı
+// favorilerse favorilerinde gözüksün diye.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

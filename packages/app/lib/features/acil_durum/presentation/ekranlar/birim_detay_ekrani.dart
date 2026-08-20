@@ -553,8 +553,8 @@ class _DetayIcerigi
                 ],
 
                 // Mockup'ta İtfaiye için tek, vurgulu bir "Acil Ara (112)"
-                // butonu var — birimin kendi hattını arayan ayrı bir "Ara"
-                // butonu yok, kafa karıştırmasın diye (13.08.2026).
+                // butonu var. Birimin kendi hattını arayan ayrı bir "Ara"
+                // butonu yok, kafa karıştırmasın diye.
                 if (itfaiyeMi) ...[
                   const SizedBox(
                     height: 26,

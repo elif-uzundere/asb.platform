@@ -22,13 +22,13 @@ class SekmeTanimi {
   final IconData ikon;
   final IconData aktifIkon;
 
-  /// true ise bu sekmenin ekranı KENDİ başlığını/geri okunu zaten çiziyor
+  /// true ise bu sekmenin ekranı kendi başlığını/geri okunu zaten çiziyor
   /// (firmalar_ekrani.dart'taki AppBar, duyurular_ekrani.dart'taki gradyan
-  /// _UstBaslik, profil_ekrani.dart'taki geri oku + "Profil" satırı gibi) —
-  /// bu durumda SekmeKabugu KENDİ genel AppBar'ını göstermez, yoksa ekranda
-  /// aynı başlık iki kez üst üste görünür (06.08.2026'da canlı test edilip
-  /// bulundu). `false` olan sekmeler (Harita gibi) hâlâ bu genel AppBar'a
-  /// muhtaç, o yüzden bu bayrak olmadan hepsi için kaldırılamaz.
+  /// _UstBaslik, profil_ekrani.dart'taki geri oku + "Profil" satırı gibi).
+  /// Bu durumda SekmeKabugu kendi genel AppBar'ını göstermez, yoksa ekranda
+  /// aynı başlık iki kez üst üste görünür, canlı testte bulundu. `false`
+  /// olan sekmeler (Harita gibi) hâlâ bu genel AppBar'a muhtaç, o yüzden
+  /// bu bayrak olmadan hepsi için kaldırılamaz.
   final bool kendiBasligiVar;
 }
 

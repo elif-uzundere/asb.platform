@@ -38,11 +38,11 @@ export class AcilDurumService {
    * çünkü sadece bir alanın boş/dolu kontrolü, entity'nin bilmesi gereken bir
    * durum makinesi/ilişki kuralı değil.
    *
-   * Bildirim oluşunca türe göre ilgili EKİBİN TÜMÜNE (tek kişi değil) bildirim
-   * gönderilir — 14.08.2026, Berzan'ın kararı. Bu modülün kendi bildirim
-   * mantığı: paylaşılan transport (BildirimGonderPort) kullanılıyor ama
-   * "kime/ne zaman" kararı Cookzone'daki gibi bu servisin kendi işi, merkezi
-   * bir "bildirim motoru"na taşınmadı.
+   * Bildirim oluşunca türe göre ilgili ekibin tümüne bildirim gönderilir,
+   * tek kişiye değil. Bu modülün kendi bildirim mantığı bu. Paylaşılan
+   * transport (BildirimGonderPort) kullanılıyor ama "kime/ne zaman" kararı
+   * Cookzone'daki gibi bu servisin kendi işi, merkezi bir "bildirim
+   * motoru"na taşınmadı.
    */
   async bildirimOlustur(kullaniciId: string, tur: AcilDurumTuru, aciklama: string | null): Promise<AcilDurumBildirimi> {
     if (!aciklama || aciklama.trim().length === 0) {

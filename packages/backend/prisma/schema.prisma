@@ -20,10 +20,9 @@ enum KullaniciRolu {
   admin
   cookzone_yetkilisi
   palet_tesisi_yetkilisi
-  // Acil Durum bildirim yönlendirmesi (14.08.2026) — her tür kendi ekibine
-  // düşer. `tekin_isg_ekibi` (dış/anlaşmalı sağlık-güvenlik firması, sağlık
-  // türü buraya gider) ile `sirket_isg_ekibi` (ASB'nin kendi iç İSG ekibi,
-  // "diğer" türü buraya gider) BİLEREK ayrı roller — birbirine karıştırılmaz.
+  // Acil durum bildirimleri türe göre ekibe düşer. tekin_isg_ekibi dış
+  // sağlık firması, sirket_isg_ekibi ASB'nin kendi İSG ekibi. İkisi ayrı,
+  // karıştırma.
   itfaiye_ekibi
   guvenlik_ekibi
   tekin_isg_ekibi
@@ -38,16 +37,11 @@ enum KullaniciRolu {
 // sadece yeni bir RolYetki satırı yeterli olur.
 enum Yetki {
   duyuru_yonet
-  // İkinci El Pazar'a ilan girme izni — bilerek yeni bir "departman" rolü
-  // DEĞİL, mevcut RolYetki mekanizmasıyla admin panelinden herhangi bir role
-  // atanabilen bir izin (18.08.2026, Berzan: "departman yok, sadece
-  // yetkinlik vericez").
+  // İkinci El ilanı girme izni. Departman rolü değil, RolYetki ile
+  // herhangi bir role admin panelinden atanabilir.
   ikinci_el_yonet
-  // Aynı desen İş İlanları/Cookzone/Palet Tesisi'ne de yayıldı (18.08.2026,
-  // Berzan: "günün sonunda gerçek veriler geldiğinde firma yetkilisi diye
-  // bir isim olmayacak, sadece yetkinlik verdikçe yapabilecek"). Firma/
-  // Banner gibi zaten admin-only olan modüllere BİLİNÇLİ olarak
-  // eklenmedi — orada zaten sadece admin işlem yapabiliyor.
+  // Aynı yetki deseni İş İlanları/Cookzone/Palet Tesisi'ne de uygulandı.
+  // Firma ve Banner zaten admin-only olduğu için bunlara eklenmedi.
   is_ilani_yonet
   cookzone_yonet
   palet_tesisi_yonet
@@ -76,10 +70,9 @@ model Kullanici {
   olusturmaTarihi  DateTime      @default(now()) @map("olusturma_tarihi")
   guncellemeTarihi DateTime      @updatedAt @map("guncelleme_tarihi")
 
-  // `firmaId` ile AYNI ilişki değil, bilerek ayrı bir alan — Cookzone bir
-  // firma tarafından değil doğrudan ASB tarafından işletiliyor (çalışan
-  // maaşları ASB'den), sahte bir Firma kaydı açmak yerine kendi FK'sı var.
-  // Sadece rol = cookzone_yetkilisi olan hesaplarda dolu olması beklenir.
+  // firmaId ile aynı ilişki değil, ayrı bir alan. Cookzone bir firmaya değil
+  // doğrudan ASB'ye bağlı, o yüzden sahte bir Firma kaydı açmak yerine kendi
+  // FK'sı var. Sadece rol = cookzone_yetkilisi hesaplarda dolu olur.
   cookzoneIsletmeId String?          @map("cookzone_isletme_id")
   cookzoneIsletme   CookzoneIsletme? @relation(fields: [cookzoneIsletmeId], references: [id])
 
@@ -98,12 +91,10 @@ model Kullanici {
 }
 
 // ── Favoriler ─────────────────────────────────────────────────────────────
-// 18.08.2026, Berzan'ın isteği — İkinci El ilanı/Firma/İş İlanı türlerinin
-// ÜÇÜ İÇİN TEK tablo (ayrı ayrı "favoriIkinciEl", "favoriFirma" tabloları
-// yerine): kayıt şekli birebir aynı (kim, neyi, ne zaman), sadece hedefin
-// hangi tabloya ait olduğu değişiyor. `hedefId` bilerek FK DEĞİL — 3 farklı
-// hedef tablosundan biri olabildiği için tek bir foreign key ile
-// bağlanamıyor, doğrulama application katmanında yapılıyor.
+// İkinci El/Firma/İş İlanı için tek ortak tablo. Kayıt şekli hep aynı (kim,
+// ne zaman, hangi hedef), sadece hedef türü değişiyor. hedefId gerçek bir
+// foreign key değil çünkü 3 farklı tablodan birine işaret edebiliyor,
+// doğrulama application katmanında yapılıyor.
 enum FavoriHedefTuru {
   ikinci_el
   firma
@@ -171,11 +162,10 @@ model Duyuru {
   icerik               String
   kategori             String?   @db.VarChar(60)
   yayinTarihi          DateTime  @default(now()) @map("yayin_tarihi")
-  // Alan adı `olusturanKullaniciId` (DB kolonu hâlâ `olusturan_admin_id` —
-  // 30.07.2026'da bu Prisma alanı sadece "admin" oluşturabilir varsayımıyla
-  // adlandırılmıştı; duyuru_yonet yetkisiyle admin OLMAYAN roller de
-  // oluşturabildiği için isim genelleştirildi, DB'de gerçek bir taşıma
-  // gerekmiyor çünkü @map aynı kalıyor).
+  // Alan adı olusturanKullaniciId, DB kolonu hâlâ olusturan_admin_id. İsim
+  // önce sadece admin oluşturabilir varsayımıyla verilmişti, duyuru_yonet
+  // yetkisiyle başka roller de oluşturabildiği için genelleştirildi. DB'de
+  // taşıma gerekmiyor, @map aynı kalıyor.
   olusturanKullaniciId String    @map("olusturan_admin_id")
   olusturanKullanici   Kullanici @relation("DuyuruOlusturanKullanici", fields: [olusturanKullaniciId], references: [id])
 
@@ -274,7 +264,7 @@ model IkinciElIlani {
 
   urunDurumu      String              @map("urun_durumu") @db.VarChar(50)
 
-  // Zorunlu — ilan sahibiyle iletişim için (18.08.2026, Berzan'ın isteği).
+  // Zorunlu alan — ilan sahibiyle iletişim için.
   iletisimTelefonu String             @map("iletisim_telefonu") @db.VarChar(20)
 
   fotografUrls    String[]            @map("fotograf_urls")
@@ -346,10 +336,8 @@ model CookzoneMenuOgesi {
   @@map("cookzone_menu_ogesi")
 }
 
-// `beklemede`, işletmenin henüz "kabul etmediği" yeni siparişi temsil eder —
-// eskiden yeni sipariş direkt `alindi` (kabul edilmiş) başlıyordu, ama
-// randevulu-hazır-olma akışında işletmenin siparişi ELLE kabul etmesi
-// gerekiyor (07.08.2026 — Berzan'ın netleştirdiği iş akışı).
+// beklemede: işletmenin henüz kabul etmediği yeni sipariş. Yeni sipariş
+// artık direkt alindi olarak başlamıyor, işletme siparişi elle kabul ediyor.
 enum CookzoneSiparisDurumu {
   beklemede
   alindi
@@ -422,10 +410,9 @@ model AcilDurumBildirimi {
 }
 
 // ── 4.8 Palet Tesisi (Faz 3) ──────────────────────────────────────────────
-// 27.07.2026'da "Paket Teslimi" olarak yanlış okunmuş/yazılmıştı, isim
-// düzeltildi (bkz. docs/CLAUDE.md Alınan Kararlar). Alan adları (kargoFirmasi,
-// takipNo, teslimNoktasi vb.) BİLEREK değiştirilmedi — modül Faz 3'te henüz
-// yazılmadı, gerçek iş kuralları o zaman netleşince alanlar da gözden geçirilir.
+// Doğru adı "Palet Tesisi", "Paket Teslimi" değil. Alan adları (kargoFirmasi,
+// takipNo, teslimNoktasi vb.) şimdilik böyle kalıyor — modül Faz 3'te henüz
+// yazılmadı, iş kuralları netleşince alanlar gözden geçirilecek.
 
 enum PaletTesisiDurumu {
   beklemede
@@ -450,9 +437,8 @@ model AcilDurumBilgisi {
   id              String   @id @default(uuid())
   tur             String   @unique @db.VarChar(50)
   telefon         String?  @db.VarChar(30)
-  // Güvenlik/İtfaiye gibi birimlerde tek numara yetmiyor (13.08.2026,
-  // mockup'ta iki ayrı hat gösteriliyor) — opsiyonel ikinci hat, ilk numaranın
-  // yerini almaz, sadece ekstra bilgi satırı olarak gösterilir.
+  // Güvenlik/İtfaiye gibi birimlerde tek numara yetmiyor. Opsiyonel ikinci
+  // hat, ilk numaranın yerini almaz, sadece ekstra bilgi satırı olarak gösterilir.
   telefon2        String?  @map("telefon_2") @db.VarChar(30)
   eposta          String?  @db.VarChar(150)
   adres           String?
@@ -497,11 +483,9 @@ model Palet {
 }
 
 // ── 4.9 Bildirimler ─────────────────────────────────────────────────────
-// Faz 1'de "ileride eklenebilir" diye ertelenmişti (bkz. docs/isterler.md
-// Kapsam dışı), Cookzone'un "sipariş hazır" bildirimi ihtiyacıyla 07.08.2026'da
-// devreye alındı. Sadece Cookzone'a özel DEĞİL — Acil Durum/Duyurular da
-// ileride bu tabloyu kullanacak, bu yüzden kendi Cookzone bölümünde değil
-// ayrı bir bölümde.
+// Cookzone'un "sipariş hazır" bildirimi için eklendi, ama sadece Cookzone'a
+// özel değil. Acil Durum ve Duyurular da ileride bu tabloyu kullanacak, bu
+// yüzden kendi Cookzone bölümünde değil ayrı bir bölümde duruyor.
 
 enum CihazPlatformu {
   android

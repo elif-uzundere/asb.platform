@@ -3,17 +3,17 @@ import type { BildirimGonderPort } from '../../../shared/infrastructure/bildirim
 import type { KullaniciSorgulamaPort } from '../../auth/adapters/public/kullanici-sorgulama.port';
 
 /**
- * Saf TypeScript — is-ilanlari/acil-durum'daki aynı gerekçe. Bu modül daha
- * önce 2 katmandı (basit CRUD, `application` yoktu) — bildirim kuralı
+ * Saf TypeScript, is-ilanlari/acil-durum'daki aynı gerekçe. Bu modül daha
+ * önce 2 katmandı, basit CRUD, `application` yoktu. Bildirim kuralı
  * eklenince 3. katman gerekli hale geldi (docs/izlence'deki "katman derinliği
  * modüle göre değişir" ilkesi).
  *
- * TODO (18.08.2026, Berzan): Şu an "İK" diye ayrı bir kullanıcı rolü/hesabı
- * YOK — bilerek oluşturulmadı ("gerçek kullanıcıları girince yaparsın" dedi).
- * Bu yüzden bildirim geçici olarak `admin` rolündeki hesaplara gidiyor.
- * Gerçek İK ekibi hesapları tanımlanınca (muhtemelen acil-durum'daki ekip
- * rolleri gibi ayrı bir `ik_ekibi` rolü), aşağıdaki `'admin'` → `'ik_ekibi'`
- * olarak değiştirilmesi YETERLİ olacak — geri kalan akış aynı kalır.
+ * TODO: Şu an "İK" diye ayrı bir kullanıcı rolü/hesabı yok, bilerek
+ * oluşturulmadı. Gerçek kullanıcılar girince yapılacak. Bu yüzden bildirim
+ * geçici olarak `admin` rolündeki hesaplara gidiyor. Gerçek İK ekibi
+ * hesapları tanımlanınca (muhtemelen acil-durum'daki ekip rolleri gibi
+ * ayrı bir `ik_ekibi` rolü), aşağıdaki `'admin'` → `'ik_ekibi'` olarak
+ * değiştirilmesi yeterli olacak, geri kalan akış aynı kalır.
  */
 export class DestekTalebiService {
   constructor(

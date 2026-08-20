@@ -23,16 +23,15 @@ const DURUM_ETIKETI: Record<IsBasvurusuDurumGuncelleRequest['durum'], string> = 
 };
 
 /**
- * Saf TypeScript — NestJS decorator'ı YOK (mimari kural 2), firma.service.ts
- * ile aynı desen. `firmaSorgulama` firma modülünün public port'u: bu servis
+ * Saf TypeScript, NestJS decorator'ı yok (mimari kural 2), firma.service.ts
+ * ile aynı desen. `firmaSorgulama` firma modülünün public port'u. Bu servis
  * firma'nın domain/persistence katmanını hiç görmüyor, sadece bu dar
- * arayüzü (isOnayli/adiGetir) biliyor — mimari kural 3.
+ * arayüzü (isOnayli/adiGetir) biliyor, mimari kural 3.
  *
- * `bildirimGonder`: her modülün bildirim mantığı kendi service'inde kalır
- * (14.08.2026, Berzan'ın kararı — acil-durum.service.ts'teki aynı gerekçe).
- * Sadece transport (BildirimGonderPort) paylaşılıyor, "kime/ne zaman" kararı
- * burada: başvuru gelince ilanı açan kişiye, durum değişince başvuru
- * sahibine.
+ * `bildirimGonder`: her modülün bildirim mantığı kendi service'inde kalır,
+ * acil-durum.service.ts'teki aynı gerekçe. Sadece transport
+ * (BildirimGonderPort) paylaşılıyor, "kime/ne zaman" kararı burada:
+ * başvuru gelince ilanı açan kişiye, durum değişince başvuru sahibine.
  */
 export class IsIlaniService {
   constructor(
@@ -60,8 +59,8 @@ export class IsIlaniService {
     return this.firmaSorgulama.adiGetir(firmaId);
   }
 
-  /** "Kaç kişi favoriledi / kaç başvuru geldi" — 18.08.2026, Berzan'ın isteği.
-   * İkisi de sahiplik kontrolü GEREKTİRMEZ (sadece sayı, başvuran kimliği yok). */
+  /** "Kaç kişi favoriledi / kaç başvuru geldi" sayıları.
+   * İkisi de sahiplik kontrolü gerektirmez, sadece sayı dönüyor, başvuran kimliği yok. */
   async favoriSayisi(ilanId: string): Promise<number> {
     return this.favoriSorgulama.sayiGetir('is_ilani', ilanId);
   }
@@ -74,7 +73,7 @@ export class IsIlaniService {
 
   async olustur(firmaId: string, olusturanKullaniciId: string, dto: IsIlaniOlusturRequest): Promise<IsIlani> {
     // BR-2 burada uygulanıyor: onaylı olmayan firma ilan açamaz. Kural
-    // entity'de DEĞİL — çünkü firma onay durumunu bilmek için başka bir
+    // entity'de değil, çünkü firma onay durumunu bilmek için başka bir
     // modüle sormak gerekiyor, bu da application katmanının işi.
     const onayli = await this.firmaSorgulama.isOnayli(firmaId);
     if (!onayli) {

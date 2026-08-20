@@ -1,0 +1,66 @@
+# Canlı ortam — dev'deki docker-compose.yml'den (sadece Postgres) farkı:
+# backend'i de (Dockerfile'daki tek imaj — API + admin panel + Flutter Web)
+# içeriyor. Çalıştırmadan önce bu dosyayla aynı dizinde bir `.env` dosyası
+# oluştur (bkz. .env.prod.example), docker compose bunu otomatik okur.
+#
+# Kullanım: docker compose -f docker-compose.prod.yml up -d --build
+#
+# `name:` bilinçli olarak burada duruyor. Compose, proje adını
+# (container/volume isimlerinin öneki) varsayılan olarak dizin adından
+# türetir. Dizin adı dev'deki docker-compose.yml ile aynı olduğu için
+# (ikisi de proje kökünde), `name:` olmasaydı ikisi de aynı container ve
+# volume isimlerini paylaşırdı. Bu gerçekten yaşandı: prod stack'i ayağa
+# kaldırınca dev'in Postgres container'ı yeniden oluşturuldu. Veri kaybı
+# olmadı çünkü volume korundu ve yanlış parola yüzünden bağlantı reddedildi,
+# ama şans eseriydi. `name:` ile prod artık tamamen ayrı container/volume
+# isimleri kullanıyor, dev ortamına dokunamaz.
+name: asb-platform-prod
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-asb}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD .env'de tanımlı olmalı}
+      POSTGRES_DB: ${POSTGRES_DB:-asb_platform}
+    volumes:
+      - asb_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-asb} -d ${POSTGRES_DB:-asb_platform}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    # Dikkat: dev'deki docker-compose.yml'in aksine dışarıya port açılmıyor.
+    # Veritabanına sadece backend container'ı (aynı Docker ağı üzerinden,
+    # `postgres` host adıyla) erişebilir, host makineden değil.
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-asb}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-asb_platform}?schema=public"
+      PORT: 3000
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET .env'de tanımlı olmalı}
+      ADMIN_PANEL_SECRET: ${ADMIN_PANEL_SECRET:?ADMIN_PANEL_SECRET .env'de tanımlı olmalı (en az 32 karakter)}
+      EMAIL_HOST: ${EMAIL_HOST}
+      EMAIL_PORT: ${EMAIL_PORT}
+      EMAIL_USER: ${EMAIL_USER}
+      EMAIL_PASS: ${EMAIL_PASS}
+      GOOGLE_CLIENT_ID_WEB: ${GOOGLE_CLIENT_ID_WEB}
+      GOOGLE_CLIENT_ID_ANDROID: ${GOOGLE_CLIENT_ID_ANDROID}
+    ports:
+      - "3000:3000"
+    volumes:
+      # `LocalFileStorageAdapter`ın yazdığı dosyalar (İkinci El fotoğrafları,
+      # CV'ler, palet görselleri vb.) container yeniden başlasa da yeniden
+      # build edilse de kalıcı kalsın diye.
+      - asb_uploads:/app/packages/backend/uploads
+
+volumes:
+  asb_postgres_data:
+  asb_uploads:

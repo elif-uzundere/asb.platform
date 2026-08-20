@@ -39,9 +39,9 @@ export interface KullaniciOzet {
   /** Sadece rol = cookzone_yetkilisi olan hesaplarda dolu. */
   cookzoneIsletmeId: string | null;
   epostaDogrulandi: boolean;
-  /** `rol`e admin panelinden (RolYetki) tanımlı yetki kodları — 18.08.2026,
-   * Berzan'ın isteği: uygulama "kim yapabilir" kararını sabit rol
-   * kontrolüyle değil bu listeyle vermeli (ör. İkinci El ilan girme). */
+  /** `rol`e admin panelinden (RolYetki) tanımlı yetki kodları. Uygulama
+   * "kim yapabilir" kararını sabit rol kontrolüyle değil bu listeyle
+   * vermeli (ör. İkinci El ilan girme). */
   yetkiler: YetkiKodu[];
 }
 

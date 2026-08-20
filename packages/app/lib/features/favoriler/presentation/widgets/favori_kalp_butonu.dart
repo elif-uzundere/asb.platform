@@ -1,5 +1,5 @@
 // İkinci El/Firma/İş İlanı kartlarında/detaylarında kullanılan ortak "kalp"
-// butonu — üç yerde de aynı görünüm/davranış (18.08.2026, Berzan'ın isteği).
+// butonu. Üç yerde de aynı görünüm/davranış.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

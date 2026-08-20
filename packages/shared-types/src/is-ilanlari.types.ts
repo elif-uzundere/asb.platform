@@ -11,8 +11,8 @@ export interface IsIlaniResponse {
   konum: string | null;
   yayinTarihi: string;
   durum: IsIlaniDurumu;
-  /** Kaç kişi favoriledi / kaç başvuru geldi — 18.08.2026, Berzan'ın isteği
-   * ("iş ilanı açan kaç kişi favori yapmış kaç başvuru gelmiş görebilsin"). */
+  /** Kaç kişi favoriledi / kaç başvuru geldi. İş ilanı açan, kaç kişi
+   * favori yapmış kaç başvuru gelmiş görebilsin diye. */
   favoriSayisi: number;
   basvuruSayisi: number;
 }
@@ -23,7 +23,7 @@ export interface IsIlaniListeRequest {
 }
 
 /**
- * `firmaId` ve `durum` BURADA YOK — firma yetkilisinin ilanı yayınladığı
+ * `firmaId` ve `durum` burada yok. Firma yetkilisinin ilanı yayınladığı
  * firma token'dan (`AktifKullanici.firmaId`) geliyor, `durum` her zaman
  * `aktif` başlıyor. İkisi de FirmaOlusturRequest'teki `onayDurumu` yokluğuyla
  * aynı gerekçeye dayanıyor: istemcinin karar veremeyeceği alanlar DTO'da yer

@@ -1,6 +1,6 @@
-// İkinci El ilanı / Firma / İş İlanı — üçü için TEK ortak favori API'si
-// (18.08.2026, Berzan'ın isteği — backend de tek `favori` tablosu kullanıyor,
-// bkz. packages/backend/src/modules/favori).
+// İkinci El ilanı / Firma / İş İlanı, üçü için tek ortak favori API'si.
+// Backend de tek `favori` tablosu kullanıyor, bkz.
+// packages/backend/src/modules/favori.
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

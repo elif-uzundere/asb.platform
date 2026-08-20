@@ -30,8 +30,8 @@ import { YETKILER } from '@asb/shared-types';
 import { ApiResponseDto } from '../../../../shared/web/api-response.dto';
 import { FILE_STORAGE_PORT, FileStoragePort } from '../../../../shared/infrastructure/file-storage/file-storage.port';
 
-// En az 1, en fazla 10 fotoğraf ("sahibinden gibi" — 18.08.2026, Berzan'ın
-// isteği). Palet Tesisi'ndeki tek-dosya doğrulamasıyla aynı boyut/tip kuralı.
+// En az 1, en fazla 10 fotoğraf ("sahibinden gibi"). Palet Tesisi'ndeki
+// tek-dosya doğrulamasıyla aynı boyut/tip kuralı.
 const FOTOGRAF_DOGRULAMA = new ParseFilePipe({
   validators: [
     new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024, message: 'Her fotoğraf en fazla 5 MB olabilir' }),

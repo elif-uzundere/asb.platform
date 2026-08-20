@@ -768,9 +768,9 @@ class _IkinciElIlanlariEkraniDurumu
     final authDurumu = ref.watch(authProvider);
     final kullanici = authDurumu.kullanici;
 
-    // Sabit rol kontrolü DEĞİL — admin panelinden RolYetki'ye kim
-    // eklenirse (rolü ne olursa olsun) o ilan girebilir (18.08.2026,
-    // Berzan'ın isteği: "firma yetkilisi diye bir isim olmayacak").
+    // Sabit rol kontrolü değil, admin panelinden RolYetki'ye kim
+    // eklenirse (rolü ne olursa olsun) o ilan girebilir. Sabit bir
+    // "firma yetkilisi" ismi yok.
     final ilanEkleyebilir = kullanici?.yetkisiVar('ikinci_el_yonet') ?? false;
 
     final ilanlarAsync =

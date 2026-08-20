@@ -1,9 +1,9 @@
-// Saf Dart — flutter/dio/riverpod import ETMEZ (mimari kural 9).
+// Saf Dart, flutter/dio/riverpod import etmez (mimari kural 9).
 //
 // "Öne Çıkanlar" bölümü artık sadece duyurulardan değil, admin panelinden
-// "öne çıkan" işaretlenmiş İkinci El ilanlarından da besleniyor
-// (18.08.2026, Berzan'ın isteği) — iki farklı kaynağı tek bir ortak
-// görünüm modeline indirgiyor ki widget kaynak ayrımıyla uğraşmasın.
+// "öne çıkan" işaretlenmiş İkinci El ilanlarından da besleniyor. İki farklı
+// kaynağı tek bir ortak görünüm modeline indirgiyor ki widget kaynak
+// ayrımıyla uğraşmasın.
 
 enum OneCikanTuru { duyuru, ikinciEl }
 

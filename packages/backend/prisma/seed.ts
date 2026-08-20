@@ -58,10 +58,10 @@ async function rolYetkileriniYaz() {
       create: { rol, yetki: 'ikinci_el_yonet' },
     });
   }
-  // Aynı desen İş İlanları/Cookzone/Palet Tesisi'ne de yayıldı (18.08.2026)
-  // — eskiden @Roller('firma_yetkilisi')/@Roller('cookzone_yetkilisi')/
-  // @Roller('palet_tesisi_yetkilisi') ile sabitti, davranış aynı kalsın diye
-  // aynı roller RolYetki'ye taşındı; admin panelinden değiştirilebilir.
+  // Aynı desen İş İlanları/Cookzone/Palet Tesisi'ne de yayıldı. Eskiden
+  // @Roller('firma_yetkilisi')/@Roller('cookzone_yetkilisi')/
+  // @Roller('palet_tesisi_yetkilisi') ile sabitti. Davranış aynı kalsın diye
+  // aynı roller RolYetki'ye taşındı, admin panelinden değiştirilebilir.
   const varsayilanEslemeler: { rol: 'firma_yetkilisi' | 'cookzone_yetkilisi' | 'palet_tesisi_yetkilisi'; yetki: 'is_ilani_yonet' | 'cookzone_yonet' | 'palet_tesisi_yonet' }[] = [
     { rol: 'firma_yetkilisi', yetki: 'is_ilani_yonet' },
     { rol: 'cookzone_yetkilisi', yetki: 'cookzone_yonet' },
@@ -151,7 +151,7 @@ async function firmalariYaz() {
       personelSayisi: 60,
     },
     {
-      // Onay bekleyen — listede GÖRÜNMEMELİ, filtre testi için
+      // Onay bekleyen — listede görünmemeli, filtre testi için
       ad: 'Yeni Nesil Teknoloji A.Ş.',
       sektor: 'Teknoloji',
       adres: 'Serbest Bölge, 4. Cadde No:9',
@@ -163,10 +163,10 @@ async function firmalariYaz() {
       personelSayisi: 15,
     },
     {
-      // Reddedilmiş — listede GÖRÜNMEMELİ, filtre testi için. Yeni alanlar
-      // BİLEREK boş bırakıldı — UI'ın eksik veriyle de doğru çalıştığını
-      // (bkz. firma_detay_ekrani.dart'taki `if (firma.webAdres != null)` gibi
-      // koşullu bloklar) test edebilecek tek kayıt bu.
+      // Reddedilmiş — listede görünmemeli, filtre testi için. Yeni alanlar
+      // bilerek boş bırakıldı. UI'ın eksik veriyle de doğru çalıştığını
+      // test edebilecek tek kayıt bu (bkz. firma_detay_ekrani.dart'taki
+      // `if (firma.webAdres != null)` gibi koşullu bloklar).
       ad: 'Test Reddedilen Firma Ltd. Şti.',
       sektor: 'Diğer',
       adres: 'Serbest Bölge, 9. Cadde No:1',
@@ -555,11 +555,11 @@ async function paletTesisiYetkilisiYaz() {
 
 /**
  * Ana Sayfa → "Dış Tedarikçi ve Hizmetler" bölümü. Diğer seed verilerinden
- * FARKLI olarak bunlar UYDURMA değil — Berzan'ın 13.08.2026'da gönderdiği
- * gerçek logo dosyaları. Dosyalar `prisma/seed-assets/is-ortaklari/` altında
- * git'e giriyor (uploads/ .gitignore'lu olduğu için orada tutulamazlar),
- * her seed çalıştığında `uploads/`'a kopyalanıp LocalFileStorageAdapter'ın
- * ürettiği URL biçimiyle (`/uploads/<dosya>`) kaydediliyor.
+ * farklı olarak bunlar uydurma değil, gerçek logo dosyaları. Dosyalar
+ * `prisma/seed-assets/is-ortaklari/` altında git'e giriyor çünkü uploads/
+ * .gitignore'lu, orada tutulamazlar. Her seed çalıştığında `uploads/`'a
+ * kopyalanıp LocalFileStorageAdapter'ın ürettiği URL biçimiyle
+ * (`/uploads/<dosya>`) kaydediliyor.
  */
 async function isOrtaklariniYaz() {
   const ortaklar = [
@@ -588,12 +588,12 @@ async function isOrtaklariniYaz() {
 }
 
 /**
- * Acil Durum ana ekranındaki 6 birim (13.08.2026, Berzan'ın paylaştığı
- * mockup). Telefon numaraları mockup'ta da açıkça "örnek olarak verilmiştir"
- * diye not düşülmüş — ASB gerçek numaraları bildirdiğinde burada
- * güncellenecek, upsert olduğu için tek satır değişikliği yeterli olacak.
- * `tur` @unique olduğu için upsert — deleteMany/createMany yerine, çünkü
- * bu birimler AcilDurumBildirimi'nden FK ile referans alınabilir (bolgeNoktasi
+ * Acil Durum ana ekranındaki 6 birim, mockup'tan geliyor. Telefon numaraları
+ * mockup'ta da açıkça "örnek olarak verilmiştir" diye not düşülmüş. ASB
+ * gerçek numaraları bildirdiğinde burada güncellenecek. Upsert olduğu için
+ * tek satır değişikliği yeterli olacak.
+ * `tur` @unique olduğu için deleteMany/createMany yerine upsert kullanıldı.
+ * Bu birimler AcilDurumBildirimi'nden FK ile referans alınabilir (bolgeNoktasi
  * gibi değil ama ileride alınabilir), silip yeniden yaratmak riskli olurdu.
  */
 async function acilDurumBilgileriniYaz() {
@@ -609,9 +609,9 @@ async function acilDurumBilgileriniYaz() {
     },
     {
       tur: 'itfaiye',
-      // '112' bilerek burada YOK — evrensel/sabit bir numara, uygulama
-      // tarafında donanımsal bir sabit olarak tutuluyor (birim_detay_ekrani.dart),
-      // burada sadece birimin DOĞRUDAN hattı var.
+      // '112' bilerek burada yok. Evrensel/sabit bir numara, uygulama
+      // tarafında sabit değer olarak tutuluyor (birim_detay_ekrani.dart).
+      // Burada sadece birimin doğrudan hattı var.
       telefon: '0282 676 12 10',
       telefon2: null,
       eposta: null,
@@ -668,9 +668,8 @@ async function acilDurumBilgileriniYaz() {
 }
 
 /**
- * Toplanma Alanları listesi. Koordinatlar (enlem/boylam) BİLEREK 0,0 —
- * gerçek konum entegrasyonu bu iş kapsamının dışında bırakıldı
- * (13.08.2026, Berzan: "konum hariç kalanını yap, konum şu anlık kalsın"),
+ * Toplanma Alanları listesi. Koordinatlar (enlem/boylam) bilerek 0,0.
+ * Gerçek konum entegrasyonu bu iş kapsamının dışında bırakıldı.
  * "Haritada Göster" butonu yine de çalışır ama gerçek olmayan bir noktaya
  * gider. Gerçek koordinatlar netleşince tek satırlık bir güncelleme yeterli.
  */
@@ -688,9 +687,9 @@ async function toplanmaAlanlariniYaz() {
 }
 
 /**
- * Acil Durum bildirimlerinin yönlendirildiği 6 ekip hesabı (14.08.2026).
+ * Acil Durum bildirimlerinin yönlendirildiği 6 ekip hesabı.
  * `tekin_isg_ekibi` (dış/anlaşmalı sağlık-güvenlik firması) ile
- * `sirket_isg_ekibi` (ASB'nin kendi iç İSG ekibi) BİLEREK ayrı hesaplar.
+ * `sirket_isg_ekibi` (ASB'nin kendi iç İSG ekibi) bilerek ayrı hesaplar.
  */
 async function acilDurumEkipleriniYaz() {
   const sifreHash = await bcrypt.hash(SEED_SIFRE, 10);

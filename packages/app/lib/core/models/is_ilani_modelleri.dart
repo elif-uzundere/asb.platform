@@ -60,8 +60,8 @@ class IsIlaniResponse {
   final DateTime yayinTarihi;
   final IsIlaniDurumu durum;
 
-  /// Kaç kişi favoriledi / kaç başvuru geldi — 18.08.2026, Berzan'ın isteği
-  /// ("iş ilanı açan kaç kişi favori yapmış kaç başvuru gelmiş görebilsin").
+  /// Kaç kişi favoriledi / kaç başvuru geldi. İş ilanı açan, kaç kişi
+  /// favori yapmış kaç başvuru gelmiş görebilsin diye.
   final int favoriSayisi;
   final int basvuruSayisi;
 

@@ -1,7 +1,7 @@
-// Kullanıcının bir acil durumu bildirmesi (BR-5: konum toplanmıyor — harita
-// modülü kapsam dışı — bu yüzden açıklama zorunlu). Bildirimler AdminJS
+// Kullanıcının bir acil durumu bildirmesi. BR-5: konum toplanmıyor, harita
+// modülü kapsam dışı, bu yüzden açıklama zorunlu. Bildirimler AdminJS
 // panelinden (admin) incelenip kapatılıyor, ayrı bir "yetkili" rolü/ekranı
-// YOK (13.08.2026, Berzan'ın kararı — izlencede böyle bir rol planlanmamıştı).
+// yok, izlencede böyle bir rol planlanmamıştı.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

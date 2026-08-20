@@ -24,19 +24,18 @@ import { FirmaListeDto } from './firma-liste.dto';
 import { FirmaOlusturDto } from './firma-olustur.dto';
 
 @ApiTags('firma')
-// `@UseGuards` gerçek korumayı sağlar (401/403); `@ApiBearerAuth()` ise SADECE
-// Swagger dokümantasyonu için — bu olmadan endpoint gerçekte korumalı kalır
-// ama Swagger UI "bu endpoint token ister" bilmediği için Authorize'daki
+// `@UseGuards` gerçek korumayı sağlar (401/403). `@ApiBearerAuth()` ise
+// sadece Swagger dokümantasyonu için. Bu olmadan endpoint gerçekte korumalı
+// kalır ama Swagger UI "bu endpoint token ister" bilmediği için Authorize'daki
 // token'ı isteğe hiç eklemez, kilit ikonu da görünmez. İkisi ayrı şeyler:
 // biri çalışma zamanı güvenliği, diğeri sadece dokümantasyon/test kolaylığı.
 @ApiBearerAuth()
-// BİLEREK controller seviyesinde guard YOK — katalog modeli (05.08.2026,
-// Berzan'ın kararı): bir ziyaretçi giriş yapmadan firmaları görebilmeli.
-// Guard sadece state değiştiren/kişiye-özel metotlarda tek tek yazılı
-// (bkz. docs/YENI-MODUL-REHBERI.md "Okuma AÇIK, yazma KORUMALI"). Bu
-// controller'da class-level guard vardı, GET'leri de kilitliyordu — bu
-// hata canlı testte bulunup düzeltildi, bir daha tekrarlanmasın diye
-// rehbere not düşüldü.
+// Bilerek controller seviyesinde guard yok. Katalog modeli bu: bir ziyaretçi
+// giriş yapmadan firmaları görebilmeli. Guard sadece state değiştiren/
+// kişiye-özel metotlarda tek tek yazılı (bkz. docs/YENI-MODUL-REHBERI.md
+// "Okuma açık, yazma korumalı"). Bu controller'da eskiden class-level guard
+// vardı, GET'leri de kilitliyordu. Bu hata canlı testte bulunup düzeltildi,
+// bir daha tekrarlanmasın diye rehbere not düşüldü.
 @Controller('firmalar')
 export class FirmaController {
   constructor(@Inject(FIRMA_SERVICE) private readonly firmaService: FirmaService) {}

@@ -1,7 +1,8 @@
-// `.env`'i process.env'e AÇIKÇA yükler — önceden bu örtük olarak Prisma
-// Client'ın kendi iç dotenv yüklemesine dayanıyordu (belgelenmemiş bir yan
-// etki). Bu satır aynı sonucu güvenilir/görünür şekilde garanti eder.
+// `.env`'i process.env'e açıkça yükler. Önceden bu örtük olarak Prisma
+// Client'ın kendi iç dotenv yüklemesine dayanıyordu, belgelenmemiş bir yan
+// etkiydi. Bu satır aynı sonucu güvenilir ve görünür şekilde garanti eder.
 import 'dotenv/config';
+import { existsSync } from 'fs';
 import { join } from 'path';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -15,13 +16,26 @@ async function bootstrap() {
   app.enableCors({ origin: true });
 
   // `LocalFileStorageAdapter` dosyaları `uploads/` altına yazıp `/uploads/...`
-  // URL'i dönüyordu ama bunu HTTP üzerinden servis eden bir şey yoktu — CV
-  // yükleme özelliğiyle (12.08.2026) ilk gerçek tüketici geldi, bu yüzden
-  // eklendi. `setGlobalPrefix('api')` bunu etkilemiyor çünkü statik dosyalar
+  // URL'i dönüyordu ama bunu HTTP üzerinden servis eden bir şey yoktu. CV
+  // yükleme özelliğiyle ilk gerçek tüketici geldi, bu yüzden eklendi.
+  // `setGlobalPrefix('api')` bunu etkilemiyor çünkü statik dosyalar
   // controller route'u değil, ayrı bir express middleware.
   app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads/' });
 
-app.setGlobalPrefix('api');
+  // Flutter Web build çıktısı sadece prod Docker imajında var (bkz.
+  // Dockerfile'ın 3. aşaması, `web/` klasörüne kopyalanıyor). Geliştirme
+  // ortamında (yerel `npm run start:dev`) bu klasör hiç yok. O yüzden
+  // `existsSync` ile korunuyor. Yoksa Nest boş bir statik kök için hata
+  // vermez ama gereksiz bir middleware eklemekten kaçınılmış olur. Prefiks
+  // yok, uploads'tan farkı bu. Çünkü Flutter uygulaması hash routing
+  // kullanıyor (`/#/giris` gibi). Sunucu tarafında bir yönlendirme/catch-all
+  // rotasına gerek yok, `index.html` her zaman `/`de.
+  const webDizini = join(process.cwd(), 'web');
+  if (existsSync(webDizini)) {
+    app.useStaticAssets(webDizini, { index: 'index.html' });
+  }
+
+  app.setGlobalPrefix('api');
 
   app.enableVersioning({
     type: VersioningType.URI,

@@ -59,11 +59,11 @@ export class YetkiGuard implements CanActivate {
       throw new ForbiddenException('Bu işlem için yetkiniz bulunmuyor.');
     }
 
-    // `JwtAuthGuard`ın doldurduğu ile AYNI şekil (`request.kullanici`) —
-    // böylece `@AktifKullaniciBilgisi()` hangi guard'ın çalıştığını
-    // bilmeden çalışır, controller kodu değişmeden yeni bir modül
-    // `YetkiGuard`a geçebilir (18.08.2026, Berzan'ın isteği: gelecekteki
-    // modüller için tek/tutarlı bir tarif).
+    // `JwtAuthGuard`ın doldurduğu ile aynı şekil (`request.kullanici`).
+    // Böylece `@AktifKullaniciBilgisi()` hangi guard'ın çalıştığını
+    // bilmeden çalışır. Controller kodu değişmeden yeni bir modül
+    // `YetkiGuard`a geçebilir. Gelecekteki modüller için tek/tutarlı
+    // bir tarif bu.
     istek.kullanici = {
       id: payload.sub,
       email: payload.email,

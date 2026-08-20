@@ -14,8 +14,8 @@ import { KULLANICI_SORGULAMA_PORT } from '../../../auth/auth.tokens';
 import { AcilDurumBildirimiOlusturDto } from './acil-durum-bildirimi-olustur.dto';
 import { AcilDurumBildirimDurumGuncelleDto } from './acil-durum-bildirim-durum-guncelle.dto';
 
-// Ekip rollerini tek yerde toplamak — 6 rolü her @Roller() çağrısında elle
-// yazmak yerine (14.08.2026).
+// Ekip rollerini tek yerde topluyor, 6 rolü her @Roller() çağrısında elle
+// yazmamak için.
 const ACIL_DURUM_EKIP_ROLLERI = [
   'itfaiye_ekibi',
   'guvenlik_ekibi',
@@ -77,8 +77,9 @@ export class AcilDurumController {
   /**
    * Ekip görünümü — girişteki hesabın rolüne (itfaiye_ekibi, guvenlik_ekibi,
    * tekin_isg_ekibi, kantar_ekibi, gumruk_ekibi, sirket_isg_ekibi) karşılık
-   * gelen türün TÜM bildirimleri. `/bildirimler`'den ÖNCE değil, farklı bir
-   * literal segment ('ekip/...') olduğu için çakışma riski yok.
+   * gelen türün tüm bildirimleri. `/bildirimler`'den önce tanımlı olması
+   * gerekmiyor, farklı bir literal segment ('ekip/...') olduğu için çakışma
+   * riski yok.
    */
   @Get('ekip/bildirimler')
   @UseGuards(JwtAuthGuard, RollerGuard)

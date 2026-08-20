@@ -1,8 +1,8 @@
 // US-003 kabul kriteri: "Öne Çıkanlar bölümü en güncel 4 duyuru/haberi
-// tarih + başlık ile listeler". 18.08.2026'da Berzan'ın isteğiyle genişledi:
-// admin panelinden "öne çıkan" işaretlenmiş İkinci El ilanları da bu listeye
-// karışıyor (bkz. one_cikanlar_durumu.dart — birleştirme orada yapılıyor,
-// bu widget sadece gösterim).
+// tarih + başlık ile listeler". Sonradan genişledi: admin panelinden
+// "öne çıkan" işaretlenmiş İkinci El ilanları da bu listeye karışıyor
+// (bkz. one_cikanlar_durumu.dart, birleştirme orada yapılıyor, bu widget
+// sadece gösterim).
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

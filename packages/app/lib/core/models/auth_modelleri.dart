@@ -1,9 +1,9 @@
 // Kaynak: packages/shared-types/src/auth.types.ts
 //
-// packages/shared-types bir TypeScript paketi ve Dart'tan import edilemiyor;
-// bu yüzden tipler burada EL İLE yansıtılıyor (manuel mirror).
+// packages/shared-types bir TypeScript paketi ve Dart'tan import edilemiyor.
+// Bu yüzden tipler burada el ile yansıtılıyor (manuel mirror).
 // TS tarafı değişirse bu dosya da aynı PR'da güncellenmeli.
-// Karar kaydı: docs/CLAUDE.md → "Alınan Kararlar", 27.07.2026.
+// Karar kaydı: docs/CLAUDE.md → "Alınan Kararlar".
 
 /// TS: `export type KullaniciRolu = 'ziyaretci' | 'firma_calisani' | ...`
 enum KullaniciRolu {
@@ -107,10 +107,10 @@ class KullaniciOzet {
   final String? cookzoneIsletmeId;
   final bool epostaDogrulandi;
 
-  /// `rol`e admin panelinden (RolYetki) tanımlı yetki kodları — 18.08.2026,
-  /// Berzan'ın isteği: "kim yapabilir" kararı sabit rol kontrolü yerine bu
-  /// listeye bakılarak verilmeli (ör. İkinci El ilan girme). Sadece bir
-  /// sonraki girişte tazelenir — `rol` değişikliğiyle aynı staleness kuralı.
+  /// `rol`e admin panelinden (RolYetki) tanımlı yetki kodları. "Kim
+  /// yapabilir" kararı sabit rol kontrolü yerine bu listeye bakılarak
+  /// verilmeli (ör. İkinci El ilan girme). Sadece bir sonraki girişte
+  /// tazelenir, `rol` değişikliğiyle aynı staleness kuralı.
   final List<String> yetkiler;
 
   String get tamAd => '$ad $soyad';

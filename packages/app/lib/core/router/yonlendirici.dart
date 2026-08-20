@@ -71,11 +71,10 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
     observers: [routeGozlemci],
 
     redirect: (context, state) {
-      // cookzone_yonet yetkisi olan biri sipariş VEREN ekranı hiç
-      // görmemeli — ayrı bir yönetim akışı düşünülmüştü (11.08.2026,
-      // Berzan'ın düzeltmesi). Sabit rol kontrolü DEĞİL, admin panelinden
-      // atanan yetkiye bakılıyor (18.08.2026, aynı gerekçe: "firma
-      // yetkilisi diye bir isim olmayacak, yetkinlik verdikçe yapabilecek").
+      // cookzone_yonet yetkisi olan biri sipariş veren ekranı hiç
+      // görmemeli, ayrı bir yönetim akışı var. Sabit rol kontrolü değil,
+      // admin panelinden atanan yetkiye bakılıyor. Firma yetkilisi diye
+      // sabit bir isim yok, yetki verildikçe yapılabiliyor.
       // Yönlendirme kararı tek yerde (router) toplanıyor, ekranlar kendi
       // içinde tekrar yetki kontrolü yapmıyor.
       final kullanici = ref.read(authProvider).kullanici;
@@ -83,14 +82,14 @@ final yonlendiriciProvider = Provider<GoRouter>((ref) {
         return '/cookzone/yonetim';
       }
       // palet_tesisi_yonet de aynı gerekçeyle (cookzone_yonet'in yukarıdaki
-      // yönlendirmesiyle aynı, 12.08.2026) müşteri ekranını değil doğrudan
-      // yönetim ekranını görmeli.
+      // yönlendirmesiyle aynı) müşteri ekranını değil doğrudan yönetim
+      // ekranını görmeli.
       if (state.matchedLocation == '/palet-tesisi' && (kullanici?.yetkisiVar('palet_tesisi_yonet') ?? false)) {
         return '/palet-tesisi/yonetim';
       }
       // 6 acil durum ekip rolünden biri (itfaiye/güvenlik/tekin İSG/kantar/
       // gümrük/şirket İSG) Acil Durum'a girince bildirme ekranını değil,
-      // kendi ekibine gelen bildirimleri görmeli (14.08.2026, aynı gerekçe).
+      // kendi ekibine gelen bildirimleri görmeli, aynı gerekçe.
       const acilDurumEkipRolleri = {
         KullaniciRolu.itfaiyeEkibi,
         KullaniciRolu.guvenlikEkibi,

@@ -1,0 +1,22 @@
+# Build context'e taşınmaması gerekenler — hem imaj boyutu hem güvenlik için
+# (özellikle .env: sırlar asla imaj katmanına gömülmemeli, docker-compose'da
+# runtime'da environment değişkeni olarak veriliyor).
+node_modules
+**/node_modules
+**/dist
+**/build
+packages/backend/uploads
+
+packages/app/.dart_tool
+packages/app/build
+packages/app/android
+packages/app/ios
+packages/app/windows
+packages/app/macos
+packages/app/linux
+packages/app/ios/Flutter/ephemeral
+
+.git
+*.log
+.env
+**/.env

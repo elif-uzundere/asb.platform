@@ -11,8 +11,8 @@ export interface AcilDurumBildirimi {
   olusturmaTarihi: Date;
 }
 
-/** `POST /acil-durum/bildirimler` gövdesi — konum BİLEREK yok (13.08.2026,
- * harita/navigasyon modülü bu kapsamın dışında bırakıldı). */
+/** `POST /acil-durum/bildirimler` gövdesi. Konum bilerek yok, harita/navigasyon
+ * modülü bu kapsamın dışında bırakıldı. */
 export interface AcilDurumBildirimiOlusturVerisi {
   kullaniciId: string;
   tur: AcilDurumTuru;

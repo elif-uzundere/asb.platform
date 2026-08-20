@@ -4,10 +4,10 @@ import type { PrismaService } from '../shared/infrastructure/prisma.service';
 import type { FileStoragePort } from '../shared/infrastructure/file-storage/file-storage.port';
 
 // `@adminjs/prisma` saf ESM paket, bu proje CommonJS derlendiği için üstte
-// `import { getModelByName } from '@adminjs/prisma'` YAZILAMAZ — derleme
-// `require()`e çevirir ve `ERR_REQUIRE_ESM` ile çöker. Fonksiyon dışarıdan
-// (admin-panel.module.ts'teki dinamik `import()`den) parametre olarak
-// geliyor — bkz. o dosyadaki not.
+// `import { getModelByName } from '@adminjs/prisma'` yazılamaz. Derleme
+// bunu `require()`e çevirir ve `ERR_REQUIRE_ESM` ile çöker. Fonksiyon
+// dışarıdan (admin-panel.module.ts'teki dinamik `import()`den) parametre
+// olarak geliyor, bkz. o dosyadaki not.
 type GetModelByName = (name: string) => unknown;
 
 // formidable v1 (express-formidable'ın bağımlılığı) dosya şekli — tip
@@ -20,16 +20,16 @@ interface FormidableDosya {
 }
 
 /**
- * AdminJS'in yönetebileceği kaynaklar. 18.08.2026'da Berzan'ın isteğiyle
- * genişletildi: "admin her şeye yetkinse admin panelinde her şey olmak
- * zorunda" — önceden sadece kendi API'leri üzerinden yönetilen İş Ortağı,
- * Palet, İkinci El Pazar ve rol-yetki eşleşmeleri de artık burada, TAM CRUD
- * (Cookzone/Acil Durum/Palet Tesisi'nin uygulama içi kendi yönetim ekranları
- * ayrıca duruyor — bunlar birbirini DIŞLAMIYOR, admin ikisinden de erişebilir).
+ * AdminJS'in yönetebileceği kaynaklar. Admin her şeye yetkiliyse admin
+ * panelinde de her şey olmalı. Önceden sadece kendi API'leri üzerinden
+ * yönetilen İş Ortağı, Palet, İkinci El Pazar ve rol-yetki eşleşmeleri
+ * artık burada, tam CRUD ile. Cookzone/Acil Durum/Palet Tesisi'nin uygulama
+ * içi kendi yönetim ekranları ayrıca duruyor. Bunlar birbirini dışlamıyor,
+ * admin ikisinden de erişebilir.
  *
  * Görsel/logo alanları (Firma.logoUrl, Banner.gorselUrl, IsOrtagi.logoUrl,
- * Palet.gorselUrl) artık düz URL metin kutusu DEĞİL — `gorselYuklemeAksiyonu`
- * ile gerçek dosya yükleme (bkz. admin-components/gorsel-yukleme-formu.jsx).
+ * Palet.gorselUrl) artık düz URL metin kutusu değil. `gorselYuklemeAksiyonu`
+ * ile gerçek dosya yükleme yapılıyor (bkz. admin-components/gorsel-yukleme-formu.jsx).
  */
 export function adminKaynaklariniOlustur(
   prisma: PrismaService,
@@ -100,11 +100,11 @@ function kullaniciKaynagi(prisma: PrismaService, getModelByName: GetModelByName)
       id: 'Kullanici',
       navigation: { name: 'Kullanıcı Yönetimi', icon: 'Users' },
       titleProperty: 'email',
-      // DİKKAT: Prisma DMMF, bir ilişkiyi taşıyan skaler FK alanını (`firmaId`)
+      // Dikkat: Prisma DMMF, bir ilişkiyi taşıyan skaler FK alanını (`firmaId`)
       // `isReadOnly: true` işaretleyip @adminjs/prisma'nın özellik listesinden
-      // tamamen düşürüyor — AdminJS'in gördüğü gerçek alan adı ilişkinin
-      // kendisi (`firma`), `firmaId` DEĞİL. Yanlış adı kullanmak sessizce
-      // hiçbir şey yapmıyor (filtre/gösterim boş kalıyor, hata da vermiyor).
+      // tamamen düşürüyor. AdminJS'in gördüğü gerçek alan adı ilişkinin
+      // kendisi (`firma`), `firmaId` değil. Yanlış adı kullanmak sessizce
+      // hiçbir şey yapmıyor, filtre/gösterim boş kalıyor, hata da vermiyor.
       listProperties: ['email', 'ad', 'soyad', 'rol', 'firma', 'epostaDogrulandi'],
       editProperties: ['email', 'ad', 'soyad', 'telefon', 'rol', 'firma', 'epostaDogrulandi'],
       showProperties: [
@@ -132,9 +132,9 @@ function kullaniciKaynagi(prisma: PrismaService, getModelByName: GetModelByName)
 
 /**
  * `KullaniciRolu`ya hangi `Yetki`nin (ör. ikinci_el_yonet) tanımlı olduğunu
- * yönetir — "departman" diye ayrı bir varlık YOK (18.08.2026, Berzan'ın
- * kararı), sadece mevcut rollere ince taneli izin ekleme/çıkarma. Yeni bir
- * role yeni bir izin vermek istendiğinde admin buradan yeni bir satır ekler.
+ * yönetir. "Departman" diye ayrı bir varlık yok, sadece mevcut rollere ince
+ * taneli izin ekleme/çıkarma. Yeni bir role yeni bir izin vermek
+ * istendiğinde admin buradan yeni bir satır ekler.
  */
 function rolYetkiKaynagi(prisma: PrismaService, getModelByName: GetModelByName): ResourceWithOptions {
   return {
@@ -268,8 +268,9 @@ function duyuruKaynagi(prisma: PrismaService, getModelByName: GetModelByName): R
       sort: { sortBy: 'yayinTarihi', direction: 'desc' },
       listProperties: ['baslik', 'kategori', 'yayinTarihi'],
       editProperties: ['baslik', 'icerik', 'kategori', 'yayinTarihi'],
-      // `olusturanKullaniciId` DEĞİL `olusturanKullanici` — bkz. kullaniciKaynagi'ndaki not
-      // (Prisma DMMF ilişkiyi taşıyan FK skalerini read-only sayıp gizliyor).
+      // `olusturanKullaniciId` değil `olusturanKullanici` kullanılıyor, bkz.
+      // kullaniciKaynagi'ndaki not (Prisma DMMF ilişkiyi taşıyan FK skalerini
+      // read-only sayıp gizliyor).
       showProperties: ['id', 'baslik', 'icerik', 'kategori', 'yayinTarihi', 'olusturanKullanici'],
       filterProperties: ['baslik', 'kategori', 'yayinTarihi'],
       properties: {
@@ -330,14 +331,14 @@ function acilDurumBildirimiKaynagi(prisma: PrismaService, getModelByName: GetMod
       navigation: { name: 'Acil Durum Bildirimleri', icon: 'AlertTriangle' },
       titleProperty: 'aciklama',
       sort: { sortBy: 'olusturmaTarihi', direction: 'desc' },
-      // `kullaniciId` DEĞİL `kullanici` (ilişki adı) — kullaniciKaynagi'ndaki
-      // notla aynı sebep.
+      // `kullaniciId` değil `kullanici` (ilişki adı) kullanılıyor,
+      // kullaniciKaynagi'ndaki notla aynı sebep.
       listProperties: ['tur', 'aciklama', 'durum', 'kullanici', 'olusturmaTarihi'],
       editProperties: ['durum'],
       showProperties: ['id', 'tur', 'aciklama', 'durum', 'kullanici', 'olusturmaTarihi'],
       filterProperties: ['tur', 'durum'],
       actions: {
-        // Sadece durum güncellenebilir — admin bir bildirimi ELLE "yangin"dan
+        // Sadece durum güncellenebilir — admin bir bildirimi elle "yangin"dan
         // "kaza"ya çeviremez, bu anlamsız olurdu (bkz. edit/new'i kapatma).
         new: { isAccessible: false },
         edit: { isAccessible: false },
@@ -386,9 +387,9 @@ function acilDurumBildirimiKaynagi(prisma: PrismaService, getModelByName: GetMod
   };
 }
 
-/** Daha önce hiç AdminJS kaynağı yoktu (sadece herkese açık GET ucu vardı) —
- * 18.08.2026, Berzan'ın "admin her şeye yetkinse panelde her şey olmalı"
- * kararıyla tam CRUD + görsel yükleme eklendi. */
+/** Daha önce hiç AdminJS kaynağı yoktu, sadece herkese açık GET ucu vardı.
+ * Admin her şeye yetkiliyse panelde de her şey olmalı, bu yüzden tam CRUD
+ * + görsel yükleme eklendi. */
 function isOrtagiKaynagi(
   prisma: PrismaService,
   getModelByName: GetModelByName,
@@ -413,9 +414,9 @@ function isOrtagiKaynagi(
 }
 
 /** Palet Tesisi'nin palet çeşitleri — uygulama içinde palet_tesisi_yetkilisi
- * zaten yönetebiliyor (bkz. PaletTesisiController), burada AYRICA admin
- * paneline eklendi (18.08.2026, Berzan: "admin görebilmeli/düzenleyebilmeli"
- * — ikisi birbirini dışlamıyor, aynı tabloya iki erişim yolu). */
+ * zaten yönetebiliyor (bkz. PaletTesisiController), burada ayrıca admin
+ * paneline eklendi. Admin de görebilmeli/düzenleyebilmeli. İkisi birbirini
+ * dışlamıyor, aynı tabloya iki erişim yolu var. */
 function paletKaynagi(
   prisma: PrismaService,
   getModelByName: GetModelByName,

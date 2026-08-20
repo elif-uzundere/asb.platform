@@ -1,7 +1,7 @@
 // Acil Durum ekiplerinin (itfaiye_ekibi, guvenlik_ekibi, tekin_isg_ekibi,
 // kantar_ekibi, gumruk_ekibi, sirket_isg_ekibi) kendi türüne düşen
-// bildirimleri gördüğü ve durumunu güncellediği ekran — Cookzone/Palet
-// Tesisi'ndeki "ayrı yönetim ekranı" ile aynı desen (14.08.2026).
+// bildirimleri gördüğü ve durumunu güncellediği ekran. Cookzone/Palet
+// Tesisi'ndeki "ayrı yönetim ekranı" ile aynı desen.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

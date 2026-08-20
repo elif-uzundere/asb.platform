@@ -22,10 +22,10 @@ import type { KullaniciSorgulamaPort } from '../../auth/adapters/public/kullanic
 import type { CookzoneSiparisKalemiRequest } from '@asb/shared-types';
 
 /**
- * Saf TypeScript — NestJS decorator'ı YOK (mimari kural 2), is-ilani.service.ts
- * ile aynı desen. `bildirimGonder` shared/infrastructure'dan (global modül,
- * mimari kural 3'ün kapsamadığı, PrismaService'le aynı statüde) enjekte
- * ediliyor — Cookzone'a özel değil, ortak bir altyapı parçası.
+ * Saf TypeScript, NestJS decorator'ı yok (mimari kural 2), is-ilani.service.ts
+ * ile aynı desen. `bildirimGonder` shared/infrastructure'dan enjekte ediliyor.
+ * Global modül, mimari kural 3'ün kapsamadığı, PrismaService'le aynı statüde.
+ * Cookzone'a özel değil, ortak bir altyapı parçası.
  */
 export class CookzoneService {
   constructor(
@@ -103,9 +103,9 @@ export class CookzoneService {
       throw new GecmisSaateSiparisVerilemezException();
     }
 
-    // Toplam tutar kalemlerden hesaplanır (BR) — şema kalem satırında fiyat
-    // saklamıyor (bkz. cookzone-siparis.repository.ts notu), bu yüzden her
-    // kalemin GÜNCEL fiyatını burada okuyup topluyoruz.
+    // Toplam tutar kalemlerden hesaplanır (BR). Şema kalem satırında fiyat
+    // saklamıyor (bkz. cookzone-siparis.repository.ts notu). Bu yüzden her
+    // kalemin güncel fiyatını burada okuyup topluyoruz.
     let toplamTutar = 0;
     for (const kalem of kalemler) {
       const menuOgesi = await this.isletmeRepo.menuOgesiIdIleBul(kalem.menuOgesiId);
@@ -124,9 +124,9 @@ export class CookzoneService {
     );
     const olusturulanSiparis = await this.siparisRepo.olustur(yeniSiparis, kalemler);
 
-    // Yeni sipariş gelince işletmeye bağlı TÜM cookzone_yetkilisi
-    // hesaplarına bildirim gider (18.08.2026, Berzan'ın kararı) — "hazır"
-    // bildiriminin tersi yönü: burada müşteriden işletmeye gidiyor.
+    // Yeni sipariş gelince işletmeye bağlı tüm cookzone_yetkilisi
+    // hesaplarına bildirim gider. "Hazır" bildiriminin tersi yönü, burada
+    // müşteriden işletmeye gidiyor.
     const yetkililer = await this.kullaniciSorgulama.cookzoneIsletmesineGoreKullanicilariGetir(isletmeId);
     for (const yetkili of yetkililer) {
       await this.bildirimGonder.gonder(

@@ -199,11 +199,11 @@ class ProfilEkrani extends ConsumerWidget {
                     const _MenuAyirici(),
 
                     // is_ilani_yonet yetkisi olan biri için "İş İlanlarım" +
-                    // "Başvurularım" yerine "Başvurular" gösterilir — kendi
+                    // "Başvurularım" yerine "Başvurular" gösterilir. Kendi
                     // ilanına başvurmaz, o yüzden "Başvurularım" onun için
-                    // anlamsız; ikisi de aynı ekrana (kendi ilanları →
-                    // başvuru inceleme) götürür (12.08.2026, 18.08.2026'da
-                    // sabit rol yerine yetkiye çevrildi).
+                    // anlamsız. İkisi de aynı ekrana (kendi ilanları →
+                    // başvuru inceleme) götürür. Sabit rol yerine yetkiye
+                    // çevrildi.
                     if (kullanici?.yetkisiVar('is_ilani_yonet') ?? false) ...[
                       _ProfilMenuSatiri(
                         ikon: Icons.work_outline_rounded,
@@ -255,10 +255,9 @@ class ProfilEkrani extends ConsumerWidget {
                     ],
 
                     // cookzone_yonet yetkisi olan biri için "Siparişlerim"
-                    // (müşteri görünümü) yerine "Sipariş Yönetimi" gösterilir
-                    // — ikisi birbirini dışlar, aynı hesap için ikisi de
-                    // anlamlı değil (11.08.2026, Berzan'ın düzeltmesi;
-                    // 18.08.2026'da sabit rol yerine yetkiye çevrildi).
+                    // (müşteri görünümü) yerine "Sipariş Yönetimi" gösterilir.
+                    // İkisi birbirini dışlar, aynı hesap için ikisi de
+                    // anlamlı değil. Sabit rol yerine yetkiye çevrildi.
                     if (kullanici?.yetkisiVar('cookzone_yonet') ?? false) ...[
                       const _MenuAyirici(),
                       _ProfilMenuSatiri(
@@ -369,9 +368,9 @@ class ProfilEkrani extends ConsumerWidget {
   }
 
   /// `is_ilani_yonet` yetkisi olmayan bir kullanıcı "İş İlanlarım"a
-  /// dokununca — eskiden "yakında eklenecek" diyordu, ama bu özellik
-  /// hiçbir zaman eklenmeyecek çünkü yetki bazlı bir kısıt bu (18.08.2026,
-  /// Berzan'ın isteği: gerçek sebebi söylesin, sabit rol adına değil).
+  /// dokununca gösterilir. Eskiden "yakında eklenecek" diyordu, ama bu
+  /// özellik hiçbir zaman eklenmeyecek çünkü yetki bazlı bir kısıt bu.
+  /// Gerçek sebep söylenmeli, sabit rol adına değil.
   static void _yetkisizIlanUyarisi(BuildContext context) {
     bilgiPenceresiGoster(
       context,

@@ -1,6 +1,5 @@
-// İlan kartına dokununca açılan gerçek detay ekranı — daha önce sadece
-// "detay sayfası daha sonra bağlanacak" mesajı veriyordu (18.08.2026,
-// Berzan'ın isteğiyle gerçek ekran kuruldu). Asıl sebep: iletişim telefonu
+// İlan kartına dokununca açılan gerçek detay ekranı. Daha önce sadece
+// "detay sayfası daha sonra bağlanacak" mesajı veriyordu. İletişim telefonu
 // artık zorunlu bir alan, bir yerde gösterilmezse anlamsız kalırdı.
 
 import 'package:flutter/material.dart';

@@ -1,15 +1,15 @@
-// Görsel dil: duyurular_ekrani.dart/is_ilanlari_ekrani.dart ile AYNI marka
-// paleti. 11.08.2026'da (Berzan'ın isteğiyle) işletme SEÇME adımı kaldırıldı
-// — bölgede kaç Cookzone işletmesi olursa olsun kullanıcı tek bir birleşik
-// menü görür, "Ana Kafeterya" gibi bir isim öne çıkmaz. Backend hâlâ birden
-// çok işletmeyi destekliyor (`GET /cookzone/isletmeler` liste döner), burada
-// sadece İLK işletme kullanılıyor — ileride gerçekten çoklu işletme
-// gerekirse bu varsayım gözden geçirilir.
+// Görsel dil: duyurular_ekrani.dart/is_ilanlari_ekrani.dart ile aynı marka
+// paleti. İşletme seçme adımı kaldırıldı. Bölgede kaç Cookzone işletmesi
+// olursa olsun kullanıcı tek bir birleşik menü görür, "Ana Kafeterya" gibi
+// bir isim öne çıkmaz. Backend hâlâ birden çok işletmeyi destekliyor
+// (`GET /cookzone/isletmeler` liste döner), burada sadece ilk işletme
+// kullanılıyor. İleride gerçekten çoklu işletme gerekirse bu varsayım
+// gözden geçirilir.
 //
-// `cookzone_yetkilisi` bu ekrana hiç girmemeli (onlar için ayrı bir yönetim
-// ekranı var, bkz. cookzone_isletme_siparisleri_ekrani.dart) — yönlendirme
+// `cookzone_yetkilisi` bu ekrana hiç girmemeli, onlar için ayrı bir yönetim
+// ekranı var (bkz. cookzone_isletme_siparisleri_ekrani.dart). Yönlendirme
 // yonlendirici.dart'taki `redirect`te yapılıyor, burada tekrar kontrol
-// etmiyoruz (tek sorumluluk: yönlendirme kararı router'ın işi).
+// etmiyoruz, tek sorumluluk: yönlendirme kararı router'ın işi.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

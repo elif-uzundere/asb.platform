@@ -13,7 +13,8 @@
     "lint": "npm run lint --workspace=@asb/backend",
     "test": "npm run test --workspace=@asb/backend",
     "typecheck": "npm run typecheck --workspace=@asb/backend",
-    "dogrula": "npm run build --workspace=@asb/shared-types && npm run typecheck --workspace=@asb/backend && npm run lint --workspace=@asb/backend && npm run test --workspace=@asb/backend",
+    "tip-senkron-kontrolu": "node scripts/tip-senkron-kontrolu.js",
+    "dogrula": "npm run build --workspace=@asb/shared-types && npm run typecheck --workspace=@asb/backend && npm run lint --workspace=@asb/backend && npm run test --workspace=@asb/backend && npm run tip-senkron-kontrolu",
     "dogrula:app": "cd packages/app && node -e \"require('fs').rmSync('ios/Flutter/ephemeral',{recursive:true,force:true})\" && flutter analyze && node -e \"require('fs').rmSync('ios/Flutter/ephemeral',{recursive:true,force:true})\" && flutter test"
   },
   "devDependencies": {

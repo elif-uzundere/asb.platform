@@ -27,10 +27,10 @@ import { PaletBulunamadiException } from '../../domain';
 import { PaletOlusturDto } from './palet-olustur.dto';
 import { PaletGuncelleDto } from './palet-guncelle.dto';
 
-// Yalnızca görsel dosyaları — "uygun format ve boyutlarda tek yükleme"
-// (12.08.2026, Berzan'ın isteği): 5 MB üstü ya da bu 3 tip dışındaki
-// dosyalar ParseFilePipe tarafından otomatik BadRequestException ile
-// reddedilir, `fileIsRequired: false` olduğu için görselsiz de olur.
+// Yalnızca görsel dosyaları, uygun format ve boyutlarda tek yükleme.
+// 5 MB üstü ya da bu 3 tip dışındaki dosyalar ParseFilePipe tarafından
+// otomatik BadRequestException ile reddedilir. `fileIsRequired: false`
+// olduğu için görselsiz de olur.
 const GORSEL_DOGRULAMA = new ParseFilePipe({
   validators: [
     new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024, message: 'Görsel en fazla 5 MB olabilir' }),
@@ -65,10 +65,11 @@ export class PaletTesisiController {
   }
 
   /**
-   * `/paletler/:id`'den ÖNCE değil, bilerek `/paletler` altında farklı bir
-   * literal segment — NestJS metoda göre değil, path+method'a göre eşleştirir,
-   * `GET /paletler/tumu` ile bir `GET /paletler/:id` (yok, ama ileride eklenirse)
-   * çakışmasın diye is-ilanlari.controller.ts'teki aynı sıra kuralına uyuluyor.
+   * `/paletler/:id`'den önce tanımlı olması gerekmiyor, bilerek `/paletler`
+   * altında farklı bir literal segment. NestJS metoda göre değil, path+method'a
+   * göre eşleştirir. `GET /paletler/tumu` ile bir `GET /paletler/:id` (yok, ama
+   * ileride eklenirse) çakışmasın diye is-ilanlari.controller.ts'teki aynı
+   * sıra kuralına uyuluyor.
    */
   @Get('paletler/tumu')
   @UseGuards(YetkiGuard)

@@ -1,7 +1,6 @@
-// Sepet artık modal bottom sheet DEĞİL, ayrı bir tam sayfa (11.08.2026 —
-// Berzan'ın isteği: "daha modern" + kendi sayfası olsun). Sepet hâlâ
-// sepet_notifier.dart'taki SAF yerel state, backend'e sadece "Siparişi
-// Onayla"ya basınca gidiliyor.
+// Sepet artık modal bottom sheet değil, ayrı bir tam sayfa. Daha modern
+// olsun ve kendi sayfası olsun diye. Sepet hâlâ sepet_notifier.dart'taki
+// saf yerel state, backend'e sadece "Siparişi Onayla"ya basınca gidiliyor.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
